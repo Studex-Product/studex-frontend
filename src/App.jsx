@@ -1,10 +1,17 @@
+import { BrowserRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Home from "./pages/Home";
+
+const queryClient = new QueryClient();
+
 function App() {
- 
   return (
-    <div className="text-3xl font-bold text-blue-600 p-4">
-      Tailwind is working!
-    </div>
-  )
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Home />
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;
