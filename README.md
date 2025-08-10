@@ -85,7 +85,7 @@ The application will be available at ` http://localhost:5174/`.
     
     ```
     
-    📋 Follow branch name conventions established in our [whitepaper]()
+    📋 Follow branch name conventions established in our [whitepaper](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#branching-strategy)
     
 2. **Make your changes, stage and commit:**
     
@@ -95,7 +95,7 @@ The application will be available at ` http://localhost:5174/`.
     
     ```
     
-    📋 Follow proper commit conventions in the [whitepaper]()
+    📋 Follow proper commit conventions in the [whitepaper](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#commit-guidelines)
     
 3. **Before pushing, sync your branch with main to stay up to date:**
     
@@ -112,7 +112,7 @@ The application will be available at ` http://localhost:5174/`.
     
     ```
     
-    📋 Make sure you meet all PR requirements in the [whitepaper]() before raising a PR
+    📋 Make sure you meet all PR requirements in the [whitepaper](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#pull-request-process) before raising a PR
     
 
 ### Handling PR Conflicts
@@ -127,7 +127,7 @@ Make sure all merge conflicts are resolved on your branch before making pull req
 - **File Naming**: PascalCase for components (`UserProfile.jsx`), camelCase for utilities (`useLocalStorage.js`)
 - **ESLint**: All code must pass linting checks
 
-📋 For detailed frontend standards and React ecosystem guidelines, see our [whitepaper]()
+📋 For detailed frontend standards and React ecosystem guidelines, see our [whitepaper](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#frontend-standards)
 
 ## 🔧 Development
 
@@ -146,23 +146,23 @@ Make sure all merge conflicts are resolved on your branch before making pull req
 - Implement proper error boundaries
 - Write meaningful tests for components
 
-📋 See complete [development standards]() in our whitepaper
+📋 See complete [development standards](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#part-ii-development-standards-1) in our whitepaper
 
 ## 📋 Additional Documentation
 
 For comprehensive project information:
 
-📄 [**Project Whitepaper**]() - Complete development standards and guidelines
+📄 [**Project Whitepaper**](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#studex-development-guideline) - Complete development standards and guidelines
 
-📄 [**File and Asset Standards**]() - File naming and organization
+📄 [**File and Asset Standards**](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#file-and-asset-standards) - File naming and organization
 
-📄 [**API Documentation**]() - Backend integration guidelines
+📄 [**API Documentation**](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#backend-standards) - Backend integration guidelines
 
-📄 [**Deployment Guide**]() - Production deployment instructions
+📄 [**Deployment Guide**](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#deployment-architecture) - Production deployment instructions
 
 ## 🤝 Getting Help
 
-- **Documentation**: See our [whitepaper]()
+- **Documentation**: See our [whitepaper](https://gist.github.com/use-studex/17b843931d90095ccb0a2cdb03c779de#documentation-requirements)
 - **Issues**: Create GitHub issues for bugs or feature requests
 - **Team Communication**: Slack #frontend-dev channel
 
