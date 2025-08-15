@@ -3,7 +3,7 @@ import Logo from "../common/Logo";
 const AuthLayout = ({ children, image, imageAlt }) => {
   return (
     <div className="h-screen flex w-full">
-      <div className="w-full md:w-1/2 px-4 md:px-8 lg:px-14 py-8">
+      <div className="w-full md:w-1/2 px-4 md:px-8 lg:px-20 py-8">
         <Logo />
         {children}
       </div>
