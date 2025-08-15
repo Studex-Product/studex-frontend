@@ -109,7 +109,7 @@ const AdminLogin = () => {
               <p className="text-xs text-gray-500">
                 Must be at least 8 characters
               </p>
-              <Link className="text-xs text-green-600 underline cursor-pointer">
+              <Link className="text-xs text-green-600 underline cursor-pointer" to="/admin/forgot-password">
                 Forgot password?
               </Link>
             </div>
