@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import AuthLayout from "@/components/auth/AuthLayout";
-import student from "@/assets/images/student.png";
+import student from "@/assets/hero-images/AdminLoginImg.jpg";
 import showPassword from "@/assets/icons/showPassword.svg";
 import hidePassword from "@/assets/icons/hidePassword.svg";
 import Loader from "@/assets/icons/loader.svg";
@@ -108,7 +108,7 @@ const AdminForgotPassword = () => {
     setTimeout(() => {
       toast.custom(
         () => (
-          <span className="rounded-lg p-3 text-sm border border-green-500 shadow-lg max-w-full">
+          <span className="rounded-lg p-3 bg-white text-sm border border-green-500 shadow-lg max-w-full">
             Admin reset link resent successfully!
           </span>
         )
@@ -215,7 +215,7 @@ const AdminForgotPassword = () => {
           <button
             onClick={handleEmailSubmit}
             disabled={isEmailSubmitting || !email || currentStep === "emailSent"}
-            className={`w-full py-3 px-4 mt-6 rounded-lg font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full py-3 px-4 mt-6 rounded-lg font-medium cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               email && currentStep === "email"
                 ? "bg-purple-600 hover:bg-purple-700 text-white"
                 : "bg-purple-300 text-white"
@@ -231,7 +231,7 @@ const AdminForgotPassword = () => {
                 Sending Reset Link...
               </div>
             ) : (
-              "← Submit →"
+              "Submit "
             )}
           </button>
         </div>
@@ -270,7 +270,7 @@ const AdminForgotPassword = () => {
         <div className="text-center">
           <button
             onClick={handleProceedToReset}
-            className="text-sm text-blue-600 font-bold underline"
+            className="text-sm text-blue-600 font-bold underline cursor-pointer"
           >
             [Demo: Proceed to Password Reset]
           </button>
@@ -325,37 +325,32 @@ const AdminForgotPassword = () => {
               </button>
             </div>
 
-            {/* Password requirements */}
-            <p className="text-xs text-gray-500 mt-1">
-              Must be at least 8 characters.
-            </p>
-
-            {/* Password strength indicator */}
-            {passwordStrength && formData.newPassword && (
-              <div className="mt-2">
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`text-xs font-medium ${
-                      passwordStrength === "strong"
-                        ? "text-green-600"
-                        : passwordStrength === "medium"
-                        ? "text-yellow-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {passwordStrength === "strong"
-                      ? "Strong password"
-                      : passwordStrength === "medium"
-                      ? "Medium password"
-                      : "Weak password"}
-                  </span>
-                </div>
-              </div>
-            )}
-
+            {/* Dynamic password feedback */}
             {errors.newPassword && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.newPassword}
+              </p>
+            )}
+            
+            {!errors.newPassword && formData.newPassword && passwordStrength && (
+              <p className={`text-xs mt-1 ${
+                passwordStrength === "strong"
+                  ? "text-green-600"
+                  : passwordStrength === "medium"
+                  ? "text-yellow-600"
+                  : "text-red-600"
+              }`}>
+                {passwordStrength === "strong"
+                  ? "Strong password"
+                  : passwordStrength === "medium"
+                  ? "Medium password - add special characters for stronger security"
+                  : "Weak password - must be at least 8 characters with uppercase, lowercase, number, and special character"}
+              </p>
+            )}
+            
+            {!errors.newPassword && !formData.newPassword && (
+              <p className="text-xs text-gray-500 mt-1">
+                Must be at least 8 characters
               </p>
             )}
           </div>
@@ -405,7 +400,7 @@ const AdminForgotPassword = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            className={`w-full py-3 px-4 rounded-lg font-medium focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            className={`w-full py-3 px-4 rounded-lg font-medium cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
               formData.newPassword && formData.confirmPassword
                 ? "bg-purple-600 hover:bg-purple-700 text-white"
                 : "bg-purple-300 text-white"
@@ -426,7 +421,7 @@ const AdminForgotPassword = () => {
                 Saving...
               </div>
             ) : (
-              "← Change Password →"
+              " Change Password "
             )}
           </button>
         </form>
