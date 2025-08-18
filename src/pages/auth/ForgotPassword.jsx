@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import AuthLayout from "@components/auth/AuthLayout";
-import ForgotPasswordImg from "@/assets/hero-images/ForgotPasswordImg.jpg";
+import ForgotPasswordImg from "@/assets/images/ForgotPasswordImg.jpg";
 import Logo from "@/components/common/Logo";
 import Eye from "@/assets/icons/eye.svg";
 import EyeOff from "@/assets/icons/eye-off.svg";

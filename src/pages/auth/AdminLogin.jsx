@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import AuthLayout from "@/components/auth/AuthLayout";
-import student from "@/assets/hero-images/AdminLoginImg.jpg";
+import student from "@/assets/images/AdminLoginImg.jpg";
 import googleIcon from "@/assets/icons/googleIcon.svg";
 import showPassword from "@/assets/icons/showPassword.svg";
 import hidePassword from "@/assets/icons/hidePassword.svg";
