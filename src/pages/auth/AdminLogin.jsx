@@ -4,14 +4,16 @@ import student from "@/assets/images/AdminLoginImg.jpg";
 import googleIcon from "@/assets/icons/googleIcon.svg";
 import showPassword from "@/assets/icons/showPassword.svg";
 import hidePassword from "@/assets/icons/hidePassword.svg";
-import { Link, useNavigate } from "react-router-dom";
+import Loader from "@/assets/icons/loader.svg";
+import { Link } from "react-router-dom";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState({});
   const [viewPassword, setViewPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
-  const navigate = useNavigate();
 
   useEffect(() => {
     return () => {
@@ -22,44 +24,67 @@ const AdminLogin = () => {
   const validate = () => {
     const newErrors = {};
 
-    const adminEmailRegex = /^admin@[\w.-]+\.[A-Za-z]{2,}$/;
-    if (!adminEmailRegex.test(formData.email)) {
-      newErrors.email = "Please enter a valid admin email.";
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else {
+      const adminEmailRegex = /^[\w.-]+@studex\.com$/;
+      if (!adminEmailRegex.test(formData.email)) {
+        newErrors.email = "Please enter a valid admin email (admin@studex.com)";
+      }
     }
 
-    const passwordRegex =
-      /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    if (!passwordRegex.test(formData.password)) {
-      newErrors.password =
-        "Password must be at least 8 characters, include an uppercase letter, a number, and a special character.";
+    if (!formData.password) {
+      newErrors.password = "Password is required";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
 
-  const handleSubmit = (e) => {
+    if (errors[name]) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+
+    if (loginError) {
+      setLoginError("");
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    sessionStorage.setItem("admin-session", JSON.stringify({ role: "admin" }));
-    navigate("/admin/dashboard");
+    setIsSubmitting(true);
+    setLoginError("");
+
+      // TODO: Replace with actual API endpoint
+    
   };
 
   return (
     <AuthLayout image={student} imageAlt="Student with an open book">
-      <div className="mt-12 max-w-md mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-900 text-center">
+      <div className="flex flex-col justify-center max-w-full">
+        <div className="flex flex-col gap-2 justify-center mb-8">
+        <h1 className="md:text-4xl text-2xl md:text-center text-gray-900 md:mb-4">
           Welcome Back!
         </h1>
-        <p className="text-gray-600 mt-1 mb-8 text-center">Log in to StudEx</p>
+        <p className="text-gray-600 md:text-center md:mb-4">
+          Log in to StudEx</p>
+          </div>
 
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="mb-4">
-            <label className="block text-sm font-medium mb-1" htmlFor="email">
+        <form onSubmit={handleSubmit} className=" space-y-8 md:space-y-10" noValidate>
+          <div className="">
+            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="email">
               Email
             </label>
             <input
@@ -69,18 +94,19 @@ const AdminLogin = () => {
               placeholder="Enter your email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+              className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                errors.email
+                  ? "border-red-300 focus:ring-red-500"
+                  : "border-gray-300"
+              }`}
             />
             {errors.email && (
               <p className="text-red-500 text-sm mt-1">{errors.email}</p>
             )}
           </div>
 
-          <div className="mb-2">
-            <label
-              className="block text-sm font-medium mb-1"
-              htmlFor="password"
-            >
+          <div className="">
+            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="password">
               Password
             </label>
             <div className="relative">
@@ -91,12 +117,16 @@ const AdminLogin = () => {
                 placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  errors.password
+                    ? "border-red-300 focus:ring-red-500"
+                    : "border-gray-300"
+                }`}
               />
               <button
                 type="button"
                 onClick={() => setViewPassword((prev) => !prev)}
-                className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 opacity-60 hover:opacity-100 cursor-pointer"
               >
                 <img
                   className="w-5 h-5"
@@ -105,29 +135,41 @@ const AdminLogin = () => {
                 />
               </button>
             </div>
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-xs text-gray-500">
-                Must be at least 8 characters
-              </p>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
+            {loginError && (
+              <p className="text-red-600 text-sm mt-1">{loginError}</p>
+            )}
+            <div className="flex items-center justify-end mt-4">
               <Link className="text-xs text-green-600 underline cursor-pointer" to="/admin/forgot-password">
                 Forgot password?
               </Link>
             </div>
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            )}
           </div>
+
 
           <button
             type="submit"
-            className={`mt-6 w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-colors 
-    ${
-      formData.email || formData.password
-        ? "bg-purple-600 hover:bg-purple-700 text-white"
-        : "bg-purple-300 text-white"
-    }`}
+            disabled={isSubmitting || !formData.email || !formData.password}
+            className={` w-full py-3 px-4 rounded-lg font-medium cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              formData.email && formData.password && !isSubmitting
+                ? "bg-purple-600 hover:bg-purple-700 text-white"
+                : "bg-purple-300 text-white"
+            }`}
           >
-            <span>← Log In →</span>
+            {isSubmitting ? (
+              <div className="flex items-center justify-center">
+                <img
+                  src={Loader}
+                  alt="Loading"
+                  className="animate-spin -ml-1 mr-3 h-5 w-5"
+                />
+                Logging In...
+              </div>
+            ) : (
+              "Log In"
+            )}
           </button>
         </form>
 
