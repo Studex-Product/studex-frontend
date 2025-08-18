@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import AuthLayout from "@/components/auth/AuthLayout";
-import student from "@/assets/hero-images/AdminLoginImg.jpg";
+import student from "@/assets/images/AdminLoginImg.jpg";
 import showPassword from "@/assets/icons/showPassword.svg";
 import hidePassword from "@/assets/icons/hidePassword.svg";
 import Loader from "@/assets/icons/loader.svg";
