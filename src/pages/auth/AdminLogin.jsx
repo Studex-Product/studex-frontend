@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AuthLayout from "@/components/auth/AuthLayout";
 import student from "@/assets/images/AdminLoginImg.jpg";
 import googleIcon from "@/assets/icons/googleIcon.svg";
@@ -9,6 +10,7 @@ import { Link } from "react-router-dom";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [viewPassword, setViewPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,6 +67,7 @@ const AdminLogin = () => {
     if (!validate()) return;
 
     setIsSubmitting(true);
+    navigate("/admin/dashboard");
     setLoginError("");
 
       // TODO: Replace with actual API endpoint
@@ -181,7 +184,7 @@ const AdminLogin = () => {
 
         <button
           type="button"
-          className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50"
+          className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 cursor-pointer"
         >
           <img className="h-5 w-5" src={googleIcon} alt="Google Icon" />
           <span>Sign in with Google</span>
