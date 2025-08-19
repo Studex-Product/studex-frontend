@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineExclamationCircle } from "react-icons/ai";
 import AuthLayout from "../../components/auth/AuthLayout";
-import loginImage from "../../assets/login-image.png";
+import LoginImg from "../../assets/hero-images/LoginImg.jpg";
 import googleIcon from "../../assets/google-icon.svg";
 
 function Login() {
@@ -50,7 +51,7 @@ function Login() {
   };
 
   return (
-    <AuthLayout image={loginImage} imageAlt="Login Image">
+    <AuthLayout image={LoginImg} imageAlt="Login Image">
       <div className="w-full max-w-lg px-4 md:px-0 h-full flex flex-col justify-center">
         <div className="flex flex-col gap-6">
           <h2 className="text-2xl font-bold">Welcome back!</h2>
@@ -113,9 +114,9 @@ function Login() {
 
             {/* Forgot Password */}
             <div className="text-right">
-              <a href="/forgot-password" className="text-sm text-purple-600 hover:underline">
+              <Link to="/forgot-password" className="text-sm text-purple-600 hover:underline">
                 Forgot Password?
-              </a>
+              </Link>
             </div>
 
             {/* Login Button */}
@@ -140,20 +141,19 @@ function Login() {
           </div>
 
           {/* Google Login */}
-          <a
-            href="/auth/google"
+          <Link to="/auth/google"
             className="w-full flex items-center justify-center gap-2 mb-6"
           >
             <img src={googleIcon} alt="Google" className="w-5 h-5" />
             <span>Log In With Google</span>
-          </a>
+          </Link>
 
           {/* Signup Link */}
           <p className="text-center text-sm text-gray-600">
             Don’t have an account?{" "}
-            <a href="/signup" className="text-purple-600 font-medium hover:underline">
+            <Link to="/signup" className="text-purple-600 font-medium hover:underline">
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>
