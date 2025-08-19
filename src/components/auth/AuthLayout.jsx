@@ -1,6 +1,7 @@
 import Logo from "../common/Logo";
+import Image from '../../assets/hero-images/Image.png'
 
-const AuthLayout = ({ children, image, imageAlt }) => {
+const AuthLayout = ({ children,  imageAlt }) => {
   return (
     <div className="h-screen flex w-full">
       <div className="w-full md:w-1/2 px-4 md:px-8 lg:px-20 py-8">
@@ -9,9 +10,9 @@ const AuthLayout = ({ children, image, imageAlt }) => {
       </div>
       <div className="w-1/2 hidden md:block rounded-l-4xl overflow-hidden">
         <img 
-          src={image} 
+          src={Image}
           alt={imageAlt} 
-          className="h-full w-full object-cover"
+          className="h-full w-full object-fill aspect-auto"
         />
       </div>
     </div>
@@ -20,17 +21,17 @@ const AuthLayout = ({ children, image, imageAlt }) => {
 
 export default AuthLayout;
 
-// Uncomment the following lines to use Layout in a Authentation component/pages
+// Uncomment the following lines to use Layout in a Authentication component/pages
 
 // import AuthLayout from "./AuthLayout";
-// import Image from "../../assets/login-exhibit.jpg"; depending on the consuming context(login or register or admin etc)
+// import Image from "../assets/login-exhibit.jpg"; //depending on the consuming context(login or register or admin etc)
 
-// const Login or Register = () => {
+// const  Register = () => {
 //     return (
 //      <AuthLayout image={Image} imageAlt="Login Exhibit" children={
-//     <div>Your Authentation Content</div>
+//     <div>Your Authentication Content</div>
 // } />
 //  );
 // }
  
-// export default Login;
+// export default Register;
