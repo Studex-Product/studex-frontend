@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import AdminLogin from "./pages/auth/AdminLogin";
 import AdminForgotPassword from "./pages/auth/AdminForgotPassword";
 import Register from "./pages/auth/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword";
 
 const queryClient = new QueryClient();
 
@@ -12,10 +13,11 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          {/* <Route path="/" element={<Home />} /> */}
+          <Route path="/" element={<Home />} />
           <Route path="/admin/login" element={<AdminLogin/>}/>
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
-          <Route path="/" element={<Register />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
