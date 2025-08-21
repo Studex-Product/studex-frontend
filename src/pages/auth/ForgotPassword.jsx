@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import AuthLayout from "@components/auth/AuthLayout";
-import ForgotPasswordImg from "@/assets/hero-images/ForgotPasswordImg.jpg";
+import ForgotPasswordImg from "@/assets/images/ForgotPasswordImg.jpg";
 import Logo from "@/components/common/Logo";
 import Eye from "@/assets/icons/eye.svg";
 import EyeOff from "@/assets/icons/eye-off.svg";
@@ -12,6 +13,8 @@ import Mail from "@/assets/icons/mail.svg";
 const ForgotPassword = () => {
   // State management for different screens
   const [currentStep, setCurrentStep] = useState("email");
+
+  const navigate = useNavigate();
 
   // Email form state
   const [email, setEmail] = useState("");
@@ -42,11 +45,10 @@ const ForgotPassword = () => {
   // Password strength checker
   const checkPasswordStrength = (password) => {
     if (password.length === 0) return "";
-    if (password.length < 6) return "weak";
-    if (password.length < 8) return "medium";
+    if (password.length < 8) return "weak";
     if (
       password.length >= 8 &&
-      /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)
+      /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)
     ) {
       return "strong";
     }
@@ -102,19 +104,11 @@ const ForgotPassword = () => {
     setResendTimer(30);
     // This is simply simulating the resend API call. TODO: Implement actual API
     setTimeout(() => {
-      // toast("Link resent successfully!");
-      toast.custom(
-        () => (
-          <span className="rounded-lg p-3 text-sm border border-green-500 shadow-lg max-w-full">
-            Link resent successfully!
-          </span>
-        ),
-        // {
-        //   duration: 3000,
-        //   position: "top-center",
-        // }
-      );
-      console.log("Email resent");
+      toast.custom(() => (
+        <span className="rounded-lg p-3 text-sm border border-green-500 shadow-lg max-w-full">
+          Link resent successfully!
+        </span>
+      ));
     }, 1500);
   };
 
@@ -148,6 +142,13 @@ const ForgotPassword = () => {
       newErrors.newPassword = "Password is required";
     } else if (formData.newPassword.length < 8) {
       newErrors.newPassword = "Must be at least 8 characters";
+    } else if (
+      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(
+        formData.newPassword
+      )
+    ) {
+      newErrors.newPassword =
+        "Password must include uppercase, lowercase, number, and special character";
     }
 
     // Confirm password validation
@@ -175,13 +176,11 @@ const ForgotPassword = () => {
 
   // Navigation handlers
   const handleBackToLogin = () => {
-    // navigate("/login");
-    console.log("Navigate to login");
+    navigate("/login");
   };
 
   const handleContinueToLogin = () => {
-    // navigate("/login");
-    console.log("Navigate to login");
+    navigate("/login");
   };
 
   const handleProceedToReset = () => {
@@ -367,39 +366,33 @@ const ForgotPassword = () => {
                 </button>
               </div>
 
-              {/* Password requirements */}
-              {/* <p className="text-xs text-gray-500 mt-1">
-                Must be at least 8 characters.
-              </p> */}
-
-              {/* Password strength indicator */}
-              {passwordStrength && formData.newPassword && (
-                <div className="mt-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs font-medium ${
-                        passwordStrength === "strong"
-                          ? "text-green-600"
-                          : passwordStrength === "medium"
-                          ? "text-yellow-600"
-                          : "text-red-600"
-                      }`}
-                    >
-                      {passwordStrength === "strong"
-                        ? "Strong password"
-                        : passwordStrength === "medium"
-                        ? "Medium password"
-                        : "Weak password"}
-                    </span>
-                  </div>
-                </div>
-              )}
-
+              {/* Show errors first, then password strength feedback */}
               {errors.newPassword && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors.newPassword}
                 </p>
               )}
+
+              {/* Enhanced password strength indicator - only show when no errors */}
+              {!errors.newPassword &&
+                formData.newPassword &&
+                passwordStrength && (
+                  <p
+                    className={`text-xs mt-1 ${
+                      passwordStrength === "strong"
+                        ? "text-green-600"
+                        : passwordStrength === "medium"
+                        ? "text-yellow-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {passwordStrength === "strong"
+                      ? "Strong password"
+                      : passwordStrength === "medium"
+                      ? "Medium password - add special characters for stronger security"
+                      : "Weak password - must be at least 8 characters with uppercase, lowercase, number, and special character"}
+                  </p>
+                )}
             </div>
 
             {/* Confirm Password Field */}
@@ -438,7 +431,7 @@ const ForgotPassword = () => {
               </div>
 
               {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">
+                <p className="text-red-500 text-xs mt-1">
                   {errors.confirmPassword}
                 </p>
               )}
