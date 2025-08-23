@@ -1,19 +1,45 @@
 import { Link } from "react-router-dom";
 import FeatureCard from "../components/ui/FeatureCard";
 import{ features } from "../sample data/features";
-import whyChoose from "../sample data/whyChoose";
+import bulletIcon from "../assets/icons/bullet-icon.svg";
 import whyChooseImage from "../assets/images/WhyChooseImg.jpg";
 import products from "../sample data/products";
 import ProductCard from "../components/ui/ProductCard";
 
 
 const Home = () => {
+  // Why Choose data
+const whyChoose = [
+  {
+    id: 1,
+    text: "Save money, make money by reselling and buying smart.",
+    icon: bulletIcon,
+  },
+  {
+    id: 2,
+    text: "Built for campus life, focused on student needs.",
+    icon: bulletIcon,
+  },
+  {
+    id: 3,
+    text: "Find compatible roommates with ease.",
+    icon: bulletIcon,
+  },
+  {
+    id: 4,
+    text: "Safe, peer-to-peer transactions with verified listings.",
+    icon: bulletIcon,
+  },
+];
+
   return (
     <>
       <div className="text-3xl font-bold text-blue-600 p-4">
         Tailwind is working!
       </div>
       <Link to="/admin/login" className="m-10 p-2 rounded-md text-white bg-purple-500" >Admin login</Link>
+
+      
 
       {/* Features section */}
          <section 
