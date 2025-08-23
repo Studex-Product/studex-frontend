@@ -23,13 +23,17 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // To calculate progress
-  const [progress, setProgress] = useState(0);
-  useEffect(() => {
-    const fields = [firstName, lastName, email, password, confirmPassword];
-    const filledFields = fields.filter((field) => field.trim() !== "").length;
-    const progressPercentage = (filledFields / fields.length) * 100;
-    setProgress(progressPercentage);
-  }, [firstName, lastName, email, password, confirmPassword]);
+  
+  // const [progress, setProgress] = useState(0);
+  // useEffect(() => {
+  //   const fields = [firstName, lastName, email, password, confirmPassword];
+  //   const filledFields = fields.filter((field) => field.trim() !== "").length;
+  //   const progressPercentage = (filledFields / fields.length) * 100;
+  //   setProgress(progressPercentage);
+  // }, [firstName, lastName, email, password, confirmPassword]);
+  
+  const totalSteps = 2;
+  const progress = (currentStep / totalSteps) * 50;
 
   // Individual field handlers
   const handleFirstNameChange = (e) => {
@@ -179,6 +183,7 @@ const Register = () => {
 
 
   return (
+    
     <AuthLayout
       image={RegisterImg}
       imageAlt={"Student smiling at her phone"}
@@ -193,7 +198,7 @@ const Register = () => {
           {/* Progress Bar */}
           <div className="">
             <div className="flex justify-between text-gray-600 ">
-              <span>Step {currentStep} of 2</span>
+              <span>Step {currentStep} of {totalSteps}</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full">
               <div
@@ -382,17 +387,19 @@ const Register = () => {
 
             {currentStep === 2 && (
             <div className="space-y-4">
-              <h3 className=" text-[var(--primary)]">Student Verification</h3>
-              <p>
+              <h3 className=" text-[var(--primary)] font-semibold text-lg">Student Verification</h3>
+              <p className="font-medium text-ring text-base mb-0">
                 Upload a valid document that confirms you're a student. We accept:
               </p>
-                <ul> 
-              <li>Your current student ID card </li>
-              <li> Your admission letter </li>
+              <ul className="text-muted-foreground"> 
+                <li>- Your current student ID card </li>
+                <li> - Your admission letter </li>
               </ul>
               <div className="flex flex-col gap-2 ">
-                <label>Document Type</label>
-                <select className="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ">
+                <label className="text-secondary-foreground text-sm font-medium">Document Type</label>
+                <select 
+                className="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-muted-foreground mb-5 " > 
+                  <option value="" disabled selected >select document type</option> 
                   <option value="student-id">Student ID</option>
                   <option value="admission-letter">Admission Letter</option>
                 </select>
@@ -405,22 +412,22 @@ const Register = () => {
                     type="file"
                     accept=".jpg, .jpeg, .png, .pdf"
                     className="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 "
-                    onChange={(e) => {/* Handle file upload */}}
+                    onChange={() => {/* Handle file upload */}}
                   />
                 </label>
 
             
-            <div className="flex gap-4 flex-col md:flex-row justify-between ">
+            <div className="flex gap-4 flex-col md:flex-row justify-between mt-12">
               <button 
                 type="button"
                 onClick={() => setCurrentStep(1)}
-                className="md:w-[30%] px-5 py-3 bg-gray-200 rounded-lg w-full"
+                className="md:w-[30%] px-5 py-3  rounded-lg w-full font-semibold text-base text-chart-4 bg-purple-200 cursor-pointer hover:opacity-60"
               >
                 Previous
               </button>
               <button 
                 type="submit"
-                className="px-5 py-3 bg-purple-600 text-white rounded-lg w-full"
+                className="px-5 py-3 bg-purple-600 text-white rounded-lg w-full font-semibold text-base cursor-pointer hover:opacity-60"
               >
                 Continue
               </button>
