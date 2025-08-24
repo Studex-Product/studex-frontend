@@ -36,14 +36,14 @@ const ProductCard = ({ image, title, description, price, location, category }) =
       </div>
 
       {/* Content */}
-      <div className={`p-4 ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-500`}>
+      <div className={`flex flex-col flex-1 p-4 ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-500`}>
         <h3 className="mt-2 font-semibold text-[#363636] text-sm">{title}</h3>
         <p className="text-[#363636] text-xs mt-1">{description}</p>
         <p className="text-[#3A3A3A] font-bold">{price}</p>
 
         {/* Location */}
-        <div className="flex items-center gap-1 text-[#595959] text-xs mt-1">
-          <img src={locationIcon} alt="location" className="w-3 h-3" />
+        <div className="flex items-center gap-1 text-[#595959] text-xs mt-auto">
+          <img src={locationIcon} alt="location" className="w-4 h-4" />
           <span>{location}</span>
         </div>
       </div>
