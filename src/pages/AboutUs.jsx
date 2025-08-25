@@ -10,7 +10,7 @@ function AboutUs() {
         <p className=" text-purple-500 font-semibold text-[32px] lg:text-[40px] leading-[100%] tracking-[0] ">
           About Us
         </p>
-        <p className=" text-gray-500 font-normal text-[14px] lg:text-[18px] leading-[27px] tracking-[0] mx-15 lg:mx-55 mt-5 text-center">
+        <p className=" text-gray-500 font-normal text-[14px] lg:text-[18px] leading-[27px] tracking-[0] mx-3 lg:mx-0 lg:w-3xl mt-3 text-center">
           StudEx is a student-only marketplace where you can safely buy, sell,
           and find roommates within your school community. We make it easy to
           connect, save money, and get what you need without stress.
