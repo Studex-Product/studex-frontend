@@ -49,19 +49,19 @@ const Home = () => {
 
         {/* Why Choose StudEx Section */}
 <section className="px-6 md:px-12 lg:px-20 py-12 flex justify-center">
-  <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 items-start gap-10">
+  <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-around gap-10">
     
     {/* Heading */}
-    <div className="space-y-6 text-center lg:text-left flex flex-col items-center lg:items-start">
-      <h2 className="text-2xl md:text-3xl font-bold">
+    <div className="space-y-6 w-full md:w-1/2 text-center lg:text-left flex flex-col">
+      <h2 className="text-2xl md:text-3xl lg:text-4xl font-medium ">
         Why Choose <span className="text-[#9046CF]">StudEx</span>
       </h2>
-      <p className="text-gray-600 max-w-md">
+      <p className="text-gray-600  md:mr-12">
         From affordable deals to easy listings, everything students need in one place.
       </p>
 
       {/* Why Choose List */}
-      <ul className="space-y-3">
+      <ul className="space-y-3 ">
         {whyChoose.map((item) => (
           <li key={item.id} className="flex items-start gap-3">
             <img src={item.icon} alt="bullet" className="w-3 h-3 mt-1" />
@@ -72,11 +72,11 @@ const Home = () => {
     </div>
 
     {/* Image */}
-    <div className="flex justify-center lg:justify-end">
+    <div className=" md:w-1/2 w-full flex items-center justify-center">
       <img
         src={whyChooseImage}
         alt="Mobile Screen"
-        className="w-full max-w-md rounded-lg"
+        className="w-full h-full rounded-lg"
       />
     </div>
   </div>
