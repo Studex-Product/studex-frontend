@@ -15,6 +15,7 @@ const Home = () => {
         Tailwind is working!
       </div>
       <Link to="/admin/login" className="m-10 p-2 rounded-md text-white bg-purple-500" >Admin login</Link>
+      <Link to="/about" className="m-10 p-2 rounded-md text-white bg-purple-500" >About Us</Link>
 
       
 
