@@ -5,6 +5,7 @@ import AdminLogin from "./pages/auth/AdminLogin";
 import AdminForgotPassword from "./pages/auth/AdminForgotPassword";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Login from "./pages/auth/Login";
+import AboutUs from "./pages/AboutUs";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/about" element={<AboutUs />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
