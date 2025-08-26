@@ -5,6 +5,8 @@ import AdminLogin from "./pages/auth/AdminLogin";
 import AdminForgotPassword from "./pages/auth/AdminForgotPassword";
 import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import FAQ from './components/ui/FAQitem';
+import Testimonial from "./components/ui/TestimonialCard";
 
 const queryClient = new QueryClient();
 
@@ -13,11 +15,13 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* <Route path="/" element={<Home />} />
           <Route path="/admin/login" element={<AdminLogin/>}/>
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/admin/forgot-password" element={<AdminForgotPassword />} /> */}
+          {/* <Route path="/register" element={<Register />} /> */}
+          {/* <Route path="/" element={<FAQ />}/> */}
+          <Route path="/" element={<Testimonial />}/>
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
