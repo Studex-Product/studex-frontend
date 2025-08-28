@@ -1,3 +1,4 @@
+import Header from "@/components/common/Header";
 import teamPhoto from "@/assets/images/team-photo.jpg";
 import teamPhotoSmall from "@/assets/images/team-photo-small.jpg";
 import misionPhoto from "@/assets/images/mission-photo.jpg";
@@ -8,6 +9,10 @@ import PreFooter from "@/components/ui/PreFooter";
 function AboutUs() {
   return (
     <div>
+      {/* Header */}
+      <Header />
+      
+      {/* Main Content */}
       <section className="flex flex-col my-10  justify-center items-center ">
         <p className=" text-purple-500 font-semibold text-[32px] lg:text-[40px] leading-[100%] tracking-[0] ">
           About Us

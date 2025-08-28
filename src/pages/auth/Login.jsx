@@ -161,7 +161,7 @@ Welcome back!</h1>
                   errors.password ||
                   isSubmitting
                     ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-purple-700"
+                    : "hover:bg-purple-700 cursor-pointer"
                 }`}
               disabled={
                 !email ||
@@ -185,7 +185,7 @@ Welcome back!</h1>
           {/* Google Login */}
           <Link
             to="/auth/google"
-            className="w-full flex items-center justify-center gap-2 mb-6"
+            className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 cursor-pointer"
           >
             <img src={googleIcon} alt="Google" className="w-4 h-4" />
             <span>Log In with Google</span>
