@@ -29,7 +29,7 @@ const NavSection = ({ title, links, className = "", orderClass = "" }) => (
     <ul className="space-y-3 ">
       {links.map(link => (
         <li key={link}>
-          <a href="#" className="text-gray-300 hover:text-white cursor-pointer transition-colors">
+          <a href="#" className="text-gray-300 hover:text-white hover:-translate-y-1 cursor-pointer transition-all duration-300 inline-block">
             {link}
           </a>
         </li>
@@ -47,7 +47,7 @@ const ContactSection = () => (
         <li key={email}>
           <a
             href={`mailto:${email}`}
-            className="text-gray-300 hover:text-white cursor-pointer transition-colors"
+            className="text-gray-300 hover:text-white hover:-translate-y-1 cursor-pointer transition-all duration-300 inline-block"
           >
             {email}
           </a>
@@ -60,7 +60,7 @@ const ContactSection = () => (
 const SocialLinks = () => (
   <div className="flex space-x-4">
     {SOCIAL_LINKS.map(({ icon, alt, href }) => (
-      <a key={alt} href={href} className="text-gray-300 hover:text-white transition-colors">
+      <a key={alt} href={href} className="text-gray-300 hover:text-white hover:-translate-y-1 transition-all duration-300 inline-block">
         <img src={icon} alt={alt} className="w-6 h-6" />
       </a>
     ))}
@@ -107,7 +107,7 @@ const Footer = memo(() => {
 
         {/* Bottom section with copyright and social links */}
       </div>
-      <div className="flex relative z-10 justify-between px-4 lg:px-8 py-6 items-center border-t border-gray-600 backdrop-blur bg-accent-foreground/20">
+      <div className="flex relative z-10 justify-between px-4 lg:px-8 py-6 lg:py-14 items-center border-t border-gray-600 backdrop-blur bg-accent-foreground/20">
         <div className="flex  items-center">
           <span className="text-white">© 2025 StudEx.ng</span>
         </div>
