@@ -13,7 +13,7 @@ const PreFooter = () => {
           Whether you’re in class, at home, or on the go, StudEx stays with you.
           Buy, sell, and connect anytime, anywhere.
         </p>
-        <button className="bg-white text-[#9046CF] w-full md:w-1/2 px-6 py-3 rounded-md  transition-colors duration-300">
+        <button className="bg-white text-[#9046CF]  hover:bg-purple-100 w-full md:w-1/2 px-6 py-3 rounded-md  transition-colors duration-300">
           Get Started
         </button>
       </div>

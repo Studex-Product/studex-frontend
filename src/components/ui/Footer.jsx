@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { Link } from 'react-router-dom';
 import Logo from "../common/Logo";
 import Facebook from "/src/assets/icons/Facebook.svg";
 import Twitter from "/src/assets/icons/Twitter.svg";
@@ -6,9 +7,24 @@ import LinkedIn from "/src/assets/icons/linkedIn.svg";
 import TikTok from "/src/assets/icons/tikTok.svg";
 
 const NAVIGATION_SECTIONS = {
-  platform: ['About Us', 'Why StudEx', 'Testimonials', 'Blog'],
-  explore: ['Resale Listings', 'Roommate Listings', 'Student Deals', 'Resale Guidelines', 'FAQs'],
-  account: ['My Purchases', 'Payment Methods', 'My Info']
+  platform: [
+    { text: 'About Us', url: '/about' },
+    { text: 'Why StudEx', url: '/#why-studex' },
+    { text: 'Testimonials', url: '/#testimonials' },
+    { text: 'Blog', url: '/#blog' }
+  ],
+  explore: [
+    { text: 'Resale Listings', url: '/#listings' },
+    { text: 'Roommate Listings', url: '/#roommates' },
+    { text: 'Student Deals', url: '/#deals' },
+    { text: 'Resale Guidelines', url: '#/guidelines' },
+    { text: 'FAQs', url: '/#faq' }
+  ],
+  account: [
+    { text: 'My Purchases', url: '/login' },
+    { text: 'Payment Methods', url: '/login' },
+    { text: 'My Info', url: '/login' }
+  ]
 };
 
 const SOCIAL_LINKS = [
@@ -28,10 +44,10 @@ const NavSection = ({ title, links, className = "", orderClass = "" }) => (
     <h3 className="text-white font-semibold mb-4">{title}</h3>
     <ul className="space-y-3 ">
       {links.map(link => (
-        <li key={link}>
-          <a href="#" className="text-gray-300 hover:text-white hover:-translate-y-1 cursor-pointer transition-all duration-300 inline-block">
-            {link}
-          </a>
+        <li key={link.text}>
+          <Link to={link.url} className="text-gray-300 hover:text-white hover:-translate-y-1 cursor-pointer transition-all duration-300 inline-block">
+            {link.text}
+          </Link>
         </li>
       ))}
     </ul>

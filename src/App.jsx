@@ -6,7 +6,7 @@ import AdminForgotPassword from "./pages/auth/AdminForgotPassword";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Login from "./pages/auth/Login";
 import AboutUs from "./pages/AboutUs";
-import Contact  from "./pages/Contact";
+import Contact  from "./pages/Contact#";
 
 const queryClient = new QueryClient();
 

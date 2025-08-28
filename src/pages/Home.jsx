@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import Header from "../components/common/Header";
 import Hero from "../components/ui/HeroSection";
 import FeatureCard from "../components/ui/FeatureCard";
@@ -14,22 +13,6 @@ const Home = () => {
   return (
     <>
       <main className="">
-        {/* <div className="text-3xl font-bold text-blue-600 p-4">
-        Tailwind is working!
-      </div>
-      <Link
-        to="/admin/login"
-        className="m-10 p-2 rounded-md text-white bg-purple-500"
-      >
-        Admin login
-      </Link>
-      <Link
-        to="/about"
-        className="m-10 p-2 rounded-md text-white bg-purple-500"
-      >
-        About Us
-      </Link> */}
-
         {/* Header */}
         <Header />
 
@@ -72,7 +55,7 @@ const Home = () => {
         </section>
 
         {/* Why Choose StudEx Section */}
-        <section className="px-6 md:px-12 lg:px-20 py-12 flex justify-center">
+        <section id="why-studex" className="px-6 md:px-12 lg:px-20 py-12 flex justify-center">
           <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-around gap-10">
             {/* Heading */}
             <div className="space-y-6 w-full md:w-1/2 text-center lg:text-left flex flex-col">
