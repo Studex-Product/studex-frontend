@@ -5,6 +5,7 @@ import whyChoose from "../sample data/whyChoose";
 import whyChooseImage from "../assets/images/WhyChooseImg.jpg";
 import products from "../sample data/products";
 import ProductCard from "../components/ui/ProductCard";
+import Footer from "../components/ui/Footer";
 
 
 const Home = () => {
@@ -106,6 +107,7 @@ const Home = () => {
     </button>
   </div>
 </section>
+<Footer />
     </>
   );
 };
