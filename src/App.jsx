@@ -5,6 +5,8 @@ import AdminLogin from "./pages/auth/AdminLogin";
 import AdminForgotPassword from "./pages/auth/AdminForgotPassword";
 import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import Login from "./pages/auth/Login";
+import AboutUs from "./pages/AboutUs";
 import FAQ from './components/ui/FAQitem';
 import Testimonial from "./components/ui/TestimonialCard";
 
@@ -18,6 +20,8 @@ function App() {
           {/* <Route path="/" element={<Home />} />
           <Route path="/admin/login" element={<AdminLogin/>}/>
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/about" element={<AboutUs />} />
           <Route path="/admin/forgot-password" element={<AdminForgotPassword />} /> */}
           {/* <Route path="/register" element={<Register />} /> */}
           {/* <Route path="/" element={<FAQ />}/> */}
