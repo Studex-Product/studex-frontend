@@ -1,4 +1,5 @@
 import PreFooterImg from "../../assets/images/PreFooterImg.jpg";
+import { Link } from "react-router-dom";
 const PreFooter = () => {
   return (
     <section className="bg-[#9046CF] gap-10 md:gap-14 flex flex-col md:flex-row items-center justify-around px-4 md:px-12 py-10 md:py-16">
@@ -13,9 +14,9 @@ const PreFooter = () => {
           Whether you’re in class, at home, or on the go, StudEx stays with you.
           Buy, sell, and connect anytime, anywhere.
         </p>
-        <button className="bg-white text-[#9046CF]  hover:bg-purple-100 w-full md:w-1/2 px-6 py-3 rounded-md  transition-colors duration-300">
+        <Link to="/register" className="bg-white text-[#9046CF] text-center hover:bg-purple-100 w-full md:w-1/2 px-6 py-3 rounded-md  transition-colors duration-300">
           Get Started
-        </button>
+        </Link>
       </div>
     </section>
   );

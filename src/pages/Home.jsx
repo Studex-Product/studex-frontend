@@ -14,7 +14,7 @@ import FAQ from "@/components/ui/FAQitem";
 const Home = () => {
   return (
     <>
-      <main className="">
+      <main className="w-full bg-accent">
         {/* Header */}
         <Header />
 
@@ -27,7 +27,7 @@ const Home = () => {
         <Banner />
 
         {/* Features section */}
-        <section className="px-6 md:px-12 lg:px-20 py-12">
+        <section className="px-4 md:px-12 lg:px-20 py-12">
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Heading */}
             <div className="text-center">
@@ -57,7 +57,7 @@ const Home = () => {
         </section>
 
         {/* Why Choose StudEx Section */}
-        <section id="why-studex" className="px-6 md:px-12 lg:px-20 py-12 flex justify-center">
+        <section id="why-studex" className="px-4 md:px-12 lg:px-20 py-6 md:py-12 flex justify-center">
           <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-around gap-10">
             {/* Heading */}
             <div className="space-y-6 w-full md:w-1/2 text-center lg:text-left flex flex-col">
@@ -96,7 +96,7 @@ const Home = () => {
         </section>
 
         {/* Products Section */}
-        <section className="px-6 md:px-12 lg:px-20 py-12 space-y-8">
+        <section className="px-4 md:px-12 lg:px-20 py-12 space-y-8">
           <h2 className="text-2xl md:text-3xl font-bold text-[#363636] text-center">
             All You Need in One Place
           </h2>
@@ -111,7 +111,7 @@ const Home = () => {
           </div>
 
         <div className="flex justify-center">
-          <button className="bg-[#9046CF] text-white font-semibold py-2 px-8 rounded-lg hover:bg-purple-700 transition min-w-[550px]">
+          <button className="bg-[#9046CF] text-white font-semibold py-3  rounded-lg hover:bg-purple-700 w-full md:w-[30%] transition">
             Browse Listings
           </button>
         </div>

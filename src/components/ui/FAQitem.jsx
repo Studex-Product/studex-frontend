@@ -79,7 +79,7 @@ function FAQ() {
     return(
         <div className="bg-[#F7EEFF] min-h-screen"> 
             <div className='px-4 py-12 md:pt-24 md:pb-24 md:px-12 w-full md:max-w-[70%] mx-auto'>
-                <h1 className='text-2xl md:text-3xl lg:text-4xl px-4 font-semibold text-[#363636] text-center'>Frequently Asked Questions</h1>
+                <h1 id ='faq' className='text-2xl md:text-3xl lg:text-4xl px-4 font-semibold text-[#363636] text-center'>Frequently Asked Questions</h1>
                 <p className='text-[#3A3A3A] md:text-xl pt-7 text-center'>Find quick answers to how StudEx works, from listing your first item to connecting with a trusted roommate.</p>
 
                 {faqData.map((faq) => (
