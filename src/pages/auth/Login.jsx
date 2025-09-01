@@ -195,7 +195,7 @@ Welcome back!</h1>
           <p className="text-center text-sm mt-4 text-gray-600">
             Don’t have an account?{" "}
             <Link
-              to="/signup"
+              to="/register"
               className="text-purple-600 font-medium hover:underline"
             >
               Sign up

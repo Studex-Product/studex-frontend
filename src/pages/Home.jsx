@@ -8,6 +8,8 @@ import products from "../sample data/products";
 import ProductCard from "../components/ui/ProductCard";
 import Banner from "@/components/common/Banner";import Footer from "../components/ui/Footer";
 import PreFooter from "@/components/ui/PreFooter";
+import Testimonial from "@/components/ui/TestimonialCard";
+import FAQ from "@/components/ui/FAQitem";
 
 const Home = () => {
   return (
@@ -114,6 +116,10 @@ const Home = () => {
           </button>
         </div>
       </section>
+
+        <Banner />
+        <Testimonial/>
+        <FAQ/>
       </main>
       {/* Footer Section */}
       <PreFooter />
