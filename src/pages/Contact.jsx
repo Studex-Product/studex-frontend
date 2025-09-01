@@ -70,13 +70,9 @@ const Contact = () => {
     if (!validateForm()) {
       return;
     }
-    
     setIsSubmitting(true);
     
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+    setTimeout(() => {
       // Reset form and show success toast
       setFormData({
         firstName: "",
@@ -86,16 +82,16 @@ const Contact = () => {
         message: ""
       });
       
-      toast.success("Message sent successfully!", {
-        description: "We'll get back to you as soon as possible."
-      });
+      toast.custom(
+        () => (
+          <span className="rounded-lg p-3 bg-white text-sm border border-green-500 shadow-lg max-w-full">
+            Message sent successfully!
+          </span>
+        )
+      );
       
-    } catch (error) {
-      console.error("Form submission error:", error);
-      setErrors({ submit: "Failed to send message. Please try again." });
-    } finally {
       setIsSubmitting(false);
-    }
+    }, 1500);
   };
 
   return (
@@ -210,25 +206,38 @@ const Contact = () => {
             {errors.message && <p className="text-red-500 text-xs mt-1 mb-4">{errors.message}</p>}
           </div>
           <button
-            className={`max-sm:w-full px-4 sm:px-8 py-2 sm:py-3 rounded-lg font-medium text-lg transition-colors ${
-              isSubmitting 
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-purple-300 hover:bg-[#9046CF] cursor-pointer'
-            } text-white flex items-center justify-center`}
             type="submit"
-            disabled={isSubmitting}
+            className={`w-full bg-purple-600 text-white py-2 rounded-md transition
+              ${
+                !formData.firstName ||
+                !formData.lastName ||
+                !formData.email ||
+                !formData.phoneNumber ||
+                !formData.message ||
+                errors.firstName ||
+                errors.lastName ||
+                errors.email ||
+                errors.phoneNumber ||
+                errors.message ||
+                isSubmitting
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-purple-700 cursor-pointer"
+              }`}
+            disabled={
+              !formData.firstName ||
+              !formData.lastName ||
+              !formData.email ||
+              !formData.phoneNumber ||
+              !formData.message ||
+              errors.firstName ||
+              errors.lastName ||
+              errors.email ||
+              errors.phoneNumber ||
+              errors.message ||
+              isSubmitting
+            }
           >
-            {isSubmitting ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Sending...
-              </>
-            ) : (
-              'Send Message'
-            )}
+            {isSubmitting ? "Sending..." : "Send Message"}
           </button>
         </form>
       </main>
