@@ -17,15 +17,15 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
-          {/* <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/admin/login" element={<AdminLogin/>}/>
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/login" element={<Login />} />
           <Route path="/about" element={<AboutUs />} />
-          <Route path="/admin/forgot-password" element={<AdminForgotPassword />} /> */}
-          {/* <Route path="/register" element={<Register />} /> */}
-          {/* <Route path="/" element={<FAQ />}/> */}
-          <Route path="/" element={<Testimonial />}/>
+          <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<FAQ />}/>
+          <Route path="/Testimonial" element={<Testimonial />}/>
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
