@@ -8,27 +8,13 @@ import whyChooseImage from "../assets/images/WhyChooseImg.jpg";
 import products from "../sample data/products";
 import ProductCard from "../components/ui/ProductCard";
 import Banner from "@/components/common/Banner";
+import Testimonial from "@/components/ui/TestimonialCard";
+import FAQ from "@/components/ui/FAQitem";
 
 const Home = () => {
   return (
     <>
       <main className="">
-        {/* <div className="text-3xl font-bold text-blue-600 p-4">
-        Tailwind is working!
-      </div>
-      <Link
-        to="/admin/login"
-        className="m-10 p-2 rounded-md text-white bg-purple-500"
-      >
-        Admin login
-      </Link>
-      <Link
-        to="/about"
-        className="m-10 p-2 rounded-md text-white bg-purple-500"
-      >
-        About Us
-      </Link> */}
-
         {/* Header */}
         <Header />
 
@@ -130,6 +116,10 @@ const Home = () => {
             </button>
           </div>
         </section>
+
+        <Banner />
+        <Testimonial/>
+        <FAQ/>
       </main>
     </>
   );
