@@ -1,8 +1,7 @@
 import { useState } from "react";
 import DragDropFileUpload from "./DragDropFileUpload";
-import { ArrowLeft } from "lucide-react";
 
-const VerificationForm = ({ onSubmit, onPrevious }) => {
+const VerificationForm = ({ onSubmit, onSkip }) => {
   const [documentType, setDocumentType] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -58,10 +57,10 @@ const VerificationForm = ({ onSubmit, onPrevious }) => {
         <div className="flex gap-4 flex-col md:flex-row justify-between mt-12">
           <button
             type="button"
-            onClick={onPrevious}
+            onClick={onSkip}
             className="md:w-[30%] flex gap-2 items-center justify-center lg:justify-around px-5 py-3 rounded-lg w-full font-semibold text-base text-chart-4 bg-purple-200 cursor-pointer hover:opacity-60"
           >
-            <ArrowLeft /> Previous
+            Skip
           </button>
           <button
             type="submit"

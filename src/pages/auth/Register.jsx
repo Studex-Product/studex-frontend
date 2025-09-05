@@ -1,9 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import AuthLayout from "../../components/auth/AuthLayout";
 import RegisterImg from "@/assets/images/RegisterImg.jpg";
 import { Link } from "react-router-dom";
 import google from "../../assets/icons/icons8-google.svg";
+import Logo from "@/components/common/Logo";
+import Mail from "@/assets/icons/mail.svg";
+import Success from "@/assets/icons/success.svg";
 
 // Components
 import ProgressBar from "../../components/auth/ProgressBar";
@@ -17,6 +21,10 @@ const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 2;
   const navigate = useNavigate();
+  
+  // Email verification states
+  const [resendTimer, setResendTimer] = useState(0);
+  const [canResend, setCanResend] = useState(true);
 
   const {
     formData,
@@ -41,16 +49,144 @@ const Register = () => {
 
   const handleVerificationSubmit = async (verificationData) => {
     console.log('Verification form submitted', verificationData);
+    console.log('Sending verification email to:', formData.email);
     
-      // Navigate to dashboard on success
-      navigate('/dashboard');
-      
+    // Move to email verification step
+    setCurrentStep("emailSent");
   };
 
-  const handlePrevious = () => {
-    setCurrentStep(1);
+  const handleSkip = () => {
+    setCurrentStep("emailSent");
   };
 
+  // Resend timer effect
+  useEffect(() => {
+    let interval;
+    if (resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (resendTimer === 0 && !canResend) {
+      setCanResend(true);
+    }
+
+    return () => clearInterval(interval);
+  }, [resendTimer, canResend]);
+
+  // Handle resend verification email
+  const handleResendVerification = () => {
+    setCanResend(false);
+    setResendTimer(30);
+    setTimeout(() => {
+      toast.custom(() => (
+        <span className="rounded-lg p-3 text-sm border border-green-500 shadow-lg max-w-full">
+          Verification email resent successfully!
+        </span>
+      ));
+    }, 1500);
+  };
+
+  // Demo function to proceed to success
+  const handleProceedToSuccess = () => {
+    setCurrentStep("success");
+        setTimeout(() => {
+      toast.custom(() => (
+        <span className="rounded-lg p-3 text-sm border border-green-500 shadow-lg max-w-full">
+          Verified email successfully!
+        </span>
+      ));
+    }, 1500);
+
+  };
+
+  // Handle continue to dashboard
+  const handleContinueToLogin = () => {
+    navigate('/login');
+  };
+
+  // Email verification screen
+  if (currentStep === "emailSent") {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-gray-50 relative">
+        {/* Logo */}
+        <div className="absolute top-10 left-10">
+          <Logo />
+        </div>
+        <div className="flex flex-col justify-center items-center max-w-md px-6">
+          {/* Email Icon */}
+          <div className="flex justify-center mb-8">
+            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+              <img src={Mail} alt="Email icon" className="w-8 h-8" />
+            </div>
+          </div>
+
+          <h1 className="text-2xl font-semibold text-gray-900 mb-4 text-center">
+            Verify Email
+          </h1>
+
+          <p className="text-gray-600 mb-8 text-center">
+            We've sent a verification link to <strong>{formData.email.slice(0, 2)}*******{formData.email.slice(-10)}</strong>. 
+            Please check your inbox and click the link to verify your email.
+          </p>
+
+          <div className="text-center mb-6">
+            <span className="text-gray-600 text-sm">
+              Didn't receive the email?{" "}
+            </span>
+            <button
+              onClick={handleResendVerification}
+              disabled={!canResend}
+              className="text-purple-600 hover:text-purple-800 font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {!canResend ? `Resend in ${resendTimer}s` : "Resend Link"}
+            </button>
+          </div>
+
+          {/* Demo button to proceed to success */}
+          <button
+            onClick={handleProceedToSuccess}
+            className="text-sm text-blue-600 font-bold underline"
+          >
+            [Demo: Mark as Verified]
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Email verification success screen
+  if (currentStep === "success") {
+    return (
+      <div className="fixed w-full h-screen bg-white flex items-center justify-center ">
+        {/* Logo */}
+        <div className="absolute top-10 left-10">
+          <Logo />
+        </div>
+        <div className="flex flex-col justify-center h-full max-w-md px-6">
+          {/* Success Icon */}
+          <div className="flex justify-center mb-8">
+            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
+              <img src={Success} alt="Success icon" className="w-8 h-8" />
+            </div>
+          </div>
+
+          <h1 className="text-2xl font-semibold text-gray-900 mb-4 text-center">
+            Email Verified Successfully!
+          </h1>
+
+          <p className="text-gray-600 mb-8 text-center">
+You’re all set to log in and start using the platform.        </p>
+
+          <button
+            onClick={handleContinueToLogin}
+            className="w-full bg-[#9046CF] text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 cursor-pointer focus:outline-none transition-colors"
+          >
+            Continue to Loging
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AuthLayout
@@ -80,7 +216,7 @@ const Register = () => {
           {currentStep === 2 && (
             <VerificationForm
               onSubmit={handleVerificationSubmit}
-              onPrevious={handlePrevious}
+              onSkip={handleSkip}
               personalData={formData}
             />
           )}
@@ -109,6 +245,9 @@ const Register = () => {
               Log in
             </Link>
           </div>
+          {/* <div className="fixed h-screen  w-full top-0 left-0 bg-white">
+
+          </div> */}
         </div>
       }
     />
