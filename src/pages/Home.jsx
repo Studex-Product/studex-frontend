@@ -1,20 +1,20 @@
-import { Link } from "react-router-dom";
 import Header from "../components/common/Header";
 import Hero from "../components/ui/HeroSection";
 import FeatureCard from "../components/ui/FeatureCard";
-import { features } from "../sample data/features";
+import  { features } from "../sample data/features";
 import whyChoose from "../sample data/whyChoose";
 import whyChooseImage from "../assets/images/WhyChooseImg.jpg";
 import products from "../sample data/products";
 import ProductCard from "../components/ui/ProductCard";
-import Banner from "@/components/common/Banner";
+import Banner from "@/components/common/Banner";import Footer from "../components/ui/Footer";
+import PreFooter from "@/components/ui/PreFooter";
 import Testimonial from "@/components/ui/TestimonialCard";
 import FAQ from "@/components/ui/FAQitem";
 
 const Home = () => {
   return (
     <>
-      <main className="">
+      <main className="w-full bg-accent">
         {/* Header */}
         <Header />
 
@@ -27,7 +27,7 @@ const Home = () => {
         <Banner />
 
         {/* Features section */}
-        <section className="px-6 md:px-12 lg:px-20 py-12">
+        <section className="px-4 md:px-12 lg:px-20 py-12">
           <div className="max-w-6xl mx-auto space-y-8">
             {/* Heading */}
             <div className="text-center">
@@ -57,7 +57,7 @@ const Home = () => {
         </section>
 
         {/* Why Choose StudEx Section */}
-        <section className="px-6 md:px-12 lg:px-20 py-12 flex justify-center">
+        <section id="why-studex" className="px-4 md:px-12 lg:px-20 py-6 md:py-12 lg:py-20 flex justify-center">
           <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-around gap-10">
             {/* Heading */}
             <div className="space-y-6 w-full md:w-1/2 text-center lg:text-left flex flex-col">
@@ -96,11 +96,11 @@ const Home = () => {
         </section>
 
         {/* Products Section */}
-        <section className="px-6 md:px-12 lg:px-20 py-12 space-y-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-[#363636] text-center">
+        <section className="px-4 md:px-12 lg:px-12 py-12 space-y-6">
+          <h2 className="text-2xl md:text-3xl lg:md:text-4xl font-semibold text-[#363636] text-center">
             All You Need in One Place
           </h2>
-          <p className="text-[#595959] text-center max-w-xl mx-auto">
+          <p className="text-[#595959] text-base text-center max-w-xl mx-auto pb-6">
             Find roommates, furniture, and deals from real students near you.
           </p>
 
@@ -110,17 +110,20 @@ const Home = () => {
             ))}
           </div>
 
-          <div className="flex justify-center">
-            <button className="bg-[#9046CF] text-white font-semibold py-2 px-8 rounded-lg hover:bg-purple-700 transition max-w-[550px]">
-              Browse Listings
-            </button>
-          </div>
-        </section>
+        <div className="flex justify-center">
+          <button className="bg-[#9046CF] text-white font-semibold py-3  rounded-lg hover:bg-purple-700 w-full md:w-[30%] transition">
+            Browse Listings
+          </button>
+        </div>
+      </section>
 
         <Banner />
         <Testimonial/>
         <FAQ/>
       </main>
+      {/* Footer Section */}
+      <PreFooter />
+      <Footer />
     </>
   );
 };

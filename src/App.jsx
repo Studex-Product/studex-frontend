@@ -8,6 +8,7 @@ import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import Login from "./pages/auth/Login";
 import AboutUs from "./pages/AboutUs";
+import Contact  from "./pages/Contact#";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ function App() {
           <Route path="/about" element={<AboutUs />} />
           <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
@@ -31,3 +33,5 @@ function App() {
 }
 
 export default App;
+
+

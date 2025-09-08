@@ -4,6 +4,8 @@ import teamPhotoSmall from "@/assets/images/team-photo-small.jpg";
 import misionPhoto from "@/assets/images/mission-photo.jpg";
 import { values } from "@/data/values";
 import ValueCard from "@/components/ui/ValueCard";
+import Footer from "@/components/ui/Footer";
+import PreFooter from "@/components/ui/PreFooter";
 function AboutUs() {
   return (
     <div>
@@ -92,6 +94,9 @@ function AboutUs() {
           />
         ))}
       </section>
+            {/* Footer Section */}
+      <PreFooter />
+      <Footer/>
     </div>
   );
 }

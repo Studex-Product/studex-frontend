@@ -13,7 +13,7 @@ const Banner = () => {
   ];
 
   return (
-    <div className="bg-[#9046CF] py-6 overflow-hidden">
+    <div className="bg-[#9046CF] py-4 md:py-6 overflow-hidden">
       <div className="flex animate-scroll whitespace-nowrap">
         {/* First set of items */}
         <div className="flex items-center space-x-12 mr-12">

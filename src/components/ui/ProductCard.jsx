@@ -18,7 +18,7 @@ const ProductCard = ({ image, title, description, price, location, category }) =
         <img
           src={image}
           alt={title}
-          className={`w-full h-40 object-cover ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-500`}
+          className={`w-full object-contain ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-500`}
           loading="lazy"
           onLoad={() => setIsLoading(false)}
           onError={(e) => {
@@ -37,9 +37,9 @@ const ProductCard = ({ image, title, description, price, location, category }) =
 
       {/* Content */}
       <div className={`flex flex-col flex-1 p-4 ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-500`}>
-        <h3 className="mt-2 font-semibold text-[#363636] text-sm">{title}</h3>
-        <p className="text-[#363636] text-xs mt-1">{description}</p>
-        <p className="text-[#3A3A3A] font-bold">{price}</p>
+        <h3 className="mt-2 font-medium text-[#363636] ">{title}</h3>
+        <p className="text-[#363636] mt-1 font-light truncate">{description}</p>
+        <p className="text-[#3A3A3A] text-2xl  my-2 font-semibold">{price}</p>
 
         {/* Location */}
         <div className="flex items-center gap-1 text-[#595959] text-xs mt-auto">
