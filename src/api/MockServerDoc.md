@@ -3,6 +3,8 @@
 ## Overview
 This document outlines the authentication API endpoints and their expected request/response formats for the StudEx application.
 
+You can test using the ApiTest component `localhost/5173/api-test`
+
 ## Base URL
 ```
 VITE_STUDEX_BASE_URL=https://eb562eb2-ffd2-4cc2-a712-d5423b2ecece.mock.pstmn.io
