@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Header from "@/components/common/Header";
 import Footer from "@/components/ui/Footer";
+import ScrollToTopButton from "@/components/common/ScrollToTopButton";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -242,6 +243,9 @@ const Contact = () => {
         </form>
       </main>
       <Footer />
+
+      {/* Scroll to Top Button */}
+      <ScrollToTopButton />
     </>
   );
 };

@@ -1,14 +1,15 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Home from "./pages/Home";
-import Dashboard from "./pages/Dashboard";
-import AdminLogin from "./pages/auth/AdminLogin";
-import AdminForgotPassword from "./pages/auth/AdminForgotPassword";
-import Register from "./pages/auth/Register";
-import ForgotPassword from "./pages/auth/ForgotPassword";
-import Login from "./pages/auth/Login";
-import AboutUs from "./pages/AboutUs";
+import Home from "@/pages/Home";
+import Dashboard from "@/pages/Dashboard";
+import AdminLogin from "@/pages/auth/AdminLogin";
+import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
+import Register from "@/pages/auth/Register";
+import ForgotPassword from "@/pages/auth/ForgotPassword";
+import Login from "@/pages/auth/Login";
+import AboutUs from "@/pages/AboutUs";
 import Contact  from "./pages/Contact#";
+import ApiTest from '@/components/test/ApiTest';
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ function App() {
           <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
           <Route path="/register" element={<Register />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/api-test" element={<ApiTest />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
