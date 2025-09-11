@@ -3,7 +3,7 @@
 ## Overview
 This document outlines the authentication API endpoints and their expected request/response formats for the StudEx application.
 
-You can test using the ApiTest component `localhost/5173/api-test`
+You can test using the ApiTest component `localhost:5173/api-test`
 
 ## Base URL
 ```
