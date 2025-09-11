@@ -9,6 +9,7 @@ import EyeOff from "@/assets/icons/eye-off.svg";
 import Loader from "@/assets/icons/loader.svg";
 import Success from "@/assets/icons/success.svg";
 import Mail from "@/assets/icons/mail.svg";
+import { useForgotPassword } from "@/hooks/useForgotPassword";
 
 const ForgotPassword = () => {
   // State management for different screens
@@ -20,6 +21,9 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
+
+  // Forgot Password mutation (handles API call and query states)
+  const forgotPasswordMutation = useForgotPassword();
 
   // Resend timer state
   const [resendTimer, setResendTimer] = useState(0);
@@ -79,10 +83,16 @@ const ForgotPassword = () => {
     setIsEmailSubmitting(true);
 
     // This is simply simulating an API call. TODO: Implement actual API
-    setTimeout(() => {
-      setCurrentStep("emailSent");
-      setIsEmailSubmitting(false);
-    }, 2000);
+    // This has been updated with a mock API
+    forgotPasswordMutation.mutate(email, {
+      onSuccess: () => {
+        setCurrentStep("emailSent");
+        setIsEmailSubmitting(false);
+      },
+      onError: () => {
+        setIsEmailSubmitting(false);
+      },
+    });
   };
 
   // Resend link handler
@@ -235,10 +245,10 @@ const ForgotPassword = () => {
             {/* Submit Button */}
             <button
               onClick={handleEmailSubmit}
-              disabled={isEmailSubmitting || !email}
+              disabled={forgotPasswordMutation.isLoading || !email}
               className="w-full bg-[#9046CF] text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isEmailSubmitting ? (
+              {forgotPasswordMutation.isLoading ? (
                 <div className="flex items-center justify-center">
                   <img
                     src={Loader}
