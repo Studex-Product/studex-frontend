@@ -1,9 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../api/authService";
 import { toast } from "sonner";
+import { useAuthContext } from "./useAuthContext";
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
+  const authContext = useAuthContext();
 
   // Register mutation
   const register = useMutation({
@@ -70,13 +72,21 @@ export const useAuth = () => {
     },
   });
 
-  // Login mutation
+  // Login mutation with context integration
   const login = useMutation({
     mutationFn: authService.login,
     onSuccess: (data) => {
-      // Store token in sessionStorage
-      if (data.token) {
-        sessionStorage.setItem("token", data.token);
+      // Store authentication data using context
+      if (data.data && data.data.token && data.data.user) {
+        authContext.login(data.data.user, data.data.token);
+      } else if (data.token && data.user) {
+        // Alternative response structure
+        authContext.login(data.user, data.token);
+      } else {
+        // Fallback: just store token
+        if (data.token) {
+          sessionStorage.setItem("token", data.token);
+        }
       }
 
       // Invalidate user queries to refetch
@@ -140,6 +150,17 @@ export const useAuth = () => {
     },
   });
 
+  // Logout function
+  const logout = () => {
+    authContext.logout();
+    queryClient.clear(); // Clear all cached queries
+    toast.custom(() => (
+      <div className="bg-white rounded-lg p-3 text-sm border-2 border-blue-500 shadow-lg max-w-sm w-full break-words">
+        Logged out successfully
+      </div>
+    ));
+  };
+
   return {
     // Registration flow
     register,
@@ -148,10 +169,17 @@ export const useAuth = () => {
 
     // Authentication
     login,
+    logout,
 
     // Password management
     forgotPassword,
     resetPassword,
+
+    // Auth context data
+    user: authContext.user,
+    token: authContext.token,
+    isAuthenticated: authContext.isAuthenticated,
+    isAuthLoading: authContext.isLoading,
 
     // Loading states
     isRegistering: register.isPending,
