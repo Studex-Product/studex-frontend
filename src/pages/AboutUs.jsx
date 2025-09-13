@@ -6,12 +6,14 @@ import { values } from "@/data/values";
 import ValueCard from "@/components/ui/ValueCard";
 import Footer from "@/components/ui/Footer";
 import PreFooter from "@/components/ui/PreFooter";
+import ScrollToTopButton from "@/components/common/ScrollToTopButton";
+
 function AboutUs() {
   return (
     <div>
       {/* Header */}
       <Header />
-      
+
       {/* Main Content */}
       <section className="flex flex-col my-10  justify-center items-center ">
         <p className=" text-purple-500 font-semibold text-[32px] lg:text-[40px] leading-[100%] tracking-[0] ">
@@ -94,9 +96,12 @@ function AboutUs() {
           />
         ))}
       </section>
-            {/* Footer Section */}
+      {/* Footer Section */}
       <PreFooter />
-      <Footer/>
+      <Footer />
+
+      {/* Scroll to Top Button */}
+      <ScrollToTopButton />
     </div>
   );
 }

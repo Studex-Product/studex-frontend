@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
-import Logo from "../common/Logo";
+import Logo from "@components/common/Logo";
+import Loader from '@/assets/Loader.svg';
+
 
 const AuthLayout = ({ children, image, imageAlt }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -17,14 +19,14 @@ const AuthLayout = ({ children, image, imageAlt }) => {
       </div>
       <div className="w-1/2 hidden md:block rounded-l-4xl overflow-hidden bg-gray-200">
         {imageLoaded ? (
-          <img 
-            src={image} 
-            alt={imageAlt} 
+          <img
+            src={image}
+            alt={imageAlt}
             className="h-full w-full object-cover fade-in"
           />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse flex items-center justify-center">
-            <div className="text-gray-500">Loading...</div>
+            <img src={Loader} alt="Loading..." />
           </div>
         )}
       </div>
@@ -46,5 +48,5 @@ export default AuthLayout;
 // } />
 //  );
 // }
- 
+
 // export default Login;

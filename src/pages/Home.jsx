@@ -1,15 +1,16 @@
-import Header from "../components/common/Header";
-import Hero from "../components/ui/HeroSection";
-import FeatureCard from "../components/ui/FeatureCard";
-import  { features } from "../sample data/features";
-import whyChoose from "../sample data/whyChoose";
-import whyChooseImage from "../assets/images/WhyChooseImg.jpg";
-import products from "../sample data/products";
-import ProductCard from "../components/ui/ProductCard";
-import Banner from "@/components/common/Banner";import Footer from "../components/ui/Footer";
+import Header from "@/components/common/Header";
+import Hero from "@/components/ui/HeroSection";
+import FeatureCard from "@/components/ui/FeatureCard";
+import  { features } from "@/sample data/features";
+import whyChoose from "@/sample data/whyChoose";
+import whyChooseImage from "@/assets/images/WhyChooseImg.jpg";
+import products from "@/sample data/products";
+import ProductCard from "@/components/ui/ProductCard";
+import Banner from "@/components/common/Banner";import Footer from "@/components/ui/Footer";
 import PreFooter from "@/components/ui/PreFooter";
 import Testimonial from "@/components/ui/TestimonialCard";
 import FAQ from "@/components/ui/FAQitem";
+import ScrollToTopButton from "@/components/common/ScrollToTopButton";
 
 const Home = () => {
   return (
@@ -124,6 +125,9 @@ const Home = () => {
       {/* Footer Section */}
       <PreFooter />
       <Footer />
+
+      {/* Scroll to Top Button */}
+      <ScrollToTopButton />
     </>
   );
 };
