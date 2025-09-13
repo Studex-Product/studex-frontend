@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-import { forgotPassword } from "../api/passwordService";
-import { toast } from "../components/ui/sonner";
+import { forgotPassword } from "../services/passwordService";
+import { toast } from "sonner";
 
-export function useForgotPassword() {
+export default function useForgotPassword() {
   return useMutation((email) => forgotPassword(email), {
     onSuccess: (data) => {
       toast.success(data?.message || "Check your email for reset instructions");

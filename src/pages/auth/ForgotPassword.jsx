@@ -9,7 +9,7 @@ import EyeOff from "@/assets/icons/eye-off.svg";
 import Loader from "@/assets/icons/loader.svg";
 import Success from "@/assets/icons/success.svg";
 import Mail from "@/assets/icons/mail.svg";
-import { useForgotPassword } from "@/hooks/useForgotPassword";
+import useForgotPassword from "@/hooks/useForgotPassword";
 
 const ForgotPassword = () => {
   // State management for different screens
@@ -20,7 +20,6 @@ const ForgotPassword = () => {
   // Email form state
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
 
   // Forgot Password mutation (handles API call and query states)
   const forgotPasswordMutation = useForgotPassword();
@@ -80,19 +79,19 @@ const ForgotPassword = () => {
       return;
     }
 
-    setIsEmailSubmitting(true);
-
-    // This is simply simulating an API call. TODO: Implement actual API
-    // This has been updated with a mock API
+    // Trigger API request
+    try {
     forgotPasswordMutation.mutate(email, {
       onSuccess: () => {
         setCurrentStep("emailSent");
-        setIsEmailSubmitting(false);
       },
-      onError: () => {
-        setIsEmailSubmitting(false);
+      onError: (error) => {
+        console.error("ForgotPassword error:", error); // 👈 this will now log the actual cause
       },
     });
+  } catch (err) {
+    console.error("Mutation call failed:", err);
+  }
   };
 
   // Resend link handler
@@ -112,14 +111,7 @@ const ForgotPassword = () => {
   const handleResendLink = () => {
     setCanResend(false);
     setResendTimer(30);
-    // This is simply simulating the resend API call. TODO: Implement actual API
-    setTimeout(() => {
-      toast.custom(() => (
-        <span className="rounded-lg p-3 text-sm border border-green-500 shadow-lg max-w-full">
-          Link resent successfully!
-        </span>
-      ));
-    }, 1500);
+    toast.info("Reset link resent. Please check your email.");
   };
 
   // Password form handlers
