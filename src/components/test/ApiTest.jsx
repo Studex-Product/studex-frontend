@@ -6,10 +6,15 @@ const ApiTest = () => {
   const { 
     register, 
     verifyAccount, 
-    verifyEmail, 
+    verifyEmail,
+    login,
+    logout,
     isRegistering, 
     isVerifyingAccount, 
-    isVerifyingEmail 
+    isVerifyingEmail,
+    isLoggingIn,
+    user,
+    isAuthenticated
   } = useAuth();
 
   const addResult = (test, status, message) => {
@@ -40,6 +45,20 @@ const ApiTest = () => {
     });
   };
 
+  const testLogin = () => {
+    addResult('Login', 'testing', 'Starting login test...');
+    login.mutate({
+      email: "test@example.com",
+      password: "password123"
+    });
+  };
+
+  const testLogout = () => {
+    addResult('Logout', 'testing', 'Testing logout...');
+    logout();
+    addResult('Logout', 'success', 'Logged out successfully!');
+  };
+
   // Listen for API results
   React.useEffect(() => {
     if (register.isSuccess) {
@@ -68,11 +87,33 @@ const ApiTest = () => {
     }
   }, [verifyEmail.isSuccess, verifyEmail.isError]);
 
+  React.useEffect(() => {
+    if (login.isSuccess) {
+      addResult('Login', 'success', 'Login successful!');
+    }
+    if (login.isError) {
+      addResult('Login', 'error', `Login failed: ${login.error.message}`);
+    }
+  }, [login.isSuccess, login.isError]);
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Mock API Test</h1>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      {/* Authentication Status */}
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <h3 className="font-semibold text-blue-800 mb-2">Authentication Status:</h3>
+        <p className="text-sm text-blue-700">
+          Status: {isAuthenticated ? '✅ Logged In' : '❌ Not Logged In'}
+        </p>
+        {user && (
+          <p className="text-sm text-blue-700">
+            User: {user.fullName} ({user.email})
+          </p>
+        )}
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <button
           onClick={testRegistration}
           disabled={isRegistering}
@@ -96,30 +137,59 @@ const ApiTest = () => {
         >
           {isVerifyingEmail ? 'Testing...' : 'Test Email Verification'}
         </button>
+
+        <button
+          onClick={testLogin}
+          disabled={isLoggingIn}
+          className="bg-orange-600 text-white p-4 rounded-lg hover:bg-orange-700 disabled:opacity-50"
+        >
+          {isLoggingIn ? 'Testing...' : 'Test Login'}
+        </button>
+
+        <button
+          onClick={testLogout}
+          disabled={!isAuthenticated}
+          className="bg-red-600 text-white p-4 rounded-lg hover:bg-red-700 disabled:opacity-50"
+        >
+          Test Logout
+        </button>
       </div>
 
       <div className="bg-gray-100 p-4 rounded-lg">
         <h2 className="text-lg font-semibold mb-4">Test Results:</h2>
         <div className="space-y-2 max-h-96 overflow-y-auto">
-          {testResults.map((result, index) => (
-            <div 
-              key={index} 
-              className={`p-3 rounded border-l-4 ${
-                result.status === 'success' ? 'bg-green-50 border-green-500' :
-                result.status === 'error' ? 'bg-red-50 border-red-500' :
-                'bg-blue-50 border-blue-500'
-              }`}
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <strong>{result.test}</strong> - {result.status}
-                  <div className="text-sm text-gray-600">{result.message}</div>
+          {testResults.length === 0 ? (
+            <p className="text-gray-500 italic">No tests run yet. Click a button above to start testing.</p>
+          ) : (
+            testResults.map((result, index) => (
+              <div 
+                key={index} 
+                className={`p-3 rounded border-l-4 ${
+                  result.status === 'success' ? 'bg-green-50 border-green-500' :
+                  result.status === 'error' ? 'bg-red-50 border-red-500' :
+                  'bg-blue-50 border-blue-500'
+                }`}
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <strong>{result.test}</strong> - {result.status}
+                    <div className="text-sm text-gray-600">{result.message}</div>
+                  </div>
+                  <span className="text-xs text-gray-500">{result.time}</span>
                 </div>
-                <span className="text-xs text-gray-500">{result.time}</span>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
+        
+        {testResults.length > 0 && (
+          <button
+            onClick={() => setTestResults([])}
+            className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+          >
+            Clear Results
+          </button>
+        )}
       </div>
 
       <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -130,6 +200,15 @@ const ApiTest = () => {
         <p className="text-sm text-yellow-700">
           Status: {import.meta.env.VITE_STUDEX_BASE_URL ? '✅ Configured' : '❌ Missing'}
         </p>
+      </div>
+
+      <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <h3 className="font-semibold text-gray-800 mb-2">Test Credentials:</h3>
+        <div className="text-sm text-gray-700">
+          <p>Email: test@example.com</p>
+          <p>Password: password123</p>
+          <p>Verification Code: 123456</p>
+        </div>
       </div>
     </div>
   );
