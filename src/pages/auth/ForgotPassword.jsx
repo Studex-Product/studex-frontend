@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import AuthLayout from "@components/auth/AuthLayout";
 import ForgotPasswordImg from "@/assets/images/ForgotPasswordImg.jpg";
 import Logo from "@/components/common/Logo";
@@ -9,20 +8,24 @@ import EyeOff from "@/assets/icons/eye-off.svg";
 import Loader from "@/assets/icons/loader.svg";
 import Success from "@/assets/icons/success.svg";
 import Mail from "@/assets/icons/mail.svg";
-import useForgotPassword from "@/hooks/useForgotPassword";
+import { useForgotPassword } from "../../hooks/useForgotPassword";
+import { useResetPassword } from "../../hooks/useResetPassword";
+
 
 const ForgotPassword = () => {
   // State management for different screens
   const [currentStep, setCurrentStep] = useState("email");
 
   const navigate = useNavigate();
+  const { mutate: forgotPassword, isPending } = useForgotPassword({
+    onSuccess: () => setCurrentStep("emailSent"),
+  });
+  const { mutate: resetPassword, isPending: isResetting } = useResetPassword();
+
 
   // Email form state
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-
-  // Forgot Password mutation (handles API call and query states)
-  const forgotPasswordMutation = useForgotPassword();
 
   // Resend timer state
   const [resendTimer, setResendTimer] = useState(0);
@@ -34,7 +37,6 @@ const ForgotPassword = () => {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -79,19 +81,8 @@ const ForgotPassword = () => {
       return;
     }
 
-    // Trigger API request
-    try {
-    forgotPasswordMutation.mutate(email, {
-      onSuccess: () => {
-        setCurrentStep("emailSent");
-      },
-      onError: (error) => {
-        console.error("ForgotPassword error:", error); // 👈 this will now log the actual cause
-      },
-    });
-  } catch (err) {
-    console.error("Mutation call failed:", err);
-  }
+    // This is simply simulating an API call. TODO: Implement actual API
+    forgotPassword(email);
   };
 
   // Resend link handler
@@ -111,7 +102,8 @@ const ForgotPassword = () => {
   const handleResendLink = () => {
     setCanResend(false);
     setResendTimer(30);
-    toast.info("Reset link resent. Please check your email.");
+    // This is simply simulating the resend API call. TODO: Implement actual API
+    forgotPassword(email)
   };
 
   // Password form handlers
@@ -167,12 +159,16 @@ const ForgotPassword = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      setIsSubmitting(true);
       // This is simply simulating an API call. TODO: Implement actual API call
-      setTimeout(() => {
-        setCurrentStep("success");
-        setIsSubmitting(false);
-      }, 3000);
+      resetPassword(
+      {
+        token: new URLSearchParams(window.location.search).get("token"),
+        password: formData.newPassword,
+      },
+      {
+        onSuccess: () => setCurrentStep("success"),
+      }
+    );
     }
   };
 
@@ -237,10 +233,10 @@ const ForgotPassword = () => {
             {/* Submit Button */}
             <button
               onClick={handleEmailSubmit}
-              disabled={forgotPasswordMutation.isLoading || !email}
+              disabled={isPending || !email}
               className="w-full bg-[#9046CF] text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {forgotPasswordMutation.isLoading ? (
+              {isPending ? (
                 <div className="flex items-center justify-center">
                   <img
                     src={Loader}
@@ -446,10 +442,10 @@ const ForgotPassword = () => {
               disabled={
                 !formData.newPassword ||
                 !formData.confirmPassword ||
-                isSubmitting
+                isResetting
               }
             >
-              {isSubmitting ? (
+              {isResetting ? (
                 <div className="flex items-center justify-center">
                   <img
                     src={Loader}
