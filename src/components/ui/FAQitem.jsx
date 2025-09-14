@@ -1,6 +1,6 @@
 import React from "react"
-import Down from '../../assets/icons/chevron-down.png'
-import Up from '../../assets/icons/Icon.png'
+import Down from '@/assets/icons/chevron-down.svg'
+import Up from '@/assets/icons/chevron-up.svg'
 import { useState } from "react"
 
 const FAQItem = ({ id, question, answer, isOpen, onToggle }) => {
