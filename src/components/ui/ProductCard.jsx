@@ -36,7 +36,7 @@ const ProductCard = ({ image, title, description, price, location, category }) =
       </div>
 
       {/* Content */}
-      <div className={`flex flex-col flex-1 p-4 ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-500`}>
+      <div title={description} className={`flex flex-col flex-1 p-4 ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-500 cursor-pointer`}>
         <h3 className="mt-2 font-medium text-[#363636] ">{title}</h3>
         <p className="text-[#363636] mt-1 font-light truncate">{description}</p>
         <p className="text-[#3A3A3A] text-2xl  my-2 font-semibold">{price}</p>
