@@ -18,9 +18,20 @@ const ForgotPassword = () => {
 
   const navigate = useNavigate();
   const { mutate: forgotPassword, isPending } = useForgotPassword({
-    onSuccess: () => setCurrentStep("emailSent"),
+      onSuccess: (data) => {
+    console.log("Forgot password success:", data); // debugging log
+    setCurrentStep("emailSent");
+  },
   });
-  const { mutate: resetPassword, isPending: isResetting } = useResetPassword();
+  const { mutate: resetPassword, isPending: isResetting } = useResetPassword({
+  onSuccess: (data) => {
+    console.log("Reset success:", data);
+    setCurrentStep("success");
+  },
+  onError: (err) => {
+    console.error("Reset error:", err);
+  },
+});
 
 
   // Email form state
@@ -161,14 +172,20 @@ const ForgotPassword = () => {
     if (validateForm()) {
       // This is simply simulating an API call. TODO: Implement actual API call
       resetPassword(
-      {
-        token: new URLSearchParams(window.location.search).get("token"),
-        password: formData.newPassword,
-      },
-      {
-        onSuccess: () => setCurrentStep("success"),
-      }
-    );
+  {
+    token: new URLSearchParams(window.location.search).get("token"),
+    password: formData.newPassword,
+  },
+  {
+    onSuccess: (data) => {
+      console.log("Reset password success:", data); // debugging log
+      setCurrentStep("success");
+    },
+    onError: (err) => {
+      console.error("Reset password error:", err); // debugging log
+    },
+  }
+);
     }
   };
 
