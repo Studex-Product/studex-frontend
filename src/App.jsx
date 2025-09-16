@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/context/AuthContext.jsx";
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import Home from "@/pages/Home";
-import Dashboard from "@/pages/Dashboard";
+import Dashboard from "@/pages/Dashboard/Dashboard";
+import ItemListing from "@/pages/Dashboard/ItemListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import Register from "@/pages/auth/Register";
@@ -37,6 +38,7 @@ function App() {
                 <Dashboard />
               </ProtectedRoute>
             } />
+            <Route path="/items" element={<ItemListing />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/login" element={<Login />} />

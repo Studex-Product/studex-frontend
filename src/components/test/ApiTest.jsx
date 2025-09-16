@@ -28,7 +28,7 @@ const ApiTest = () => {
   const testRegistration = () => {
     addResult('Registration', 'testing', 'Starting registration test...');
     register.mutate({
-      fullName: "Test User",
+      fullName: user ? user.fullName : "Test User",
       email: "test@example.com",
       password: "password123"
     });
