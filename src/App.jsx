@@ -6,6 +6,7 @@ import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard/Dashboard";
 import ItemListing from "@/pages/Dashboard/ItemListing";
 import ItemDetail from "@/pages/Dashboard/ItemDetail";
+import SellerProfile from "@/pages/Dashboard/SellerProfile";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import Register from "@/pages/auth/Register";
@@ -41,6 +42,7 @@ function App() {
             } />
             <Route path="/items" element={<ItemListing />} />
             <Route path="/items/:itemId" element={<ItemDetail />} />
+            <Route path="/seller/:sellerId" element={<SellerProfile />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/login" element={<Login />} />

@@ -92,6 +92,7 @@ const ItemDetail = () => {
 
   const handleContact = () => {
     console.log("Open contact modal or redirect to contact");
+    navigate(`/seller/${item?.seller?.name}`); // Navigate to seller profile page
   };
 
   const handleChatNow = () => {
@@ -273,9 +274,9 @@ const ItemDetail = () => {
                 />
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h4 className="font-medium text-gray-900">
+                    <button onClick={handleContact} className="font-medium text-gray-900 cursor-pointer hover:text-green-600 transition duration-300">
                       {item?.seller?.name}
-                    </h4>
+                    </button>
                     {item?.seller?.isVerified && (
                       <span className="w-5 h-5 bg-green-100 rounded-full flex items-center justify-center">
                         <img

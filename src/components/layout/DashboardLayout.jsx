@@ -75,7 +75,9 @@ const DashboardLayout = ({ children }) => {
 
               {/* User Avatar */}
               <div className="relative">
-                <button className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition duration-300">
+                <button 
+                // onClick={handleDropDown}
+                className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition duration-300">
                   <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                     <span className="text-white font-semibold text-sm">
                       {user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'JO'}
