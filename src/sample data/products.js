@@ -20,7 +20,7 @@ const products = [
   {
     id: 2,
     image: MattressImg,
-    description: "Fairly used, foam still firm, comes with free bedsheet.",
+    description: "Bought brand new last session, used for less than 8 months. Still firm and in good condition, no stains or tears. Perfect for hostel or shared apartment use.",
     title: "Hostel Mattress (3ft)",
     price: "₦24,000.00",
     location: "Mushin, Lagos",

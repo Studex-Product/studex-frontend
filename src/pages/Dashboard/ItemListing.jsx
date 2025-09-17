@@ -73,7 +73,7 @@ const ItemListing = () => {
 
   return (
     <DashboardLayout>
-      <div className="px-6">
+      <div className="p-6">
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-semibold text-gray-900">Item Listing</h1>

@@ -148,9 +148,6 @@ const Dashboard = () => {
               />
             </div>
           </div>
-
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500 rounded-full opacity-10 transform translate-x-32 -translate-y-32"></div>
         </div>
 
         {/* Recently Listed Items Section */}

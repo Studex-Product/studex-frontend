@@ -14,7 +14,7 @@ const DashboardLayout = ({ children }) => {
   };
 
   return (
-    <div className="h-screen flex bg-gray-50">
+    <div className="h-screen flex">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <Sidebar />
@@ -93,7 +93,7 @@ const DashboardLayout = ({ children }) => {
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto">
-          <div className="py-6">
+          <div className="">
             {children}
           </div>
         </main>
