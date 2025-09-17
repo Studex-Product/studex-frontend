@@ -1,7 +1,16 @@
+import GasCookerImg from '@/assets/Products/GasCookerImg.jpg';
+import MattressImg from '@/assets/Products/MattressImg.jpg';
+import OfficeChairImg from '@/assets/Products/OfficeChairImg.jpg';
+import FanImg from '@/assets/Products/FanImg.jpg';
+import NovelImg from '@/assets/Products/NovelImg.jpg';
+import BedFrameImg from '@/assets/Products/BedFrameImg.jpg';
+import KettleImg from '@/assets/Products/KettleImg.jpg';
+import MirrorImg from '@/assets/Products/MirrorImg.jpg';
+
 const products = [
   {
     id: 1,
-    image: "src/assets/Products/GasCookerImg.jpg",
+    image: GasCookerImg,
     description: "Used for one semester, very neat, includes hose & regulator.",
     title: "Burner Gas Cooker",
     price: "₦24,000.00",
@@ -10,7 +19,7 @@ const products = [
   },
   {
     id: 2,
-    image: "src/assets/Products/MattressImg.jpg",
+    image: MattressImg,
     description: "Fairly used, foam still firm, comes with free bedsheet.",
     title: "Hostel Mattress (3ft)",
     price: "₦24,000.00",
@@ -19,7 +28,7 @@ const products = [
   },
   {
     id: 3,
-    image: "src/assets/Products/OfficeChairImg.jpg",
+    image: OfficeChairImg,
     description: "Comfortable, slightly used, good for study desk setup.",
     title: "Office Chair",
     price: "₦24,000.00",
@@ -28,7 +37,7 @@ const products = [
   },
   {
     id: 4,
-    image: "src/assets/Products/FanImg.jpg",
+    image: FanImg,
     description: "Works fine, lasts 4 hours on full charge, low noise.",
     title: "Rechargable Fan",
     price: "₦14,000.00",
@@ -37,7 +46,7 @@ const products = [
   },
   {
     id: 5,
-    image: "src/assets/Products/NovelImg.jpg",
+    image: NovelImg,
     description: "Clean copy, no torn pages, perfect for 100–200 level maths students.",
     title: "Welcome to Lagos Novel",
     price: "₦3,500.00",
@@ -47,7 +56,7 @@ const products = [
 
   {
     id: 6,
-    image: "src/assets/Products/BedFrameImg.jpg",
+    image: BedFrameImg,
     description: "Fairly used, bed frame still firm, comes with free bedsheet.",
     title: "Bed Frame (3ft)",
     price: "₦24,000.00",
@@ -56,7 +65,7 @@ const products = [
   },
   {
     id: 7,
-    image: "src/assets/Products/KettleImg.jpg",
+    image: KettleImg,
     description: "Works perfectly, ideal for making noodles or tea in hostel rooms.",
     title: "Mini Electric Kettle (1L)",
     price: "₦24,000.00",
@@ -65,7 +74,7 @@ const products = [
   },
     {
     id: 8,
-    image: "src/assets/Products/MirrorImg.jpg",
+    image: MirrorImg,
     description: "Perfect condition, no cracks, hostel-friendly size.",
     title: "Standing Mirror (5ft)",
     price: "₦24,000.00",

@@ -11,6 +11,7 @@ import { ChevronLeft } from "lucide-react";
 import { ChevronRight } from "lucide-react";
 
 // Mock API service for fetching items with pagination and filters
+// eslint-disable-next-line no-unused-vars
 const fetchItems = async ({ page = 1, sortBy = "newest", filters = {} }) => {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 800));
@@ -174,6 +175,7 @@ const ItemListing = () => {
                 {items.map((item) => (
                   <ProductCard
                     key={item.id}
+                    id={item.id}
                     image={item.image}
                     title={item.title}
                     description={item.description}

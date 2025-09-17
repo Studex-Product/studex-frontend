@@ -111,7 +111,7 @@ const Dashboard = () => {
 
   const handleViewAll = (section) => {
     console.log(`Navigate to ${section} page`);
-    navigate(`/items`);
+    navigate(`/${section}`);
   };
 
   return (
@@ -194,6 +194,7 @@ const Dashboard = () => {
               {recentItems.map((item) => (
                 <ProductCard
                   key={item.id}
+                  id={item.id}
                   image={item.image}
                   title={item.title}
                   description={item.description}
