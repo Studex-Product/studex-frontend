@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import AuthLayout from "@components/auth/AuthLayout";
 import ForgotPasswordImg from "@/assets/images/ForgotPasswordImg.jpg";
@@ -15,6 +15,7 @@ const ForgotPassword = () => {
   const [currentStep, setCurrentStep] = useState("email");
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Email form state
   const [email, setEmail] = useState("");
@@ -85,6 +86,32 @@ const ForgotPassword = () => {
     }, 2000);
   };
 
+  // Check for reset token in URL on component mount
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      // TODO: Add actual token validation here
+      // For now, we'll assume all tokens are valid
+      // In real app, you'd validate the token with your backend
+      validateToken(token);
+    }
+  }, [searchParams]);
+
+  const validateToken = async (token) => {
+    try {
+      // TODO: Replace with actual API call to validate token
+      // const response = await authService.validateResetToken(token);
+      // if (response.valid) {
+      setCurrentStep("resetPassword");
+      // } else {
+      //   setCurrentStep("invalidToken");
+      // }
+    } catch (error) {
+      console.error("Token validation failed:", error);
+      setCurrentStep("invalidToken");
+    }
+  };
+
   // Resend link handler
   useEffect(() => {
     let interval;
@@ -143,7 +170,7 @@ const ForgotPassword = () => {
     } else if (formData.newPassword.length < 8) {
       newErrors.newPassword = "Must be at least 8 characters";
     } else if (
-      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(
+      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*.?&])/.test(
         formData.newPassword
       )
     ) {
@@ -477,7 +504,29 @@ const ForgotPassword = () => {
     );
   }
 
-  // Step 4: Success state
+  // Step 4: Invalid token state
+  if (currentStep === "invalidToken") {
+    return (
+      <AuthLayout image={ForgotPasswordImg} imageAlt="Student with notebook">
+        <div className="flex flex-col justify-center mt-12 max-w-full text-center">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-4">
+            Invalid Reset Link
+          </h1>
+          <p className="text-gray-600 mb-6">
+            This password reset link is invalid or has expired.
+          </p>
+          <Link
+            to="/forgot-password"
+            className="text-purple-600 hover:text-purple-700 underline cursor-pointer"
+          >
+            Request a new reset link
+          </Link>
+        </div>
+      </AuthLayout>
+    );
+  }
+
+  // Step 5: Success state
   if (currentStep === "success") {
     return (
       <div className="w-full h-screen flex items-center justify-center relative">

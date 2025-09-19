@@ -3,7 +3,7 @@ import apiClient from './apiClient';
 export const authService = {
   // User registration
   register: async (userData) => {
-    const response = await apiClient.post('/api/auth/register', userData);
+    const response = await apiClient.post('/api/auth/signup', userData);
     return response.data;
   },
 
@@ -15,7 +15,7 @@ export const authService = {
 
   // Email verification
   verifyEmail: async (emailData) => {
-    const response = await apiClient.post('/api/auth/verify-email', emailData);
+    const response = await apiClient.post('/api/auth/resend-verification', emailData);
     return response.data;
   },
 

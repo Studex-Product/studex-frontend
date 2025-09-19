@@ -357,7 +357,8 @@ const Register = () => {
     
     // Call the API
     register.mutate({
-      fullName: formData.fullName,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
       email: formData.email,
       password: formData.password
     });
