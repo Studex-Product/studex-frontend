@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { toast } from "sonner";
 import AuthLayout from "@components/auth/AuthLayout";
 import ForgotPasswordImg from "@/assets/images/ForgotPasswordImg.jpg";
 import Logo from "@/components/common/Logo";
@@ -9,18 +8,38 @@ import EyeOff from "@/assets/icons/eye-off.svg";
 import Loader from "@/assets/icons/loader.svg";
 import Success from "@/assets/icons/success.svg";
 import Mail from "@/assets/icons/mail.svg";
+import { useAuth } from "@/hooks/useAuth";
 
 const ForgotPassword = () => {
   // State management for different screens
   const [currentStep, setCurrentStep] = useState("email");
-
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  // Check if there's a reset token in URL on component mount
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      // If there's a token, go directly to password reset
+      setCurrentStep("resetPassword");
+    }
+  }, [searchParams]);
+
+  // API hooks
+  const {
+    forgotPassword,
+    resetPassword,
+    isSendingResetEmail,
+    isResettingPassword,
+    isForgotPasswordSuccess,
+    isResetPasswordSuccess,
+    forgotPasswordError,
+    resetPasswordError
+  } = useAuth();
 
   // Email form state
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
 
   // Resend timer state
   const [resendTimer, setResendTimer] = useState(0);
@@ -32,7 +51,6 @@ const ForgotPassword = () => {
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -56,6 +74,19 @@ const ForgotPassword = () => {
     return "medium";
   };
 
+  // Success handling effects
+  useEffect(() => {
+    if (isForgotPasswordSuccess) {
+      setCurrentStep("emailSent");
+    }
+  }, [isForgotPasswordSuccess]);
+
+  useEffect(() => {
+    if (isResetPasswordSuccess) {
+      setCurrentStep("success");
+    }
+  }, [isResetPasswordSuccess]);
+
   // Email form handlers
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -77,13 +108,34 @@ const ForgotPassword = () => {
       return;
     }
 
-    setIsEmailSubmitting(true);
+    // Call the API
+    forgotPassword.mutate({ email });
+  };
 
-    // This is simply simulating an API call. TODO: Implement actual API
-    setTimeout(() => {
-      setCurrentStep("emailSent");
-      setIsEmailSubmitting(false);
-    }, 2000);
+  // Check for reset token in URL on component mount
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      // TODO: Add actual token validation here
+      // For now, we'll assume all tokens are valid
+      // In real app, you'd validate the token with your backend
+      validateToken(token);
+    }
+  }, [searchParams]);
+
+  const validateToken = async (token) => {
+    try {
+      // TODO: Replace with actual API call to validate token
+      // const response = await authService.validateResetToken(token);
+      // if (response.valid) {
+      setCurrentStep("resetPassword");
+      // } else {
+      //   setCurrentStep("invalidToken");
+      // }
+    } catch (error) {
+      console.error("Token validation failed:", error);
+      setCurrentStep("invalidToken");
+    }
   };
 
   // Check for reset token in URL on component mount
@@ -129,14 +181,9 @@ const ForgotPassword = () => {
   const handleResendLink = () => {
     setCanResend(false);
     setResendTimer(30);
-    // This is simply simulating the resend API call. TODO: Implement actual API
-    setTimeout(() => {
-      toast.custom(() => (
-        <span className="rounded-lg p-3 text-sm border border-green-500 shadow-lg max-w-full">
-          Link resent successfully!
-        </span>
-      ));
-    }, 1500);
+    
+    // Call the API to resend
+    forgotPassword.mutate({ email });
   };
 
   // Password form handlers
@@ -192,12 +239,13 @@ const ForgotPassword = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      setIsSubmitting(true);
-      // This is simply simulating an API call. TODO: Implement actual API call
-      setTimeout(() => {
-        setCurrentStep("success");
-        setIsSubmitting(false);
-      }, 3000);
+      const token = searchParams.get('token') || 'demo_reset_token';
+      
+      // Call the API
+      resetPassword.mutate({
+        token,
+        newPassword: formData.newPassword
+      });
     }
   };
 
@@ -211,10 +259,7 @@ const ForgotPassword = () => {
   };
 
   const handleProceedToReset = () => {
-    // This would normally come from email link, but for demo purposes we can move to reset directly
-    // TODO: extract the token from the URL and validate it
-    // For this demo, we assume the token is valid and skip the email step
-    // example of email reset link: /reset-password?token=abc123
+    // For demo purposes - in real app this would come from email link
     setCurrentStep("resetPassword");
   };
 
@@ -247,7 +292,8 @@ const ForgotPassword = () => {
                 value={email}
                 onChange={handleEmailChange}
                 placeholder="e.g fatimayusuf@unilaq.edu.ng"
-                className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                disabled={isSendingResetEmail}
+                className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 ${
                   emailError
                     ? "border-red-300 focus:ring-red-500"
                     : "border-gray-300"
@@ -257,15 +303,22 @@ const ForgotPassword = () => {
               {emailError && (
                 <p className="text-red-500 text-sm mt-1">{emailError}</p>
               )}
+
+              {/* API Error Display */}
+              {forgotPasswordError && (
+                <p className="text-red-500 text-sm mt-1">
+                  {forgotPasswordError.response?.data?.message || forgotPasswordError.message}
+                </p>
+              )}
             </div>
 
             {/* Submit Button */}
             <button
               onClick={handleEmailSubmit}
-              disabled={isEmailSubmitting || !email}
+              disabled={isSendingResetEmail || !email}
               className="w-full bg-[#9046CF] text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isEmailSubmitting ? (
+              {isSendingResetEmail ? (
                 <div className="flex items-center justify-center">
                   <img
                     src={Loader}
@@ -326,10 +379,15 @@ const ForgotPassword = () => {
             </span>
             <button
               onClick={handleResendLink}
-              disabled={!canResend}
+              disabled={!canResend || isSendingResetEmail}
               className="text-purple-600 hover:text-purple-800 font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {!canResend ? `Resend in ${resendTimer}s` : "Resend link"}
+              {isSendingResetEmail 
+                ? "Sending..." 
+                : !canResend 
+                ? `Resend in ${resendTimer}s` 
+                : "Resend link"
+              }
             </button>
           </div>
 
@@ -358,6 +416,15 @@ const ForgotPassword = () => {
           </p>
 
           <div className="space-y-6">
+            {/* API Error Display */}
+            {resetPasswordError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-red-700 text-sm">
+                  {resetPasswordError.response?.data?.message || resetPasswordError.message}
+                </p>
+              </div>
+            )}
+
             {/* New Password Field */}
             <div>
               <label
@@ -374,7 +441,8 @@ const ForgotPassword = () => {
                   value={formData.newPassword}
                   onChange={handleInputChange}
                   placeholder="••••••••"
-                  className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  disabled={isResettingPassword}
+                  className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 ${
                     errors.newPassword
                       ? "border-red-300 focus:ring-red-500"
                       : "border-gray-300"
@@ -383,7 +451,8 @@ const ForgotPassword = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 opacity-60 hover:opacity-100 cursor-pointer"
+                  disabled={isResettingPassword}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 opacity-60 hover:opacity-100 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {showPassword ? (
                     <img src={Eye} alt="Show Password" className="w-4 h-4" />
@@ -438,7 +507,8 @@ const ForgotPassword = () => {
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
                   placeholder="••••••••"
-                  className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  disabled={isResettingPassword}
+                  className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 ${
                     errors.confirmPassword
                       ? "border-red-300 focus:ring-red-500"
                       : "border-gray-300"
@@ -447,7 +517,8 @@ const ForgotPassword = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 opacity-60 hover:opacity-100 cursor-pointer"
+                  disabled={isResettingPassword}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 opacity-60 hover:opacity-100 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {showConfirmPassword ? (
                     <img src={Eye} alt="Show Password" className="w-4 h-4" />
@@ -471,10 +542,10 @@ const ForgotPassword = () => {
               disabled={
                 !formData.newPassword ||
                 !formData.confirmPassword ||
-                isSubmitting
+                isResettingPassword
               }
             >
-              {isSubmitting ? (
+              {isResettingPassword ? (
                 <div className="flex items-center justify-center">
                   <img
                     src={Loader}

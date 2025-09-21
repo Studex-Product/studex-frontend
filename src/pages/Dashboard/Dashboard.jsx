@@ -4,7 +4,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useQuery } from "@tanstack/react-query";
 import ProductCard from "@/components/ui/ProductCard";
 import products from "@/sample data/products";
-import Img1 from "@/assets/images/DashboardBanner.png";
+import DashBannerImg from "@/assets/images/DashBannerImg.png";
 import ChevronRightPurple from "@/assets/icons/chevron-right-purple.svg";
 
 // Mock API services
@@ -111,14 +111,14 @@ const Dashboard = () => {
 
   const handleViewAll = (section) => {
     console.log(`Navigate to ${section} page`);
-    navigate(`/items`);
+    navigate(`/${section}`);
   };
 
   return (
     <DashboardLayout>
       <div className="px-6">
         {/* Hero Banner */}
-        <div className="bg-gradient-to-r from-purple-600 to-purple-700 rounded-2xl p-8 mb-8 relative overflow-hidden">
+        <div className="bg-[url('@/assets/images/DashBannerBg.png')] bg-cover bg-no-repeat rounded-2xl p-8 mb-8 relative overflow-hidden">
           <div className="relative z-10 flex items-center justify-between">
             <div className="text-white max-w-lg">
               <p className="text-sm font-medium text-purple-100 mb-2">
@@ -142,15 +142,12 @@ const Dashboard = () => {
             {/* Hero Image */}
             <div className="hidden md:block">
               <img
-                src={Img1}
+                src={DashBannerImg}
                 alt="Students studying together"
                 className="w-80 h-48 object-cover rounded-lg"
               />
             </div>
           </div>
-
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500 rounded-full opacity-10 transform translate-x-32 -translate-y-32"></div>
         </div>
 
         {/* Recently Listed Items Section */}
@@ -194,6 +191,7 @@ const Dashboard = () => {
               {recentItems.map((item) => (
                 <ProductCard
                   key={item.id}
+                  id={item.id}
                   image={item.image}
                   title={item.title}
                   description={item.description}

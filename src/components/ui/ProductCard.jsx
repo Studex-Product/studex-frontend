@@ -1,11 +1,23 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import locationIcon from "../../assets/icons/Location-icon.svg"; 
 
-const ProductCard = ({ image, title, description, price, location, category }) => {
+const ProductCard = ({ id, image, title, description, price, location, category }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
+
+  console.log('ProductCard received id:', id); // Add this line
+  
+  const handleCardClick = () => {
+    console.log('Navigating to item:', id); // And this line
+    navigate(`/items/${id}`);
+  };
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 relative">
+    <div 
+      className="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition duration-300 relative cursor-pointer"
+      onClick={handleCardClick}
+    >
       
       {isLoading && (
         <div className="absolute inset-0 bg-white flex items-center justify-center z-10">
@@ -36,10 +48,10 @@ const ProductCard = ({ image, title, description, price, location, category }) =
       </div>
 
       {/* Content */}
-      <div title={description} className={`flex flex-col flex-1 p-4 ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-500 cursor-pointer`}>
-        <h3 className="mt-2 font-medium text-[#363636] ">{title}</h3>
+      <div className={`flex flex-col flex-1 p-4 ${isLoading ? "opacity-0" : "opacity-100"} transition-opacity duration-500`}>
+        <h3 className="mt-2 font-medium text-[#363636]">{title}</h3>
         <p className="text-[#363636] mt-1 font-light truncate">{description}</p>
-        <p className="text-[#3A3A3A] text-2xl  my-2 font-semibold">{price}</p>
+        <p className="text-[#3A3A3A] text-2xl my-2 font-semibold">{price}</p>
 
         {/* Location */}
         <div className="flex items-center gap-1 text-[#595959] text-xs mt-auto">

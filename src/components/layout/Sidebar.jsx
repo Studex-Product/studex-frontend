@@ -40,7 +40,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
@@ -76,7 +76,15 @@ const Sidebar = () => {
                   : "text-gray-600 hover:bg-purple-100 hover:text-gray-900"
               }`}
             >
-              <img src={item.icon} alt={item.name} className="mr-3 w-5 h-5" />
+              <img
+                src={item.icon}
+                alt={item.name}
+                className={`mr-3 w-5 h-5 ${
+                  isActiveRoute(item.path)
+                    ? "brightness-0 invert"
+                    : ""
+                }`}
+              />
               {item.name}
             </button>
           ))}
