@@ -10,7 +10,7 @@ import UserPlus from "@/assets/icons/user-plus.svg";
 import Star from "@/assets/icons/star-outline.svg";
 import locationMarker from "@/assets/icons/location-marker.svg";
 import Package from "@/assets/icons/package-icon.svg";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, PhoneIcon, MessageSquareTextIcon } from "lucide-react";
 
 // Mock API services (assuming these are correct and unchanged)
 const fetchSellerProfile = async (sellerId) => {
@@ -18,6 +18,7 @@ const fetchSellerProfile = async (sellerId) => {
   return {
     id: sellerId,
     name: "Fatima Yusuf",
+    number: "09123456789",
     avatar: Avatar,
     isVerified: true,
     joinDate: "Jan 2025",
@@ -72,6 +73,15 @@ const SellerProfile = () => {
 
   const handlePageChange = (page) => setCurrentPage(page);
   const handleBreadcrumbNavigation = (path) => navigate(path);
+
+  const handleContact = () => {
+    console.log("Open contact modal or redirect to contact");
+    window.location.href = `tel:${seller?.number}`;
+  };
+
+  const handleChatNow = () => {
+    console.log("Open chat with seller");
+  };
 
   const getPageNumbers = () => {
     const pages = [];
@@ -130,22 +140,43 @@ const SellerProfile = () => {
         {/* Seller Info */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2 bg-white rounded-lg p-6 border border-gray-200">
-            <div className="flex items-center space-x-4">
-              <img
-                src={seller?.avatar}
-                alt={seller?.name}
-                className="w-16 h-16 rounded-full object-cover"
-              />
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">
-                  {seller?.name}
-                </h1>
-                {seller?.isVerified && (
-                  <div className="flex items-center gap-1 w-fit bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-md mt-1">
-                    <img src={Verified} alt="Verified" className="w-4 h-4" />
-                    <span>Verified</span>
-                  </div>
-                )}
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+              <div className="flex items-center space-x-4">
+                <img
+                  src={seller?.avatar}
+                  alt={seller?.name}
+                  className="w-16 h-16 rounded-full object-cover"
+                />
+                <div>
+                  <h1 className="text-xl font-semibold text-gray-900">
+                    {seller?.name}
+                  </h1>
+                  {seller?.isVerified && (
+                    <div className="flex items-center gap-1 w-fit bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-md mt-1">
+                      <img src={Verified} alt="Verified" className="w-4 h-4" />
+                      <span>Verified</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Contact Buttons */}
+              <div className=" flex justify-center items-center gap-3 ">
+                <button
+                  onClick={handleContact}
+                  className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer"
+                >
+                  <PhoneIcon className="w-4 h-4" />
+                  <span>{seller?.number}</span>
+                </button>
+
+                <button
+                  onClick={handleChatNow}
+                  className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm bg-purple-100 border border-purple-200 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors cursor-pointer"
+                >
+                  <MessageSquareTextIcon className="w-4 h-4" />
+                  <span>Chat Now</span>
+                </button>
               </div>
             </div>
 

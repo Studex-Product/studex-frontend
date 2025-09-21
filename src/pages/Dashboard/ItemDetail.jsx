@@ -43,6 +43,7 @@ const fetchItemDetails = async (itemId) => {
     },
     seller: {
       name: "Fatima Yusuf",
+      number: "09123456789",
       avatar:
         "https://images.unsplash.com/photo-1494790108755-2616c95a4ce9?w=100",
       responseTime: "Usually replies within 1 hour",
@@ -92,7 +93,12 @@ const ItemDetail = () => {
 
   const handleContact = () => {
     console.log("Open contact modal or redirect to contact");
-    navigate(`/seller/${item?.seller?.name}`); // Navigate to seller profile page
+    window.location.href = `tel:${item?.seller?.number}`;
+  };
+
+  const handleSellerProfile = () => {
+    console.log("Open seller profile");
+    navigate(`/seller/${item?.seller?.id}`);
   };
 
   const handleChatNow = () => {
@@ -274,7 +280,7 @@ const ItemDetail = () => {
                 />
                 <div>
                   <div className="flex items-center space-x-2">
-                    <button onClick={handleContact} className="font-medium text-gray-900 cursor-pointer hover:text-green-600 transition duration-300">
+                    <button onClick={handleSellerProfile} className="font-medium text-gray-900 cursor-pointer hover:text-green-600 transition duration-300">
                       {item?.seller?.name}
                     </button>
                     {item?.seller?.isVerified && (
@@ -313,7 +319,7 @@ const ItemDetail = () => {
                   className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer"
                 >
                   <PhoneIcon className="w-4 h-4" />
-                  <span>Contact</span>
+                  <span>{item?.seller?.number}</span>
                 </button>
 
                 <button

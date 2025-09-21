@@ -9,7 +9,7 @@ import { LayoutGridIcon } from "lucide-react";
 import { ListFilterIcon } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
 import { ChevronRight } from "lucide-react";
-import FilterModal from "@/components/ui/FilterModal"; // Added import
+import FilterModal from "@/components/ui/FilterModal";
 
 // Helper function to parse price string like "₦25,000" into a number
 const parsePrice = (priceStr) => {
@@ -273,7 +273,7 @@ const ItemListing = () => {
         )}
       </div>
 
-      {/* Added Modal Component */}
+      {/* Modal Component */}
       <FilterModal
           isOpen={isFilterOpen}
           onClose={handleFilterToggle}

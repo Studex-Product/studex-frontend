@@ -57,7 +57,6 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
     <div className="py-4 border-b border-gray-200">
       <h3 className="font-semibold text-lg mb-3 flex justify-between items-center cursor-pointer">
         {title}
-        <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
       </h3>
       <div className="flex flex-wrap gap-2">
         <button
@@ -90,7 +89,7 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-xl font-bold">Filter</h2>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
+          <button onClick={onClose} className="p-2 rounded-full border-2 border-gray-400 hover:bg-gray-100 cursor-pointer transition duration-300">
             <X size={24} />
           </button>
         </div>
@@ -101,8 +100,7 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
           <div className="py-4 border-b border-gray-200">
             <h3 className="font-semibold text-lg mb-4 flex justify-between items-center cursor-pointer">
               Price Range
-              <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-            </h3>
+                  </h3>
             <div className='px-2 pt-2'>
               <Slider
                 range
@@ -120,25 +118,27 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
               />
             </div>
             <div className="flex items-center gap-4 mt-4">
-              <div className='w-full'>
+              <div className='w-full relative'>
                 <label className='text-xs text-gray-500'>FROM</label>
                 <input
                   type="number"
                   placeholder="₦0"
                   value={priceRange.from}
                   onChange={e => setPriceRange(prev => ({ ...prev, from: e.target.value }))}
-                  className="w-full p-2 border border-gray-300 rounded-lg"
+                  className="w-full py-2 pl-5 pr-2 border border-gray-300 rounded-lg"
                 />
+                <span className="absolute left-2 top-[2.1rem] ">₦</span>
               </div>
-              <div className='w-full'>
+              <div className='w-full relative'>
                 <label className='text-xs text-gray-500'>TO</label>
                 <input
                   type="number"
-                  placeholder="₦200,000"
+                  placeholder="200,000"
                   value={priceRange.to}
                   onChange={e => setPriceRange(prev => ({ ...prev, to: e.target.value }))}
-                  className="w-full p-2 border border-gray-300 rounded-lg"
+                  className="w-full py-2 pl-5 pr-2 border border-gray-300 rounded-lg"
                 />
+                <span className="absolute left-2 top-[2.1rem] ">₦</span>
               </div>
             </div>
           </div>
