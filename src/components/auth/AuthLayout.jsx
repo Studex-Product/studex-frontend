@@ -1,18 +1,34 @@
-import Logo from "../common/Logo";
+import { useState, useEffect } from "react";
+import Logo from "@components/common/Logo";
+import Loader from '@/assets/Loader.svg';
+
 
 const AuthLayout = ({ children, image, imageAlt }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => setImageLoaded(true);
+    img.src = image;
+  }, [image]);
   return (
     <div className="h-screen flex w-full">
-      <div className="w-full md:w-1/2 px-4 md:px-8 lg:px-14 py-8">
+      <div className="w-full md:w-1/2 px-4 md:px-6 lg:px-20 md:py-8 py-4 overflow-auto">
         <Logo />
         {children}
       </div>
-      <div className="w-1/2 hidden md:block rounded-l-4xl overflow-hidden">
-        <img 
-          src={image} 
-          alt={imageAlt} 
-          className="h-full w-full object-cover"
-        />
+      <div className="w-1/2 hidden md:block rounded-l-4xl overflow-hidden bg-gray-200">
+        {imageLoaded ? (
+          <img
+            src={image}
+            alt={imageAlt}
+            className="h-full w-full object-cover fade-in"
+          />
+        ) : (
+          <div className="h-full w-full bg-gradient-to-br from-gray-100 to-gray-300 animate-pulse flex items-center justify-center">
+            <img src={Loader} alt="Loading..." />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -32,5 +48,5 @@ export default AuthLayout;
 // } />
 //  );
 // }
- 
+
 // export default Login;
