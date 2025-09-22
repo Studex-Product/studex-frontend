@@ -13,8 +13,14 @@ export const authService = {
     return response.data;
   },
 
-  // Email verification
-  verifyEmail: async (emailData) => {
+  // Verify email with token (from email link)
+  verifyEmail: async (token) => {
+    const response = await apiClient.get(`/api/auth/verify-email/${token}`);
+    return response.data;
+  },
+
+  // Resend verification email
+  resendVerification: async (emailData) => {
     const response = await apiClient.post('/api/auth/resend-verification', emailData);
     return response.data;
   },

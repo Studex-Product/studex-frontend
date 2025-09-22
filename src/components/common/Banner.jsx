@@ -36,7 +36,7 @@ const Banner = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes scroll {
           0% {
             transform: translateX(0);
@@ -45,7 +45,7 @@ const Banner = () => {
             transform: translateX(-50%);
           }
         }
-        
+
         .animate-scroll {
           animation: scroll 20s linear infinite;
         }

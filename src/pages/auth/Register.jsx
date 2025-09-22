@@ -302,7 +302,7 @@
 // export default Register;
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import RegisterImg from "@/assets/images/RegisterImg.jpg";
 import google from "@/assets/icons/icons8-google.svg";
@@ -324,22 +324,26 @@ const Register = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 2;
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // Email verification states
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
+  const [hasTriggeredVerification, setHasTriggeredVerification] = useState(false);
 
   // API hooks
-  const { 
-    register, 
-    verifyAccount, 
+  const {
+    register,
+    verifyAccount,
     verifyEmail,
-    isRegistering, 
-    isVerifyingAccount, 
-    isVerifyingEmail,
+    resendVerification,
+    isRegistering,
+    isVerifyingAccount,
+    isResendingVerification,
     isRegisterSuccess,
     isVerifyAccountSuccess,
     isVerifyEmailSuccess,
+    isResendVerificationSuccess,
     registerError,
     verifyAccountError
   } = useAuth();
@@ -353,8 +357,6 @@ const Register = () => {
 
   // Handle personal info submission
   const handlePersonalInfoSubmit = async () => {
-    console.log("Submitting personal data:", formData);
-    
     // Call the API
     register.mutate({
       first_name: formData.firstName,
@@ -366,8 +368,6 @@ const Register = () => {
 
   // Handle verification submission
   const handleVerificationSubmit = async (verificationData) => {
-    console.log("Verification form submitted", verificationData);
-    
     // Call the API
     verifyAccount.mutate({
       email: formData.email,
@@ -379,27 +379,54 @@ const Register = () => {
     setCurrentStep("emailSent");
   };
 
+  // Check for verification token in URL on mount
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token && !hasTriggeredVerification) {
+      setHasTriggeredVerification(true);
+      // Call verification API with the token from email link
+      verifyEmail.mutate(token);
+    }
+  }, [searchParams, hasTriggeredVerification, verifyEmail]); 
   // Success handling - move to next step when API calls succeed
   useEffect(() => {
     if (isRegisterSuccess) {
-      console.log("Registration successful, moving to step 2");
       setCurrentStep(2);
     }
   }, [isRegisterSuccess]);
 
   useEffect(() => {
     if (isVerifyAccountSuccess) {
-      console.log("Account verification successful, moving to email sent");
       setCurrentStep("emailSent");
     }
   }, [isVerifyAccountSuccess]);
 
+  // Listen for email verification success (fallback for React Query state issues)
+  useEffect(() => {
+    const handleEmailVerificationSuccess = () => {
+      setCurrentStep("success");
+    };
+
+    window.addEventListener('emailVerificationSuccess', handleEmailVerificationSuccess);
+
+    return () => {
+      window.removeEventListener('emailVerificationSuccess', handleEmailVerificationSuccess);
+    };
+  }, []);
+
   useEffect(() => {
     if (isVerifyEmailSuccess) {
-      console.log("Email verification successful, moving to success");
       setCurrentStep("success");
     }
   }, [isVerifyEmailSuccess]);
+
+  useEffect(() => {
+    if (isResendVerificationSuccess) {
+      // Reset timer when resend is successful
+      setResendTimer(30);
+      setCanResend(false);
+    }
+  }, [isResendVerificationSuccess]);
 
   // Resend timer effect
   useEffect(() => {
@@ -417,21 +444,10 @@ const Register = () => {
 
   // Handle resend verification email
   const handleResendVerification = () => {
-    setCanResend(false);
-    setResendTimer(30);
-    
     // Call the API to resend verification email
-    verifyEmail.mutate({ email: formData.email });
+    resendVerification.mutate({ email: formData.email });
   };
 
-  // Demo function to proceed to success (for testing purposes)
-  const handleProceedToSuccess = () => {
-    // In real app, this would be triggered by clicking email link
-    // For demo, we'll simulate the email verification API call
-    verifyEmail.mutate({
-      token: "demo_verification_token"
-    });
-  };
 
   // Handle continue to login
   const handleContinueToLogin = () => {
@@ -472,21 +488,13 @@ const Register = () => {
             </span>
             <button
               onClick={handleResendVerification}
-              disabled={!canResend || isVerifyingEmail}
+              disabled={!canResend || isResendingVerification}
               className="text-purple-600 hover:text-purple-800 font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isVerifyingEmail ? "Sending..." : !canResend ? `Resend in ${resendTimer}s` : "Resend Link"}
+              {isResendingVerification ? "Sending..." : !canResend ? `Resend in ${resendTimer}s` : "Resend Link"}
             </button>
           </div>
 
-          {/* Demo button to proceed to success */}
-          <button
-            onClick={handleProceedToSuccess}
-            disabled={isVerifyingEmail}
-            className="text-sm text-blue-600 font-bold underline disabled:opacity-50"
-          >
-            [Demo: Mark as Verified]
-          </button>
         </div>
       </div>
     );

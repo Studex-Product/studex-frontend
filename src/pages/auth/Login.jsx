@@ -38,8 +38,8 @@ function Login() {
     if (!password) {
       newErrors.password = "Password is required";
       isValid = false;
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
       isValid = false;
     }
 
@@ -164,7 +164,19 @@ function Login() {
             {/* API Error Display */}
             {loginError && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-red-700 text-sm">{loginError.message}</p>
+                <p className="text-red-700 text-sm">
+                  {loginError.response?.data?.message ||
+                   (loginError.response?.status === 401 || loginError.response?.status === 422)
+                     ? "Invalid email or password"
+                     : loginError.response?.status === 404
+                     ? "Account not found"
+                     : loginError.response?.status === 429
+                     ? "Too many login attempts. Please try again later"
+                     : loginError.response?.status === 500
+                     ? "Server error. Please try again later"
+                     : "Login failed. Please check your credentials"}
+                </p>
+                {console.log("Login error details:", loginError)}
               </div>
             )}
 

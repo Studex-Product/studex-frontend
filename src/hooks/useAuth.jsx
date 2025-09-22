@@ -19,7 +19,38 @@ export const useAuth = () => {
       console.log("Registration successful:", data);
     },
     onError: (error) => {
-      const message = error.response?.data?.message || "Registration failed";
+      let message = "Registration failed";
+
+      // Check if server provided a specific message
+      if (error.response?.data?.message) {
+        message = `Registration failed: ${error.response.data.message}`;
+      } else {
+        // Provide user-friendly messages based on status code
+        switch (error.response?.status) {
+          case 400:
+            message = "Registration failed: Invalid data provided";
+            break;
+          case 409:
+            message = "Registration failed: Email already exists";
+            break;
+          case 422:
+            message = "Registration failed: Please check your information";
+            break;
+          case 429:
+            message = "Registration failed: Too many attempts. Please try again later";
+            break;
+          case 500:
+            message = "Registration failed: Server error. Please try again later";
+            break;
+          default:
+            if (!error.response) {
+              message = "Registration failed: Network error. Please check your connection";
+            } else {
+              message = "Registration failed: Please try again";
+            }
+        }
+      }
+
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
           {message}
@@ -40,8 +71,17 @@ export const useAuth = () => {
       console.log("Account verification successful:", data);
     },
     onError: (error) => {
-      const message =
-        error.response?.data?.message || "Account verification failed";
+      let message = error.response?.data?.message;
+
+      if (!message) {
+        // Provide more descriptive default message based on error status
+        if (error.response?.status === 400 || error.response?.status === 401) {
+          message = "Verification failed: Invalid or expired token. Please login to verify your email.";
+        } else {
+          message = "Account verification failed. Please try again or contact support.";
+        }
+      }
+
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
           {message}
@@ -50,7 +90,7 @@ export const useAuth = () => {
     },
   });
 
-  // Verify Email mutation
+  // Verify Email mutation (token from URL)
   const verifyEmail = useMutation({
     mutationFn: authService.verifyEmail,
     onSuccess: (data) => {
@@ -59,11 +99,43 @@ export const useAuth = () => {
           Email verified successfully!
         </div>
       ));
-      console.log("Email verification successful:", data);
+
+      // Trigger custom event for success since React Query state might not update properly
+      window.dispatchEvent(new CustomEvent('emailVerificationSuccess', { detail: data }));
+    },
+    onError: (error) => {
+      let message = error.response?.data?.message;
+
+      if (!message) {
+        // Provide more descriptive default message based on error status
+        if (error.response?.status === 400 || error.response?.status === 401) {
+          message = "Verification failed: Invalid or expired token. Please login to verify your email.";
+        } else {
+          message = "Email verification failed. Please try again or contact support.";
+        }
+      }
+
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {message}
+        </div>
+      ));
+    },
+  });
+
+  // Resend Verification Email mutation
+  const resendVerification = useMutation({
+    mutationFn: authService.resendVerification,
+    onSuccess: () => {
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Verification email sent successfully!
+        </div>
+      ));
     },
     onError: (error) => {
       const message =
-        error.response?.data?.message || "Email verification failed";
+        error.response?.data?.message || "Failed to resend verification email";
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
           {message}
@@ -166,6 +238,7 @@ export const useAuth = () => {
     register,
     verifyAccount,
     verifyEmail,
+    resendVerification,
 
     // Authentication
     login,
@@ -185,6 +258,7 @@ export const useAuth = () => {
     isRegistering: register.isPending,
     isVerifyingAccount: verifyAccount.isPending,
     isVerifyingEmail: verifyEmail.isPending,
+    isResendingVerification: resendVerification.isPending,
     isLoggingIn: login.isPending,
     isSendingResetEmail: forgotPassword.isPending,
     isResettingPassword: resetPassword.isPending,
@@ -193,6 +267,7 @@ export const useAuth = () => {
     registerError: register.error,
     verifyAccountError: verifyAccount.error,
     verifyEmailError: verifyEmail.error,
+    resendVerificationError: resendVerification.error,
     loginError: login.error,
     forgotPasswordError: forgotPassword.error,
     resetPasswordError: resetPassword.error,
@@ -201,6 +276,7 @@ export const useAuth = () => {
     isRegisterSuccess: register.isSuccess,
     isVerifyAccountSuccess: verifyAccount.isSuccess,
     isVerifyEmailSuccess: verifyEmail.isSuccess,
+    isResendVerificationSuccess: resendVerification.isSuccess,
     isLoginSuccess: login.isSuccess,
     isForgotPasswordSuccess: forgotPassword.isSuccess,
     isResetPasswordSuccess: resetPassword.isSuccess,

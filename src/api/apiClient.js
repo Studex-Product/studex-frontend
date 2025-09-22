@@ -27,9 +27,17 @@ apiClient.interceptors.response.use(
     },
     (error) => {
         if (error.response?.status === 401) {
-            sessionStorage.removeItem("token");
-            localStorage.removeItem("token");
-            window.location.href = "/login";
+            // Only redirect if we're not already on login/auth pages
+            const currentPath = window.location.pathname;
+            const isAuthPage = currentPath.includes('/login') ||
+                              currentPath.includes('/register') ||
+                              currentPath.includes('/forgot-password');
+
+            if (!isAuthPage) {
+                sessionStorage.removeItem("token");
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            }
         }
         return Promise.reject(error);
     }

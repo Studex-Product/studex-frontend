@@ -6,7 +6,7 @@ const ProductCard = ({ id, image, title, description, price, location, category 
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  console.log('ProductCard received id:', id); // Add this line
+  // console.log('ProductCard received id:', id); // Add this line
   
   const handleCardClick = () => {
     console.log('Navigating to item:', id); // And this line

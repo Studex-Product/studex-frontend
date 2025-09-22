@@ -12,6 +12,7 @@ import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
+import ResetPassword from "@/pages/auth/ResetPassword";
 import Login from "@/pages/auth/Login";
 import AboutUs from "@/pages/AboutUs";
 import Contact from "@/pages/Contact";
@@ -47,6 +48,7 @@ function App() {
             <Route path="/roommates" element={<RoommateListing />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/login" element={<Login />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />

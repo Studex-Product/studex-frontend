@@ -1,170 +1,54 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import AuthLayout from "@components/auth/AuthLayout";
-import ForgotPasswordImg from "@/assets/images/ForgotPasswordImg.jpg";
 import Logo from "@/components/common/Logo";
-import Eye from "@/assets/icons/eye.svg";
-import EyeOff from "@/assets/icons/eye-off.svg";
+import ForgotPasswordImg from "@/assets/images/ForgotPasswordImg.jpg";
 import Loader from "@/assets/icons/loader.svg";
-import Success from "@/assets/icons/success.svg";
 import Mail from "@/assets/icons/mail.svg";
 import { useAuth } from "@/hooks/useAuth";
 
 const ForgotPassword = () => {
-  // State management for different screens
-  const [currentStep, setCurrentStep] = useState("email");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-
-  // Check if there's a reset token in URL on component mount
-  useEffect(() => {
-    const token = searchParams.get('token');
-    if (token) {
-      // If there's a token, go directly to password reset
-      setCurrentStep("resetPassword");
-    }
-  }, [searchParams]);
-
-  // API hooks
-  const {
-    forgotPassword,
-    resetPassword,
-    isSendingResetEmail,
-    isResettingPassword,
-    isForgotPasswordSuccess,
-    isResetPasswordSuccess,
-    forgotPasswordError,
-    resetPasswordError
-  } = useAuth();
-
-  // Email form state
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-
-  // Resend timer state
+  const [isEmailSent, setIsEmailSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
 
-  // Password reset form state
-  const [formData, setFormData] = useState({
-    newPassword: "",
-    confirmPassword: "",
-  });
-  const [errors, setErrors] = useState({});
-  const [passwordStrength, setPasswordStrength] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const {
+    forgotPassword,
+    resendVerification,
+    isSendingResetEmail,
+    isForgotPasswordSuccess,
+    isResendVerificationSuccess,
+    forgotPasswordError
+  } = useAuth();
 
-  // Email validation
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  // Password strength checker
-  const checkPasswordStrength = (password) => {
-    if (password.length === 0) return "";
-    if (password.length < 8) return "weak";
-    if (
-      password.length >= 8 &&
-      /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/.test(password)
-    ) {
-      return "strong";
+  // Check for reset token in URL - redirect to reset-password page
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (token) {
+      navigate(`/reset-password?token=${token}`);
     }
-    return "medium";
-  };
+  }, [searchParams, navigate]);
 
-  // Success handling effects
+  // Handle successful forgot password
   useEffect(() => {
     if (isForgotPasswordSuccess) {
-      setCurrentStep("emailSent");
+      setIsEmailSent(true);
     }
   }, [isForgotPasswordSuccess]);
 
+  // Handle successful resend
   useEffect(() => {
-    if (isResetPasswordSuccess) {
-      setCurrentStep("success");
+    if (isResendVerificationSuccess) {
+      setResendTimer(30);
+      setCanResend(false);
     }
-  }, [isResetPasswordSuccess]);
+  }, [isResendVerificationSuccess]);
 
-  // Email form handlers
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-    if (emailError) {
-      setEmailError("");
-    }
-  };
-
-  const handleEmailSubmit = (e) => {
-    e.preventDefault();
-
-    if (!email) {
-      setEmailError("Email is required");
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setEmailError("Please enter a valid email address");
-      return;
-    }
-
-    // Call the API
-    forgotPassword.mutate({ email });
-  };
-
-  // Check for reset token in URL on component mount
-  useEffect(() => {
-    const token = searchParams.get('token');
-    if (token) {
-      // TODO: Add actual token validation here
-      // For now, we'll assume all tokens are valid
-      // In real app, you'd validate the token with your backend
-      validateToken(token);
-    }
-  }, [searchParams]);
-
-  const validateToken = async (token) => {
-    try {
-      // TODO: Replace with actual API call to validate token
-      // const response = await authService.validateResetToken(token);
-      // if (response.valid) {
-      setCurrentStep("resetPassword");
-      // } else {
-      //   setCurrentStep("invalidToken");
-      // }
-    } catch (error) {
-      console.error("Token validation failed:", error);
-      setCurrentStep("invalidToken");
-    }
-  };
-
-  // Check for reset token in URL on component mount
-  useEffect(() => {
-    const token = searchParams.get('token');
-    if (token) {
-      // TODO: Add actual token validation here
-      // For now, we'll assume all tokens are valid
-      // In real app, you'd validate the token with your backend
-      validateToken(token);
-    }
-  }, [searchParams]);
-
-  const validateToken = async (token) => {
-    try {
-      // TODO: Replace with actual API call to validate token
-      // const response = await authService.validateResetToken(token);
-      // if (response.valid) {
-      setCurrentStep("resetPassword");
-      // } else {
-      //   setCurrentStep("invalidToken");
-      // }
-    } catch (error) {
-      console.error("Token validation failed:", error);
-      setCurrentStep("invalidToken");
-    }
-  };
-
-  // Resend link handler
+  // Resend timer effect
   useEffect(() => {
     let interval;
     if (resendTimer > 0) {
@@ -178,186 +62,50 @@ const ForgotPassword = () => {
     return () => clearInterval(interval);
   }, [resendTimer, canResend]);
 
-  const handleResendLink = () => {
-    setCanResend(false);
-    setResendTimer(30);
-    
-    // Call the API to resend
-    forgotPassword.mutate({ email });
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  // Password form handlers
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    // Clear errors when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    if (emailError) {
+      setEmailError("");
     }
-
-    // Check password strength
-    if (name === "newPassword") {
-      setPasswordStrength(checkPasswordStrength(value));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Password validation
-    if (!formData.newPassword) {
-      newErrors.newPassword = "Password is required";
-    } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = "Must be at least 8 characters";
-    } else if (
-      !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*.?&])/.test(
-        formData.newPassword
-      )
-    ) {
-      newErrors.newPassword =
-        "Password must include uppercase, lowercase, number, and special character";
-    }
-
-    // Confirm password validation
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (formData.newPassword !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      const token = searchParams.get('token') || 'demo_reset_token';
-      
-      // Call the API
-      resetPassword.mutate({
-        token,
-        newPassword: formData.newPassword
-      });
+
+    if (!email) {
+      setEmailError("Email is required");
+      return;
     }
+
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    forgotPassword.mutate({ email: email });
   };
 
-  // Navigation handlers
+  const handleResendLink = () => {
+    resendVerification.mutate({ email: email });
+  };
+
   const handleBackToLogin = () => {
     navigate("/login");
   };
 
-  const handleContinueToLogin = () => {
-    navigate("/login");
-  };
-
-  const handleProceedToReset = () => {
-    // For demo purposes - in real app this would come from email link
-    setCurrentStep("resetPassword");
-  };
-
-  // Step 1: Email input form
-  if (currentStep === "email") {
-    return (
-      <AuthLayout image={ForgotPasswordImg} imageAlt="Student with notebook">
-        <div className="flex flex-col justify-center mt-12 max-w-full">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-            Forgot Password?
-          </h1>
-          <p className="text-gray-600 mb-8">
-            Don't worry, it happens! Enter your registered email address and
-            we'll send you a link to create a new password.
-          </p>
-
-          <div className="space-y-6">
-            {/* Email Field */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={email}
-                onChange={handleEmailChange}
-                placeholder="e.g fatimayusuf@unilaq.edu.ng"
-                disabled={isSendingResetEmail}
-                className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 ${
-                  emailError
-                    ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-300"
-                }`}
-              />
-
-              {emailError && (
-                <p className="text-red-500 text-sm mt-1">{emailError}</p>
-              )}
-
-              {/* API Error Display */}
-              {forgotPasswordError && (
-                <p className="text-red-500 text-sm mt-1">
-                  {forgotPasswordError.response?.data?.message || forgotPasswordError.message}
-                </p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <button
-              onClick={handleEmailSubmit}
-              disabled={isSendingResetEmail || !email}
-              className="w-full bg-[#9046CF] text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSendingResetEmail ? (
-                <div className="flex items-center justify-center">
-                  <img
-                    src={Loader}
-                    alt="Loading"
-                    className="animate-spin -ml-1 mr-3 h-5 w-5"
-                  />
-                  Sending Reset Link...
-                </div>
-              ) : (
-                "Send Reset Link"
-              )}
-            </button>
-
-            {/* Back to Login Link */}
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={handleBackToLogin}
-                className="text-purple-500 hover:text-purple-700 font-medium text-sm cursor-pointer"
-              >
-                Back to Login
-              </button>
-            </div>
-          </div>
-        </div>
-      </AuthLayout>
-    );
-  }
-
-  // Step 2: Email sent confirmation
-  if (currentStep === "emailSent") {
+  // Email Sent View
+  if (isEmailSent) {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-gray-50 relative">
-        {/* Logo */}
         <div className="absolute top-10 left-10">
           <Logo />
         </div>
         <div className="flex flex-col justify-center items-center max-w-md px-6">
-          {/* Email Icon */}
           <div className="flex justify-center mb-8">
             <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
               <img src={Mail} alt="Email icon" className="w-8 h-8" />
@@ -382,256 +130,97 @@ const ForgotPassword = () => {
               disabled={!canResend || isSendingResetEmail}
               className="text-purple-600 hover:text-purple-800 font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSendingResetEmail 
-                ? "Sending..." 
-                : !canResend 
-                ? `Resend in ${resendTimer}s` 
+              {isSendingResetEmail
+                ? "Sending..."
+                : !canResend
+                ? `Resend in ${resendTimer}s`
                 : "Resend link"
               }
             </button>
           </div>
-
-          {/* Demo button to proceed to password reset */}
-          <button
-            onClick={handleProceedToReset}
-            className="text-sm text-blue-600 font-bold underline"
-          >
-            [Demo: Proceed to Password Reset]
-          </button>
         </div>
       </div>
     );
   }
 
-  // Step 3: Password reset form
-  if (currentStep === "resetPassword") {
-    return (
-      <AuthLayout image={ForgotPasswordImg} imageAlt="Student with notebook">
-        <div className="flex flex-col justify-center mt-12 max-w-full">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-            Create a New Password
-          </h1>
-          <p className="text-gray-600 mb-8">
-            Your new password must be different from previous passwords.
-          </p>
+  // Email Form View
+  return (
+    <AuthLayout image={ForgotPasswordImg} imageAlt="Student with notebook">
+      <div className="flex flex-col justify-center mt-12 max-w-full">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          Forgot Password?
+        </h1>
+        <p className="text-gray-600 mb-8">
+          Don't worry, it happens! Enter your registered email address and
+          we'll send you a link to create a new password.
+        </p>
 
-          <div className="space-y-6">
-            {/* API Error Display */}
-            {resetPasswordError && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-red-700 text-sm">
-                  {resetPasswordError.response?.data?.message || resetPasswordError.message}
-                </p>
-              </div>
+        <div className="space-y-6">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              onChange={handleEmailChange}
+              placeholder="e.g fatimayusuf@unilaq.edu.ng"
+              disabled={isSendingResetEmail}
+              className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 ${
+                emailError
+                  ? "border-red-300 focus:ring-red-500"
+                  : "border-gray-300"
+              }`}
+            />
+
+            {emailError && (
+              <p className="text-red-500 text-sm mt-1">{emailError}</p>
             )}
 
-            {/* New Password Field */}
-            <div>
-              <label
-                htmlFor="newPassword"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                New Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="newPassword"
-                  name="newPassword"
-                  value={formData.newPassword}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                  disabled={isResettingPassword}
-                  className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 ${
-                    errors.newPassword
-                      ? "border-red-300 focus:ring-red-500"
-                      : "border-gray-300"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  disabled={isResettingPassword}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 opacity-60 hover:opacity-100 cursor-pointer disabled:cursor-not-allowed"
-                >
-                  {showPassword ? (
-                    <img src={Eye} alt="Show Password" className="w-4 h-4" />
-                  ) : (
-                    <img src={EyeOff} alt="Hide Password" className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
-
-              {/* Show errors first, then password strength feedback */}
-              {errors.newPassword && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.newPassword}
-                </p>
-              )}
-
-              {/* Enhanced password strength indicator - only show when no errors */}
-              {!errors.newPassword &&
-                formData.newPassword &&
-                passwordStrength && (
-                  <p
-                    className={`text-xs mt-1 ${
-                      passwordStrength === "strong"
-                        ? "text-green-600"
-                        : passwordStrength === "medium"
-                        ? "text-yellow-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {passwordStrength === "strong"
-                      ? "Strong password"
-                      : passwordStrength === "medium"
-                      ? "Medium password - add special characters for stronger security"
-                      : "Weak password - must be at least 8 characters with uppercase, lowercase, number, and special character"}
-                  </p>
-                )}
-            </div>
-
-            {/* Confirm Password Field */}
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Re-enter new password
-              </label>
-              <div className="relative">
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  placeholder="••••••••"
-                  disabled={isResettingPassword}
-                  className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:opacity-50 ${
-                    errors.confirmPassword
-                      ? "border-red-300 focus:ring-red-500"
-                      : "border-gray-300"
-                  }`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  disabled={isResettingPassword}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 opacity-60 hover:opacity-100 cursor-pointer disabled:cursor-not-allowed"
-                >
-                  {showConfirmPassword ? (
-                    <img src={Eye} alt="Show Password" className="w-4 h-4" />
-                  ) : (
-                    <img src={EyeOff} alt="Hide Password" className="w-4 h-4" />
-                  )}
-                </button>
-              </div>
-
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-xs mt-1">
-                  {errors.confirmPassword}
-                </p>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-[#9046CF] text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={
-                !formData.newPassword ||
-                !formData.confirmPassword ||
-                isResettingPassword
-              }
-            >
-              {isResettingPassword ? (
-                <div className="flex items-center justify-center">
-                  <img
-                    src={Loader}
-                    alt="Loading"
-                    className="w-5 h-5 mr-2 animate-spin"
-                  />
-                  Resetting Password...
-                </div>
-              ) : (
-                "Reset Password"
-              )}
-            </button>
-
-            {/* Back to Login Link */}
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={handleBackToLogin}
-                className="text-purple-500 hover:text-purple-700 font-medium text-sm cursor-pointer"
-              >
-                Back to Login
-              </button>
-            </div>
+            {forgotPasswordError && (
+              <p className="text-red-500 text-sm mt-1">
+                {forgotPasswordError.response?.data?.message || forgotPasswordError.message}
+              </p>
+            )}
           </div>
-        </div>
-      </AuthLayout>
-    );
-  }
-
-  // Step 4: Invalid token state
-  if (currentStep === "invalidToken") {
-    return (
-      <AuthLayout image={ForgotPasswordImg} imageAlt="Student with notebook">
-        <div className="flex flex-col justify-center mt-12 max-w-full text-center">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-4">
-            Invalid Reset Link
-          </h1>
-          <p className="text-gray-600 mb-6">
-            This password reset link is invalid or has expired.
-          </p>
-          <Link
-            to="/forgot-password"
-            className="text-purple-600 hover:text-purple-700 underline cursor-pointer"
-          >
-            Request a new reset link
-          </Link>
-        </div>
-      </AuthLayout>
-    );
-  }
-
-  // Step 5: Success state
-  if (currentStep === "success") {
-    return (
-      <div className="w-full h-screen flex items-center justify-center relative">
-        {/* Logo */}
-        <div className="absolute top-10 left-10">
-          <Logo />
-        </div>
-        <div className="flex flex-col justify-center h-full max-w-md">
-          {/* Success Icon */}
-          <div className="flex justify-center mb-8">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
-              <img src={Success} alt="Success icon" className="w-8 h-8" />
-            </div>
-          </div>
-
-          <h1 className="text-2xl font-semibold text-gray-900 mb-4 text-center">
-            Password Reset Successful!
-          </h1>
-
-          <p className="text-gray-600 mb-8 text-center">
-            Your password has been updated. You can now log in with your new
-            password.
-          </p>
 
           <button
-            onClick={handleContinueToLogin}
-            className="w-full bg-[#9046CF] text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 cursor-pointer focus:outline-none transition-colors"
+            onClick={handleSubmit}
+            disabled={isSendingResetEmail || !email}
+            className="w-full bg-[#9046CF] text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Continue to Login
+            {isSendingResetEmail ? (
+              <div className="flex items-center justify-center">
+                <img
+                  src={Loader}
+                  alt="Loading"
+                  className="animate-spin -ml-1 mr-3 h-5 w-5"
+                />
+                Sending Reset Link...
+              </div>
+            ) : (
+              "Send Reset Link"
+            )}
           </button>
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={handleBackToLogin}
+              className="text-purple-500 hover:text-purple-700 font-medium text-sm cursor-pointer"
+            >
+              Back to Login
+            </button>
+          </div>
         </div>
       </div>
-    );
-  }
+    </AuthLayout>
+  );
 };
 
 export default ForgotPassword;
