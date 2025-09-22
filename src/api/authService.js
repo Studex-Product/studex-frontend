@@ -41,5 +41,35 @@ export const authService = {
   resetPassword: async (resetData) => {
     const response = await apiClient.post('/api/auth/reset-password', resetData);
     return response.data;
+  },
+
+  // OAuth Google login - initiate OAuth flow
+  initiateGoogleLogin: () => {
+    const baseUrl = import.meta.env.VITE_STUDEX_BASE_URL;
+    const googleAuthUrl = `${baseUrl}/api/auth/google/login`;
+
+    // Store current location for redirect after auth, but don't store auth pages
+    const currentPath = window.location.pathname;
+    const isAuthPage = currentPath.includes('/login') ||
+                      currentPath.includes('/register') ||
+                      currentPath.includes('/forgot-password');
+
+    if (!isAuthPage) {
+      sessionStorage.setItem('preAuthLocation', currentPath);
+    }
+
+    // Redirect to backend OAuth endpoint
+    window.location.href = googleAuthUrl;
+  },
+
+  // OAuth callback - get user data with the token
+  handleOAuthCallback: async (token) => {
+    // Call /api/profile/me to get user data
+    const response = await apiClient.get('/api/profile/me', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+    return { user: response.data, token };
   }
 };

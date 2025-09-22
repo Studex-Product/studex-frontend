@@ -222,6 +222,48 @@ export const useAuth = () => {
     },
   });
 
+  // OAuth Google login
+  const initiateGoogleLogin = () => {
+    try {
+      authService.initiateGoogleLogin();
+    } catch (error) {
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {error}:Failed to initiate Google login. Please try again.
+        </div>
+      ));
+    }
+  };
+
+  // OAuth callback validation
+  const validateOAuthToken = useMutation({
+    mutationFn: authService.handleOAuthCallback,
+    onSuccess: (data) => {
+      // Get remember me preference
+      const rememberMe = sessionStorage.getItem("rememberMe") === "true";
+
+      // Update auth context with user data and token from /api/profile/me
+      authContext.login(data.user, data.token, rememberMe);
+
+      // Invalidate user queries to refetch
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Login successful!
+        </div>
+      ));
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || "OAuth authentication failed";
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {message}
+        </div>
+      ));
+    },
+  });
+
   // Logout function
   const logout = () => {
     authContext.logout();
@@ -243,6 +285,8 @@ export const useAuth = () => {
     // Authentication
     login,
     logout,
+    initiateGoogleLogin,
+    validateOAuthToken,
 
     // Password management
     forgotPassword,

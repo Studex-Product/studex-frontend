@@ -14,6 +14,8 @@ import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ResetPassword from "@/pages/auth/ResetPassword";
 import Login from "@/pages/auth/Login";
+import OAuthCallback from "@/pages/auth/OAuthCallback";
+import OAuthError from "@/pages/auth/OAuthError";
 import AboutUs from "@/pages/AboutUs";
 import Contact from "@/pages/Contact";
 import ApiTest from '@/components/test/ApiTest';
@@ -50,6 +52,8 @@ function App() {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/auth/callback" element={<OAuthCallback />} />
+            <Route path="/auth/error" element={<OAuthError />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
             <Route path="/register" element={<Register />} />

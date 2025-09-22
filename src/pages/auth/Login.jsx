@@ -16,11 +16,12 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   // API hooks
-  const { 
-    login, 
-    isLoggingIn, 
+  const {
+    login,
+    isLoggingIn,
     isLoginSuccess,
-    loginError 
+    loginError,
+    initiateGoogleLogin
   } = useAuth();
 
   const validateForm = () => {
@@ -51,13 +52,24 @@ function Login() {
     e.preventDefault();
     if (validateForm()) {
       console.log("Submitting login with:", { email, password });
-      
+
       // Call the API through our hook
       login.mutate({
         email,
         password
       });
     }
+  };
+
+  const handleGoogleLogin = () => {
+    // Store remember me preference if needed (you can add a checkbox later)
+    // const rememberMe = document.querySelector('input[name="remember"]')?.checked;
+    // if (rememberMe) {
+    //   sessionStorage.setItem("rememberMe", "true");
+    // }
+
+    // Use the OAuth service
+    initiateGoogleLogin();
   };
 
   // Handle successful login
@@ -249,13 +261,13 @@ function Login() {
           </div>
 
           {/* Google Login */}
-          <Link
-            to="/auth/google"
-            className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 cursor-pointer"
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 cursor-pointer transition-colors"
           >
             <img src={googleIcon} alt="Google" className="w-4 h-4" />
             <span>Log In with Google</span>
-          </Link>
+          </button>
 
           {/* Signup Link */}
           <p className="text-center text-sm mt-4 text-gray-600">
