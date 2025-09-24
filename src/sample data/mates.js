@@ -9,6 +9,7 @@ const roommates = [
     tags: ["Football addict", "Night reader", "Social"],
     gender: "Female",
     roomType: "Shared room",
+    distance: 0.8,
   },
   {
     id: 2,
@@ -20,6 +21,7 @@ const roommates = [
     tags: ["Party lover", "Basketball fan", "Outgoing"],
     gender: "Male",
     roomType: "Self-contained",
+    distance: 2.5,
   },
   {
     id: 3,
@@ -31,6 +33,7 @@ const roommates = [
     tags: ["Gym rat", "Music lover", "Easygoing"],
     gender: "Female",
     roomType: "1-bedroom apartment",
+    distance: 4.0,
   },
   {
     id: 4,
@@ -42,6 +45,7 @@ const roommates = [
     tags: ["Football addict", "Night reader", "Social"],
     gender: "Male",
     roomType: "Shared room",
+    distance: 6.0,
   },
   {
     id: 5,
@@ -53,6 +57,7 @@ const roommates = [
     tags: ["Football addict", "Night reader", "Social"],
     gender: "Female",
     roomType: "2-bedroom apartment",
+    distance: 1.5,
   },
   {
     id: 6,
@@ -64,6 +69,7 @@ const roommates = [
     tags: ["Gym rat", "Music lover", "Easygoing"],
     gender: "Male",
     roomType: "Self-contained",
+    distance: 3.2,
   },
   {
     id: 7,
@@ -75,6 +81,7 @@ const roommates = [
     tags: ["Social", "Loves cooking", "Friendly"],
     gender: "Male",
     roomType: "Shared room",
+    distance: 0.5,
   },
   {
     id: 8,
@@ -86,6 +93,7 @@ const roommates = [
     tags: ["Fun to be around", "Loves fashion", "Gamer"],
     gender: "Male",
     roomType: "1-bedroom apartment",
+    distance: 10.0,
   },
   {
     id: 9,
@@ -97,6 +105,7 @@ const roommates = [
     tags: ["Football addict", "Night reader", "Social"],
     gender: "Female",
     roomType: "Shared room",
+    distance: 2.1,
   },
 ];
 

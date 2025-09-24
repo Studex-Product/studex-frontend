@@ -61,7 +61,7 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setter('All')}
-          className={`px-4 py-2 text-sm rounded-lg border cursor-pointer transition-colors ${selected === 'All' ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'}`}
+          className={`px-4 py-2 text-sm rounded border cursor-pointer transition-colors ${selected === 'All' ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'}`}
         >
           All
         </button>
@@ -69,7 +69,7 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
           <button
             key={option}
             onClick={() => setter(option)}
-            className={`px-4 py-2 text-sm rounded-lg border cursor-pointer transition-colors ${selected === option ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'}`}
+            className={`px-4 py-2 text-sm rounded border cursor-pointer transition-colors ${selected === option ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-300 hover:border-gray-400'}`}
           >
             {option}
           </button>
@@ -84,7 +84,7 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
       onClick={onClose}
     >
       <div 
-        className={`bg-white w-full max-w-md h-full flex flex-col transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`bg-white w-full max-w-sm h-full flex flex-col transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
@@ -125,7 +125,7 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
                   placeholder="₦0"
                   value={priceRange.from}
                   onChange={e => setPriceRange(prev => ({ ...prev, from: e.target.value }))}
-                  className="w-full py-2 pl-5 pr-2 border border-gray-300 rounded-lg"
+                  className="w-full py-2 pl-5 pr-2 border border-gray-300 rounded"
                 />
                 <span className="absolute left-2 top-[2.1rem] ">₦</span>
               </div>
@@ -136,7 +136,7 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
                   placeholder="200,000"
                   value={priceRange.to}
                   onChange={e => setPriceRange(prev => ({ ...prev, to: e.target.value }))}
-                  className="w-full py-2 pl-5 pr-2 border border-gray-300 rounded-lg"
+                  className="w-full py-2 pl-5 pr-2 border border-gray-300 rounded"
                 />
                 <span className="absolute left-2 top-[2.1rem] ">₦</span>
               </div>
@@ -150,13 +150,13 @@ const FilterModal = ({ isOpen, onClose, onApplyFilters }) => {
         <div className="p-4 border-t border-gray-200 bg-white">
           <button
             onClick={handleApply}
-            className="w-full bg-purple-600 text-white font-semibold py-3 rounded-lg hover:bg-purple-700 cursor-pointer transition-colors"
+            className="w-full bg-purple-600 text-white font-medium py-3 rounded-md hover:bg-purple-700 cursor-pointer transition-colors"
           >
             Apply Filter
           </button>
           <button
             onClick={handleClear}
-            className="w-full mt-2 text-gray-600 font-semibold py-3 cursor-pointer"
+            className="w-full mt-2 text-gray-600 font-medium border border-gray-300 hover:bg-gray-100 py-3 rounded-md cursor-pointer"
           >
             Clear all filters
           </button>
