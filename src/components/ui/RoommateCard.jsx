@@ -1,5 +1,3 @@
-// src/components/ui/RoommateCard.js
-
 import React from 'react';
 import { MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
