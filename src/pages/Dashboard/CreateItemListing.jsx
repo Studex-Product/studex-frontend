@@ -1,12 +1,27 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import PlusIcon from "@/assets/icons/plus-icon.svg";
+import { useListing } from "@/hooks/useListing";
+import { toast } from "sonner";
 
 const CreateItemListing = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Use the listing hook
+  const {
+    createListing,
+    uploadListingImages,
+    isCreatingListing,
+    isUploadingImages,
+    createListingError,
+    uploadImagesError,
+    isCreateListingSuccess,
+    isUploadImagesSuccess
+  } = useListing();
   const [formData, setFormData] = useState({
     // Step 1: Basic Details
     itemName: "",
@@ -23,19 +38,138 @@ const CreateItemListing = () => {
     localGovernment: ""
   });
 
+  const [errors, setErrors] = useState({});
+  const [createdListingId, setCreatedListingId] = useState(null);
+
+  // Handle successful listing creation
+  useEffect(() => {
+    if (isCreateListingSuccess && createListing.data) {
+      const listingId = createListing.data.id;
+      setCreatedListingId(listingId);
+
+      // If there are photos to upload, upload them
+      if (formData.photos.length > 0) {
+        console.log("Uploading images for listing:", listingId);
+        uploadListingImages.mutate({
+          listingId: listingId,
+          files: formData.photos
+        });
+      } else {
+        // No images to upload, redirect to my posts
+        setIsSubmitting(false);
+        navigate("/my-posts");
+      }
+    }
+  }, [isCreateListingSuccess, createListing.data, formData.photos, uploadListingImages, navigate]);
+
+  // Handle successful image upload
+  useEffect(() => {
+    if (isUploadImagesSuccess && createdListingId) {
+      console.log("Images uploaded successfully for listing:", createdListingId);
+      setIsSubmitting(false);
+      navigate("/my-posts");
+    }
+  }, [isUploadImagesSuccess, createdListingId, navigate]);
+
+  // Handle errors
+  useEffect(() => {
+    if (createListingError) {
+      setIsSubmitting(false);
+    }
+  }, [createListingError]);
+
+  useEffect(() => {
+    if (uploadImagesError) {
+      // Even if image upload fails, the listing was created successfully
+      // We'll still redirect but show that images failed to upload
+      setIsSubmitting(false);
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-orange-500 shadow-lg max-w-sm w-full break-words">
+          Listing created but image upload failed. You can add images later.
+        </div>
+      ));
+      navigate("/my-posts");
+    }
+  }, [uploadImagesError, navigate]);
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
+
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: ""
+      }));
+    }
+  };
+
+  const validateStep1 = () => {
+    const newErrors = {};
+
+    if (!formData.itemName.trim()) {
+      newErrors.itemName = "Item name is required";
+    }
+
+    if (!formData.category) {
+      newErrors.category = "Category is required";
+    }
+
+    if (!formData.price.trim()) {
+      newErrors.price = "Price is required";
+    } else if (isNaN(formData.price) || parseFloat(formData.price) <= 0) {
+      newErrors.price = "Price must be a valid positive number";
+    }
+
+    if (!formData.description.trim()) {
+      newErrors.description = "Description is required";
+    } else if (formData.description.trim().length < 10) {
+      newErrors.description = "Description must be at least 10 characters long";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = () => {
+    const newErrors = {};
+
+    if (!formData.condition) {
+      newErrors.condition = "Condition is required";
+    }
+
+    if (!formData.colour) {
+      newErrors.colour = "Colour is required";
+    }
+
+    if (!formData.material) {
+      newErrors.material = "Material is required";
+    }
+
+    if (!formData.state) {
+      newErrors.state = "State is required";
+    }
+
+    if (!formData.localGovernment) {
+      newErrors.localGovernment = "Local Government is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
-    if (currentStep < 2) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      // Submit form
-      handleSubmit();
+    if (currentStep === 1) {
+      if (validateStep1()) {
+        setCurrentStep(2);
+      }
+    } else if (currentStep === 2) {
+      if (validateStep2()) {
+        handleSubmit();
+      }
     }
   };
 
@@ -47,10 +181,30 @@ const CreateItemListing = () => {
     }
   };
 
-  const handleSubmit = () => {
-    console.log("Submitting item:", formData);
-    // TODO: Implement API call to create item
-    navigate("/my-posts");
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+
+    try {
+      console.log("Submitting listing:", formData);
+
+      // Step 1: Create the listing without images
+      const listingData = {
+        itemName: formData.itemName,
+        category: formData.category,
+        price: formData.price,
+        description: formData.description,
+        condition: formData.condition,
+        colour: formData.colour,
+        material: formData.material,
+        state: formData.state,
+        localGovernment: formData.localGovernment
+      };
+
+      createListing.mutate(listingData);
+    } catch (error) {
+      console.error("Error creating listing:", error);
+      setIsSubmitting(false);
+    }
   };
 
   const handlePhotoUpload = (event) => {
@@ -95,8 +249,15 @@ const CreateItemListing = () => {
           placeholder="e.g., Reading Desk, HP Laptop"
           value={formData.itemName}
           onChange={(e) => handleInputChange("itemName", e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+            errors.itemName
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300"
+          }`}
         />
+        {errors.itemName && (
+          <p className="text-red-500 text-sm mt-1">{errors.itemName}</p>
+        )}
       </div>
 
       {/* Category */}
@@ -107,7 +268,11 @@ const CreateItemListing = () => {
         <select
           value={formData.category}
           onChange={(e) => handleInputChange("category", e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+            errors.category
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300"
+          }`}
         >
           <option value="">Select item category</option>
           <option value="electronics">Electronics</option>
@@ -118,6 +283,9 @@ const CreateItemListing = () => {
           <option value="sports">Sports & Recreation</option>
           <option value="other">Other</option>
         </select>
+        {errors.category && (
+          <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+        )}
       </div>
 
       {/* Price */}
@@ -130,8 +298,15 @@ const CreateItemListing = () => {
           placeholder="e.g., 15,000"
           value={formData.price}
           onChange={(e) => handleInputChange("price", e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+            errors.price
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300"
+          }`}
         />
+        {errors.price && (
+          <p className="text-red-500 text-sm mt-1">{errors.price}</p>
+        )}
       </div>
 
       {/* Description */}
@@ -144,8 +319,15 @@ const CreateItemListing = () => {
           rows={4}
           value={formData.description}
           onChange={(e) => handleInputChange("description", e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+          className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none ${
+            errors.description
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300"
+          }`}
         />
+        {errors.description && (
+          <p className="text-red-500 text-sm mt-1">{errors.description}</p>
+        )}
       </div>
 
       {/* Add Photo Section */}
@@ -209,7 +391,11 @@ const CreateItemListing = () => {
         <select
           value={formData.condition}
           onChange={(e) => handleInputChange("condition", e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+            errors.condition
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300"
+          }`}
         >
           <option value="">Select item condition</option>
           <option value="new">New</option>
@@ -218,6 +404,9 @@ const CreateItemListing = () => {
           <option value="fair">Fair</option>
           <option value="poor">Poor</option>
         </select>
+        {errors.condition && (
+          <p className="text-red-500 text-sm mt-1">{errors.condition}</p>
+        )}
       </div>
 
       {/* Color and Material Row */}
@@ -229,7 +418,11 @@ const CreateItemListing = () => {
           <select
             value={formData.colour}
             onChange={(e) => handleInputChange("colour", e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+              errors.colour
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300"
+            }`}
           >
             <option value="">Select item condition</option>
             <option value="black">Black</option>
@@ -241,6 +434,9 @@ const CreateItemListing = () => {
             <option value="green">Green</option>
             <option value="other">Other</option>
           </select>
+          {errors.colour && (
+            <p className="text-red-500 text-sm mt-1">{errors.colour}</p>
+          )}
         </div>
 
         <div>
@@ -250,7 +446,11 @@ const CreateItemListing = () => {
           <select
             value={formData.material}
             onChange={(e) => handleInputChange("material", e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+              errors.material
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300"
+            }`}
           >
             <option value="">Select item condition</option>
             <option value="wood">Wood</option>
@@ -261,6 +461,9 @@ const CreateItemListing = () => {
             <option value="leather">Leather</option>
             <option value="other">Other</option>
           </select>
+          {errors.material && (
+            <p className="text-red-500 text-sm mt-1">{errors.material}</p>
+          )}
         </div>
       </div>
 
@@ -272,7 +475,11 @@ const CreateItemListing = () => {
         <select
           value={formData.state}
           onChange={(e) => handleInputChange("state", e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+            errors.state
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300"
+          }`}
         >
           <option value="">Select location</option>
           <option value="lagos">Lagos</option>
@@ -283,6 +490,9 @@ const CreateItemListing = () => {
           <option value="kaduna">Kaduna</option>
           <option value="other">Other</option>
         </select>
+        {errors.state && (
+          <p className="text-red-500 text-sm mt-1">{errors.state}</p>
+        )}
       </div>
 
       {/* Local Government */}
@@ -293,7 +503,11 @@ const CreateItemListing = () => {
         <select
           value={formData.localGovernment}
           onChange={(e) => handleInputChange("localGovernment", e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
+            errors.localGovernment
+              ? "border-red-500 focus:ring-red-500"
+              : "border-gray-300"
+          }`}
         >
           <option value="">Select location</option>
           <option value="ikeja">Ikeja</option>
@@ -304,6 +518,9 @@ const CreateItemListing = () => {
           <option value="gbagada">Gbagada</option>
           <option value="other">Other</option>
         </select>
+        {errors.localGovernment && (
+          <p className="text-red-500 text-sm mt-1">{errors.localGovernment}</p>
+        )}
       </div>
     </div>
   );
@@ -313,7 +530,7 @@ const CreateItemListing = () => {
       <div className=" bg-purple-100 p-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-          <span>My posts</span>
+          <Link to="/my-posts">My posts</Link>
           <span>›</span>
           <span>Create a Post</span>
         </div>
@@ -347,13 +564,45 @@ const CreateItemListing = () => {
           {currentStep === 2 && renderStep2()}
         </div>
 
+        {/* API Error Display */}
+        {createListingError && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+            <p className="text-red-700 text-sm">
+              {createListingError.response?.data?.message || "Failed to create listing. Please try again."}
+            </p>
+          </div>
+        )}
+
+        {uploadImagesError && (
+          <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-md">
+            <p className="text-orange-700 text-sm">
+              Listing created successfully, but image upload failed. You can add images later.
+            </p>
+          </div>
+        )}
+
         {/* Action Button */}
         <div className="mt-8">
           <button
             onClick={handleNext}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-medium transition-colors duration-200"
+            disabled={isSubmitting || isCreatingListing || isUploadingImages}
+            className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 ${
+              isSubmitting || isCreatingListing || isUploadingImages
+                ? "bg-purple-300 text-white cursor-not-allowed"
+                : "bg-purple-600 hover:bg-purple-700 text-white"
+            }`}
           >
-            {currentStep === 2 ? "Post Item" : "Next"}
+            {isSubmitting || isCreatingListing || isUploadingImages ? (
+              <div className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {isCreatingListing ? "Creating listing..." : isUploadingImages ? "Uploading images..." : "Processing..."}
+              </div>
+            ) : (
+              currentStep === 2 ? "Post Item" : "Next"
+            )}
           </button>
         </div>
       </div>

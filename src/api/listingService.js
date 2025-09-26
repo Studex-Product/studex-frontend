@@ -1,0 +1,90 @@
+import apiClient from "./apiClient";
+
+export const listingService = {
+  // Create a new listing
+  createListing: async (listingData) => {
+    const response = await apiClient.post('/api/listings', {
+      item_name: listingData.itemName,
+      category: listingData.category,
+      price: parseFloat(listingData.price),
+      description: listingData.description,
+      condition: listingData.condition,
+      colour: listingData.colour,
+      material: listingData.material,
+      state: listingData.state,
+      local_government: listingData.localGovernment
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+    return response.data;
+  },
+
+  // Upload images for a listing
+  uploadListingImages: async (listingId, files) => {
+    const formData = new FormData();
+
+    // Add all files to the FormData
+    files.forEach((file) => {
+      formData.append('files', file.file || file);
+    });
+
+    const response = await apiClient.post(`/api/listings/${listingId}/images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+    return response.data;
+  },
+
+  // Get user's listings
+  getUserListings: async () => {
+    const response = await apiClient.get('/api/listings?user_only=true');
+    return response.data;
+  },
+
+  // Get a single listing by ID
+  getListingById: async (listingId) => {
+    const response = await apiClient.get(`/api/listings/${listingId}`);
+    return response.data;
+  },
+
+  // Update a listing
+  updateListing: async (listingId, listingData) => {
+    const response = await apiClient.put(`/api/listings/${listingId}`, {
+      item_name: listingData.itemName,
+      category: listingData.category,
+      price: parseFloat(listingData.price),
+      description: listingData.description,
+      condition: listingData.condition,
+      colour: listingData.colour,
+      material: listingData.material,
+      state: listingData.state,
+      local_government: listingData.localGovernment
+    });
+    return response.data;
+  },
+
+  // Delete a listing
+  deleteListing: async (listingId) => {
+    const response = await apiClient.delete(`/api/listings/${listingId}`);
+    return response.data;
+  },
+
+  // Get all listings (for browsing)
+  getAllListings: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.category) queryParams.append('category', params.category);
+    if (params.state) queryParams.append('state', params.state);
+    if (params.minPrice) queryParams.append('min_price', params.minPrice);
+    if (params.maxPrice) queryParams.append('max_price', params.maxPrice);
+    if (params.condition) queryParams.append('condition', params.condition);
+    if (params.search) queryParams.append('search', params.search);
+
+    const url = queryParams.toString() ? `/api/listings?${queryParams.toString()}` : '/api/listings';
+    const response = await apiClient.get(url);
+    return response.data;
+  }
+};

@@ -72,13 +72,7 @@ function Login() {
     initiateGoogleLogin();
   };
 
-  // Handle successful login
-  useEffect(() => {
-    if (isLoginSuccess) {
-      console.log("Login successful, navigating to dashboard");
-      navigate("/dashboard");
-    }
-  }, [isLoginSuccess, navigate]);
+  // Note: Redirect is now handled automatically by the useAuth hook based on user role
 
   return (
     <AuthLayout image={ForgotPasswordImg} imageAlt="Login Image">
