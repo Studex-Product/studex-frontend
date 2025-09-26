@@ -64,8 +64,8 @@ export const authService = {
 
   // OAuth callback - get user data with the token
   handleOAuthCallback: async (token) => {
-    // Call /api/profile/me to get user data
-    const response = await apiClient.get('/api/profile/me', {
+    // Call /api/auth/me to get user data (consistent with backend flow)
+    const response = await apiClient.get('/api/auth/me', {
       headers: {
         Authorization: `Bearer ${token}`
       }

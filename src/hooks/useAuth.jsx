@@ -239,11 +239,8 @@ export const useAuth = () => {
   const validateOAuthToken = useMutation({
     mutationFn: authService.handleOAuthCallback,
     onSuccess: (data) => {
-      // Get remember me preference
-      const rememberMe = sessionStorage.getItem("rememberMe") === "true";
-
-      // Update auth context with user data and token from /api/profile/me
-      authContext.login(data.user, data.token, rememberMe);
+      // Update auth context with user data and token from /api/auth/me
+      authContext.login(data.user, data.token);
 
       // Invalidate user queries to refetch
       queryClient.invalidateQueries({ queryKey: ["user"] });

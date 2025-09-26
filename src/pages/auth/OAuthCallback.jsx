@@ -53,7 +53,6 @@ const OAuthCallback = () => {
               // Get the pre-auth location or default to dashboard
               const preAuthLocation = sessionStorage.getItem('preAuthLocation') || '/dashboard';
               sessionStorage.removeItem('preAuthLocation');
-              sessionStorage.removeItem('rememberMe');
 
               // Navigate after auth context is updated
               setTimeout(() => {
