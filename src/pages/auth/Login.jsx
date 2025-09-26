@@ -16,11 +16,12 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   // API hooks
-  const { 
-    login, 
-    isLoggingIn, 
+  const {
+    login,
+    isLoggingIn,
     isLoginSuccess,
-    loginError 
+    loginError,
+    initiateGoogleLogin
   } = useAuth();
 
   const validateForm = () => {
@@ -38,8 +39,8 @@ function Login() {
     if (!password) {
       newErrors.password = "Password is required";
       isValid = false;
-    } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else if (password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
       isValid = false;
     }
 
@@ -51,13 +52,24 @@ function Login() {
     e.preventDefault();
     if (validateForm()) {
       console.log("Submitting login with:", { email, password });
-      
+
       // Call the API through our hook
       login.mutate({
         email,
         password
       });
     }
+  };
+
+  const handleGoogleLogin = () => {
+    // Store remember me preference if needed (you can add a checkbox later)
+    // const rememberMe = document.querySelector('input[name="remember"]')?.checked;
+    // if (rememberMe) {
+    //   sessionStorage.setItem("rememberMe", "true");
+    // }
+
+    // Use the OAuth service
+    initiateGoogleLogin();
   };
 
   // Handle successful login
@@ -164,7 +176,19 @@ function Login() {
             {/* API Error Display */}
             {loginError && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-red-700 text-sm">{loginError.message}</p>
+                <p className="text-red-700 text-sm">
+                  {loginError.response?.data?.message ||
+                   (loginError.response?.status === 401 || loginError.response?.status === 422)
+                     ? "Invalid email or password"
+                     : loginError.response?.status === 404
+                     ? "Account not found"
+                     : loginError.response?.status === 429
+                     ? "Too many login attempts. Please try again later"
+                     : loginError.response?.status === 500
+                     ? "Server error. Please try again later"
+                     : "Login failed. Please check your credentials"}
+                </p>
+                {console.log("Login error details:", loginError)}
               </div>
             )}
 
@@ -237,13 +261,13 @@ function Login() {
           </div>
 
           {/* Google Login */}
-          <Link
-            to="/auth/google"
-            className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 cursor-pointer"
+          <button
+            onClick={handleGoogleLogin}
+            className="w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 cursor-pointer transition-colors"
           >
             <img src={googleIcon} alt="Google" className="w-4 h-4" />
             <span>Log In with Google</span>
-          </Link>
+          </button>
 
           {/* Signup Link */}
           <p className="text-center text-sm mt-4 text-gray-600">

@@ -53,7 +53,7 @@ const Sidebar = () => {
       {/* Post Item Button */}
       <div className="p-4 border-gray-100">
         <button
-          onClick={() => handleNavigation("/post-item")}
+          onClick={() => handleNavigation("/my-posts")}
           className="w-full text-purple-600 py-3 px-4 rounded-sm font-medium hover:bg-purple-100 transition-colors cursor-pointer flex items-center justify-between duration-300"
         >
           <span>Post Item</span>

@@ -8,11 +8,16 @@ import ItemListing from "@/pages/Dashboard/ItemListing";
 import ItemDetail from "@/pages/Dashboard/ItemDetail";
 import SellerProfile from "@/pages/Dashboard/SellerProfile";
 import RoommateListing from "@/pages/Dashboard/RoommateListing";
+import MyPosts from "@/pages/Dashboard/MyPosts";
+import CreateItemListing from "@/pages/Dashboard/CreateItemListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
+import ResetPassword from "@/pages/auth/ResetPassword";
 import Login from "@/pages/auth/Login";
+import OAuthCallback from "@/pages/auth/OAuthCallback";
+import OAuthError from "@/pages/auth/OAuthError";
 import AboutUs from "@/pages/AboutUs";
 import Contact from "@/pages/Contact";
 import ApiTest from '@/components/test/ApiTest';
@@ -45,9 +50,22 @@ function App() {
             <Route path="/items/:itemId" element={<ItemDetail />} />
             <Route path="/seller/:sellerId" element={<SellerProfile />} />
             <Route path="/roommates" element={<RoommateListing />} />
+            <Route path="/my-posts" element={
+              <ProtectedRoute>
+                <MyPosts />
+              </ProtectedRoute>
+            } />
+            <Route path="/create-item" element={
+              <ProtectedRoute>
+                <CreateItemListing />
+              </ProtectedRoute>
+            } />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/auth/callback" element={<OAuthCallback />} />
+            <Route path="/auth/error" element={<OAuthError />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
             <Route path="/register" element={<Register />} />
