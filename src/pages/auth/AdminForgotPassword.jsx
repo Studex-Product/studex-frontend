@@ -8,6 +8,7 @@ import hidePassword from "@/assets/icons/hidePassword.svg";
 import Loader from "@/assets/icons/loader.svg";
 import Success from "@/assets/icons/check-circle.svg";
 import Mail from "@/assets/icons/mail-01.svg";
+import { useAuth } from "@/hooks/useAuth";
 
 const AdminForgotPassword = () => {
   const [searchParams] = useSearchParams();
@@ -18,14 +19,24 @@ const AdminForgotPassword = () => {
 
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
-  const [isEmailSubmitting, setIsEmailSubmitting] = useState(false);
+
+  // Use the same auth hooks as regular forgot password
+  const {
+    forgotPassword,
+    resetPassword,
+    isSendingResetEmail,
+    isResettingPassword,
+    isForgotPasswordSuccess,
+    isResetPasswordSuccess,
+    forgotPasswordError,
+    resetPasswordError
+  } = useAuth();
 
   const [formData, setFormData] = useState({
     newPassword: "",
     confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -33,10 +44,33 @@ const AdminForgotPassword = () => {
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
 
-  
-  const validateAdminEmail = (email) => {
-    const adminEmailRegex = /^[\w.-]+@studex\.com$/;
-    return adminEmailRegex.test(email);
+  // Handle successful forgot password
+  useEffect(() => {
+    if (isForgotPasswordSuccess) {
+      setCurrentStep("emailSent");
+    }
+  }, [isForgotPasswordSuccess]);
+
+  // Handle successful password reset
+  useEffect(() => {
+    if (isResetPasswordSuccess) {
+      setCurrentStep("success");
+    }
+  }, [isResetPasswordSuccess]);
+
+  // Redirect to admin login after successful reset
+  useEffect(() => {
+    if (currentStep === "success") {
+      const timer = setTimeout(() => {
+        navigate("/admin/login");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep, navigate]);
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const checkPasswordStrength = (password) => {
@@ -84,36 +118,24 @@ const AdminForgotPassword = () => {
     e.preventDefault();
 
     if (!email) {
-      setEmailError("Admin email is required");
+      setEmailError("Email is required");
       return;
     }
 
-    if (!validateAdminEmail(email)) {
-      setEmailError("Please enter a valid admin email (admin@domain.com)");
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email address");
       return;
     }
 
-    setIsEmailSubmitting(true);
-
-    setTimeout(() => {
-      setCurrentStep("emailSent");
-      setIsEmailSubmitting(false);
-    }, 2000);
+    // Use the same forgot password endpoint as regular users
+    forgotPassword.mutate({ email: email });
   };
 
   const handleResendLink = () => {
+    // Use the same resend logic as regular users
+    forgotPassword.mutate({ email: email });
     setCanResend(false);
     setResendTimer(30);
-    
-    setTimeout(() => {
-      toast.custom(
-        () => (
-          <span className="rounded-lg p-3 bg-white text-sm border border-green-500 shadow-lg max-w-full">
-            Admin reset link resent successfully!
-          </span>
-        )
-      );
-    }, 1500);
   };
 
   const handleInputChange = (e) => {
@@ -138,13 +160,12 @@ const AdminForgotPassword = () => {
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
     if (validatePasswordForm()) {
-      setIsSubmitting(true);
-      
-
-      setTimeout(() => {
-        setCurrentStep("success");
-        setIsSubmitting(false);
-      }, 3000);
+      // Use the same reset password endpoint as regular users
+      resetPassword.mutate({
+        token: token,
+        newPassword: formData.newPassword,
+        confirmPassword: formData.confirmPassword
+      });
     }
   };
 
@@ -209,19 +230,26 @@ const AdminForgotPassword = () => {
             {emailError && (
               <p className="text-red-500 text-sm mt-1">{emailError}</p>
             )}
+
+            {/* API Error Display */}
+            {forgotPasswordError && (
+              <p className="text-red-500 text-sm mt-1">
+                {forgotPasswordError.response?.data?.message || "Failed to send reset email"}
+              </p>
+            )}
           </div>
 
           {/* Submit Button */}
           <button
             onClick={handleEmailSubmit}
-            disabled={isEmailSubmitting || !email || currentStep === "emailSent"}
+            disabled={isSendingResetEmail || !email || currentStep === "emailSent"}
             className={`w-full py-3 px-4 mt-6 rounded-lg font-medium cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              email && currentStep === "email"
+              email && currentStep === "email" && !isSendingResetEmail
                 ? "bg-purple-600 hover:bg-purple-700 text-white"
                 : "bg-purple-300 text-white"
             }`}
           >
-            {isEmailSubmitting ? (
+            {isSendingResetEmail ? (
               <div className="flex items-center justify-center">
                 <img
                   src={Loader}
@@ -231,7 +259,7 @@ const AdminForgotPassword = () => {
                 Sending Reset Link...
               </div>
             ) : (
-              "Submit "
+              "Send Reset Link"
             )}
           </button>
         </div>
@@ -259,10 +287,15 @@ const AdminForgotPassword = () => {
           </span>
           <button
             onClick={handleResendLink}
-            disabled={!canResend}
+            disabled={!canResend || isSendingResetEmail}
             className="text-purple-600 hover:text-purple-800 font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {!canResend ? `Resend in ${resendTimer}s` : "Resend link"}
+            {isSendingResetEmail
+              ? "Sending..."
+              : !canResend
+              ? `Resend in ${resendTimer}s`
+              : "Resend link"
+            }
           </button>
         </div>
 
@@ -396,31 +429,42 @@ const AdminForgotPassword = () => {
             )}
           </div>
 
+          {/* API Error Display */}
+          {resetPasswordError && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+              <p className="text-red-700 text-sm">
+                {resetPasswordError.response?.data?.message || "Password reset failed. Please try again."}
+              </p>
+            </div>
+          )}
+
           {/* Submit Button */}
           <button
             type="submit"
             className={`w-full py-3 px-4 rounded-lg font-medium cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              formData.newPassword && formData.confirmPassword
+              formData.newPassword && formData.confirmPassword && !isResettingPassword
                 ? "bg-purple-600 hover:bg-purple-700 text-white"
                 : "bg-purple-300 text-white"
             }`}
             disabled={
               !formData.newPassword ||
               !formData.confirmPassword ||
-              isSubmitting
+              isResettingPassword ||
+              errors.newPassword ||
+              errors.confirmPassword
             }
           >
-            {isSubmitting ? (
+            {isResettingPassword ? (
               <div className="flex items-center justify-center">
                 <img
                   src={Loader}
                   alt="Loading"
                   className="w-5 h-5 mr-2 animate-spin"
                 />
-                Saving...
+                Resetting Password...
               </div>
             ) : (
-              " Change Password "
+              "Reset Password"
             )}
           </button>
         </form>

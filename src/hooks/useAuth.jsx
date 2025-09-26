@@ -2,10 +2,25 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../api/authService";
 import { toast } from "sonner";
 import { useAuthContext } from "./useAuthContext";
+import { getUserRole } from "@/utils/jwt";
+import { useNavigate } from "react-router-dom";
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
   const authContext = useAuthContext();
+  const navigate = useNavigate();
+
+  // Role-based redirect function
+  const redirectByRole = (token) => {
+    const role = getUserRole(token);
+    console.log("Redirecting user with role:", role);
+
+    if (role === 'admin') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   // Register mutation
   const register = useMutation({
@@ -144,30 +159,45 @@ export const useAuth = () => {
     },
   });
 
-  // Login mutation with context integration
+  // Login mutation with context integration and role-based redirect
   const login = useMutation({
     mutationFn: authService.login,
     onSuccess: (data) => {
+      let token, user;
+
       // Store authentication data using context
       if (data.data && data.data.token && data.data.user) {
-        authContext.login(data.data.user, data.data.token);
+        token = data.data.token;
+        user = data.data.user;
+        authContext.login(user, token);
       } else if (data.token && data.user) {
         // Alternative response structure
-        authContext.login(data.user, data.token);
+        token = data.token;
+        user = data.user;
+        authContext.login(user, token);
       } else {
         // Fallback: just store token
         if (data.token) {
-          sessionStorage.setItem("token", data.token);
+          token = data.token;
+          sessionStorage.setItem("token", token);
         }
       }
 
       // Invalidate user queries to refetch
       queryClient.invalidateQueries({ queryKey: ["user"] });
+
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
           Login successful!
         </div>
       ));
+
+      // Redirect based on user role
+      if (token) {
+        setTimeout(() => {
+          redirectByRole(token);
+        }, 1000); // Small delay to allow toast to show
+      }
     },
     onError: (error) => {
       const message = error.response?.data?.message || "Login failed";
@@ -292,6 +322,7 @@ export const useAuth = () => {
     // Auth context data
     user: authContext.user,
     token: authContext.token,
+    userRole: authContext.userRole,
     isAuthenticated: authContext.isAuthenticated,
     isAuthLoading: authContext.isLoading,
 

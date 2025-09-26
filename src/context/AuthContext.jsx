@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext.js";
+import { getUserRole, isTokenExpired } from "@/utils/jwt";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [userRole, setUserRole] = useState('user');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -21,9 +23,17 @@ export const AuthProvider = ({ children }) => {
 
     if (storedToken && storedUser) {
       try {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
-        setIsAuthenticated(true);
+        // Check if token is expired
+        if (isTokenExpired(storedToken)) {
+          console.log("Stored token is expired, clearing auth data");
+          logout();
+        } else {
+          const role = getUserRole(storedToken);
+          setToken(storedToken);
+          setUser(JSON.parse(storedUser));
+          setUserRole(role);
+          setIsAuthenticated(true);
+        }
       } catch (error) {
         console.error("Error parsing stored user data:", error);
         logout();
@@ -35,6 +45,9 @@ export const AuthProvider = ({ children }) => {
   const login = (userData, authToken, rememberMe = false) => {
     const storage = rememberMe ? localStorage : sessionStorage;
 
+    // Extract role from token
+    const role = getUserRole(authToken);
+
     // Store token and user data
     storage.setItem("token", authToken);
     storage.setItem("user", JSON.stringify(userData));
@@ -42,9 +55,10 @@ export const AuthProvider = ({ children }) => {
     // Update state
     setToken(authToken);
     setUser(userData);
+    setUserRole(role);
     setIsAuthenticated(true);
 
-    console.log("User logged in successfully:", userData);
+    console.log("User logged in successfully:", userData, "with role:", role);
   };
 
   const logout = () => {
@@ -57,6 +71,7 @@ export const AuthProvider = ({ children }) => {
     // Reset state
     setToken(null);
     setUser(null);
+    setUserRole('user');
     setIsAuthenticated(false);
 
     console.log("User logged out");
@@ -73,6 +88,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     token,
+    userRole,
     isAuthenticated,
     isLoading,
     login,
