@@ -81,7 +81,7 @@ const RoommateFilterModal = ({ isOpen, onClose, onApplyFilters }) => {
       onClick={onClose}
     >
       <div
-        className={`bg-white w-full max-w-md h-full flex flex-col transform transition-transform duration-300 ${
+        className={`bg-white w-full max-w-sm h-full flex flex-col transform transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -122,7 +122,7 @@ const RoommateFilterModal = ({ isOpen, onClose, onApplyFilters }) => {
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setRoomType("All")}
-                className={`px-4 py-2 text-sm rounded-lg border cursor-pointer ${
+                className={`px-4 py-2 text-sm rounded-sm border cursor-pointer ${
                   roomType === "All"
                     ? "bg-purple-600 text-white border-purple-600"
                     : "bg-white hover:border-gray-400"
@@ -145,10 +145,10 @@ const RoommateFilterModal = ({ isOpen, onClose, onApplyFilters }) => {
                 onChange={([from, to]) =>
                   setBudgetRange({ from: `${from}`, to: `${to}` })
                 }
-                trackStyle={[{ backgroundColor: "#1570FA", height: 6 }]}
+                trackStyle={[{ backgroundColor: "#2dd75d", height: 6 }]}
                 handleStyle={[
                   {
-                    borderColor: "#1570FA",
+                    borderColor: "#2dd75d",
                     borderWidth: 2,
                     backgroundColor: "white",
                     height: 18,
@@ -157,7 +157,7 @@ const RoommateFilterModal = ({ isOpen, onClose, onApplyFilters }) => {
                     zIndex: 1,
                   },
                   {
-                    borderColor: "#1570FA",
+                    borderColor: "#2dd75d",
                     borderWidth: 2,
                     backgroundColor: "white",
                     height: 18,
