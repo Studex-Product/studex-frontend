@@ -8,6 +8,7 @@ export const useListing = () => {
   // Create listing mutation
   const createListing = useMutation({
     mutationFn: listingService.createListing,
+    retry: 0, // Prevent infinite retries
     onSuccess: (data) => {
       // Invalidate listings queries to refetch
       queryClient.invalidateQueries({ queryKey: ['listings'] });
@@ -34,6 +35,7 @@ export const useListing = () => {
   // Upload listing images mutation
   const uploadListingImages = useMutation({
     mutationFn: ({ listingId, files }) => listingService.uploadListingImages(listingId, files),
+    retry: 0, // Prevent infinite retries on 403 errors
     onSuccess: (data) => {
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ['listings'] });

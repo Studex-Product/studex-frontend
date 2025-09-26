@@ -43,7 +43,7 @@ const CreateItemListing = () => {
 
   // Handle successful listing creation
   useEffect(() => {
-    if (isCreateListingSuccess && createListing.data) {
+    if (isCreateListingSuccess && createListing.data && !createdListingId) {
       const listingId = createListing.data.id;
       setCreatedListingId(listingId);
 
@@ -60,7 +60,7 @@ const CreateItemListing = () => {
         navigate("/my-posts");
       }
     }
-  }, [isCreateListingSuccess, createListing.data, formData.photos, uploadListingImages, navigate]);
+  }, [isCreateListingSuccess, createListing.data, formData.photos, navigate, createdListingId, uploadListingImages.mutate]);
 
   // Handle successful image upload
   useEffect(() => {

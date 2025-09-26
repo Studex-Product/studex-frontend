@@ -58,7 +58,7 @@ const AdminDashboardLayout = ({ children }) => {
             {/* Welcome Text */}
             <div className="flex-1">
               <h1 className="text-2xl font-semibold text-gray-900">
-                Welcome Back, {user?.fullName?.split(' ')[0] || 'Michelle'}
+                Welcome Back, {user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : 'Michelle'}
               </h1>
             </div>
 
@@ -85,11 +85,11 @@ const AdminDashboardLayout = ({ children }) => {
                 >
                   <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                     <span className="text-white font-semibold text-sm">
-                      {user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'JO'}
+                      {user?.first_name && user?.last_name ? user.first_name.split(' ').map(n => n[0]).join('').toUpperCase() + user.last_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'JO'}
                     </span>
                   </div>
                   <span className="hidden md:block text-sm font-medium text-gray-700">
-                    {user?.fullName || 'Jessica Ofor'}
+                    {user?.first_name && user?.last_name ? `${user.first_name} ${user.last_name}` : 'Jessica Ofor'}
                   </span>
                   <img src={DropDown} alt="Dropdown" className="w-3 h-3 text-gray-400" />
                 </button>
