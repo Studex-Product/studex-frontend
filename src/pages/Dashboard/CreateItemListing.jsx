@@ -13,11 +13,9 @@ const CreateItemListing = () => {
     category: "",
     price: "",
     description: "",
-
-    // Step 2: Photos
     photos: [],
 
-    // Step 3: Additional Details
+    // Step 2: Additional Details
     condition: "",
     colour: "",
     material: "",
@@ -86,7 +84,7 @@ const CreateItemListing = () => {
   };
 
   const renderStep1 = () => (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Item Name */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -97,7 +95,7 @@ const CreateItemListing = () => {
           placeholder="e.g., Reading Desk, HP Laptop"
           value={formData.itemName}
           onChange={(e) => handleInputChange("itemName", e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
         />
       </div>
 
@@ -109,7 +107,7 @@ const CreateItemListing = () => {
         <select
           value={formData.category}
           onChange={(e) => handleInputChange("category", e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
         >
           <option value="">Select item category</option>
           <option value="electronics">Electronics</option>
@@ -132,7 +130,7 @@ const CreateItemListing = () => {
           placeholder="e.g., 15,000"
           value={formData.price}
           onChange={(e) => handleInputChange("price", e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
         />
       </div>
 
@@ -146,7 +144,7 @@ const CreateItemListing = () => {
           rows={4}
           value={formData.description}
           onChange={(e) => handleInputChange("description", e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
         />
       </div>
 
@@ -162,7 +160,7 @@ const CreateItemListing = () => {
         <div className="flex gap-4 items-start">
           {/* Add Photo Button */}
           {formData.photos.length < 4 && (
-            <label className="w-20 h-20 bg-purple-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-purple-200 transition-colors">
+            <label className="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center cursor-pointer hover:bg-purple-200 transition-colors">
               <img src={PlusIcon} alt="Add photo" className="w-6 h-6" />
               <input
                 type="file"
@@ -176,7 +174,7 @@ const CreateItemListing = () => {
 
           {/* Photo Previews */}
           {formData.photos.map((photo) => (
-            <div key={photo.id} className="relative w-20 h-20">
+            <div key={photo.id} className="relative w-16 h-16">
               <img
                 src={photo.url}
                 alt="Preview"
@@ -312,7 +310,7 @@ const CreateItemListing = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-2xl mx-auto p-6">
+      <div className=" bg-purple-100 p-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <span>My posts</span>
@@ -320,9 +318,11 @@ const CreateItemListing = () => {
           <span>Create a Post</span>
         </div>
 
-        {/* Header */}
+        {/* Container */}
+        <div className="w-full mx-auto py-4 bg-white rounded-2xl">
+          <div className="max-w-2xl mx-auto p-6">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          <h1 className="text-2xl font-meduim text-gray-900 mb-2">
             Post an Item for Sale
           </h1>
           <p className="text-gray-600">
@@ -356,6 +356,8 @@ const CreateItemListing = () => {
             {currentStep === 2 ? "Post Item" : "Next"}
           </button>
         </div>
+      </div>
+      </div>
       </div>
     </DashboardLayout>
   );
