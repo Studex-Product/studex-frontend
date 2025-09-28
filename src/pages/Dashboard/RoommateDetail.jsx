@@ -126,7 +126,19 @@ const RoommateDetail = () => {
   if (isLoading) {
     return (
       <DashboardLayout>
-        <div className="p-6 text-center">Loading profile...</div>
+         <div className="p-6 bg-purple-50 min-h-screen">
+          <div className="animate-pulse space-y-8">
+            <div className="h-4 bg-gray-200 rounded w-1/3 mb-8"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-3 bg-gray-200 rounded-lg p-6 h-48"></div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 bg-gray-200 rounded-lg p-6 h-48"></div>
+              <div className="bg-gray-200 rounded-lg p-6 h-48"></div>
+            </div>
+              <div className="bg-gray-200 rounded-lg p-6 h-48"></div>
+          </div>
+        </div>
       </DashboardLayout>
     );
   }

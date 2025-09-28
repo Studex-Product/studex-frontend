@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProductCard from "@/components/ui/ProductCard";
 import products from "@/sample data/products";
@@ -10,7 +10,12 @@ import UserPlus from "@/assets/icons/user-plus.svg";
 import Star from "@/assets/icons/star-outline.svg";
 import locationMarker from "@/assets/icons/location-marker.svg";
 import Package from "@/assets/icons/package-icon.svg";
-import { ChevronLeft, ChevronRight, PhoneIcon, MessageSquareTextIcon } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  PhoneIcon,
+  MessageSquareTextIcon,
+} from "lucide-react";
 
 // Mock API services (assuming these are correct and unchanged)
 const fetchSellerProfile = async (sellerId) => {
@@ -48,7 +53,15 @@ const fetchSellerItems = async (sellerId, page = 1) => {
 const SellerProfile = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
+  const location = useLocation();
   const { sellerId } = useParams();
+
+  // Get the item data that was passed when navigating to this seller profile
+  const fromItem = location.state?.fromItem;
+
+  // Alternative: get item from URL params if using /seller/:sellerId/from-item/:itemId pattern
+  // const { itemId } = useParams();
+  // const referrerItem = sellerItems?.find(item => item.id === parseInt(itemId));
 
   const {
     data: seller,
@@ -127,12 +140,18 @@ const SellerProfile = () => {
             Item Listing
           </button>
           <span>›</span>
-          <button
-            onClick={() => handleBreadcrumbNavigation("/items/2")}
-            className="hover:text-green-600 cursor-pointer"
-          >
-            Hostel Mattress (3ft)
-          </button>
+          {fromItem ? (
+            <button
+              onClick={() =>
+                handleBreadcrumbNavigation(`/items/${fromItem.id}`)
+              }
+              className="hover:text-green-600 cursor-pointer"
+            >
+              {fromItem.title}
+            </button>
+          ) : (
+            <span className="text-gray-500">Item Details</span>
+          )}
           <span>›</span>
           <span className="text-gray-900 font-medium">{seller?.name}</span>
         </nav>

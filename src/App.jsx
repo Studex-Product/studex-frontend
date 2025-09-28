@@ -9,6 +9,7 @@ import ItemDetail from "@/pages/Dashboard/ItemDetail";
 import SellerProfile from "@/pages/Dashboard/SellerProfile";
 import RoommateListing from "@/pages/Dashboard/RoommateListing";
 import RoommateDetail from "@/pages/Dashboard/RoommateDetail";
+import MessagesPage from "@/pages/Dashboard/MessagesPage";
 import MyPosts from "@/pages/Dashboard/MyPosts";
 import CreateItemListing from "@/pages/Dashboard/CreateItemListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
@@ -69,6 +70,7 @@ function App() {
             <Route path="/seller/:sellerId" element={<ProtectedRoute><SellerProfile /></ProtectedRoute>} />
             <Route path="/roommates" element={<ProtectedRoute><RoommateListing /></ProtectedRoute>} />
             <Route path="/roommates/:roommateId" element={<ProtectedRoute><RoommateDetail /></ProtectedRoute>} />
+            <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
             <Route path="/my-posts" element={<ProtectedRoute><MyPosts /></ProtectedRoute>} />
             <Route path="/create-item" element={<ProtectedRoute><CreateItemListing /></ProtectedRoute>} />
 

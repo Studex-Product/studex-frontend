@@ -20,6 +20,9 @@ const DashboardLayout = ({ children }) => {
     setIsDropdownOpen(prev => !prev);
   };
 
+  // Check for avatar/profile picture from various possible sources
+  const avatarUrl = user?.picture || user?.avatar || user?.profile_image || user?.profile_picture || null;
+
   return (
     <div className="h-screen flex">
       {/* Desktop Sidebar */}
@@ -87,11 +90,23 @@ const DashboardLayout = ({ children }) => {
                   className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition duration-300"
                 >
                   <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-semibold text-sm">
-                      {/* {user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'JO'} */}
-                      {user?.first_name && user?.last_name ? user.first_name.split(' ').map(n => n[0]).join('').toUpperCase() + user.last_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'JO'}
-
-                    </span>
+                    {avatarUrl ? (
+                      <img 
+                        src={avatarUrl} 
+                        alt={user?.first_name || 'User Avatar'}
+                        className="w-full h-full rounded-full object-cover"
+                        onError={(e) => {
+                          // Fallback if image fails to load
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      ) : (
+                        <span className="text-white font-semibold text-sm">
+                          {/* {user?.fullName ? user.fullName.split(' ').map(n => n[0]).join('').toUpperCase() : 'JO'} */}
+                          {user?.first_name && user?.last_name ? user.first_name.split(' ').map(n => n[0]).join('').toUpperCase() + user.last_name.split(' ').map(n => n[0]).join('').toUpperCase() : 'JO'}
+                        </span>
+                    )}
                   </div>
                   <span className="hidden md:block text-sm font-medium text-gray-700">
                     {/* {user?.fullName || 'Jessica Ofor'} */}

@@ -4,11 +4,12 @@ import { useAuthContext } from "@/hooks/useAuthContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useListing } from "@/hooks/useListing";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import Loader from '@/assets/Loader.svg';
 import { Plus, FileSearch, Users, List, Eye, MoreHorizontal } from "lucide-react";
 
 // ListingCard component to display individual listings
 const ListingCard = ({ listing }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // Format price
   const formatPrice = (price) => {
@@ -187,7 +188,7 @@ const MyPosts = () => {
             {/* Loading State */}
             {isLoadingUserListings ? (
               <div className="text-center py-12">
-                <div className="animate-spin w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                <img src={Loader} alt="Loading..." className="w-12 h-12 mx-auto mb-4" />
                 <p className="text-gray-600">Loading your listings...</p>
               </div>
             ) : userListingsError ? (

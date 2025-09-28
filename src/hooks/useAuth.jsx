@@ -213,9 +213,10 @@ export const useAuth = () => {
   const forgotPassword = useMutation({
     mutationFn: authService.forgotPassword,
     onSuccess: (data) => {
+      const message = data.message;
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
-          Password reset email sent! Check your inbox.
+          {message || "Password reset email sent successfully!"}
         </div>
       ));
       console.log("Forgot password successful:", data);
