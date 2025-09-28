@@ -7,15 +7,32 @@ import showPassword from "@/assets/icons/showPassword.svg";
 import hidePassword from "@/assets/icons/hidePassword.svg";
 import Loader from "@/assets/icons/loader.svg";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [viewPassword, setViewPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [loginError, setLoginError] = useState("");
 
+  // Use the same auth hook as regular login
+  const {
+    login,
+    isLoggingIn,
+    loginError,
+    isAuthenticated,
+    userRole
+  } = useAuth();
+
+
+  useEffect(() => {
+    // Redirect authenticated users
+    if (isAuthenticated && userRole === 'admin') {
+      navigate('/admin/dashboard');
+    } else if (isAuthenticated && userRole === 'user') {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, userRole, navigate]);
 
   useEffect(() => {
     return () => {
@@ -28,15 +45,14 @@ const AdminLogin = () => {
 
     if (!formData.email) {
       newErrors.email = "Email is required";
-    } else {
-      const adminEmailRegex = /^[\w.-]+@studex\.com$/;
-      if (!adminEmailRegex.test(formData.email)) {
-        newErrors.email = "Please enter a valid admin email (admin@studex.com)";
-      }
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format";
     }
 
     if (!formData.password) {
       newErrors.password = "Password is required";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
     }
 
     setErrors(newErrors);
@@ -56,22 +72,19 @@ const AdminLogin = () => {
         [name]: "",
       }));
     }
-
-    if (loginError) {
-      setLoginError("");
-    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
-    navigate("/admin/dashboard");
-    setLoginError("");
+    console.log("Submitting admin login with:", { email: formData.email, password: formData.password });
 
-      // TODO: Replace with actual API endpoint
-    
+    // Use the same login mutation as regular login
+    login.mutate({
+      email: formData.email,
+      password: formData.password
+    });
   };
 
   return (
@@ -141,8 +154,23 @@ const AdminLogin = () => {
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">{errors.password}</p>
             )}
+
+            {/* API Error Display */}
             {loginError && (
-              <p className="text-red-600 text-sm mt-1">{loginError}</p>
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md mt-4">
+                <p className="text-red-700 text-sm">
+                  {loginError.response?.data?.message ||
+                   (loginError.response?.status === 401 || loginError.response?.status === 422)
+                     ? "Invalid email or password"
+                     : loginError.response?.status === 404
+                     ? "Account not found"
+                     : loginError.response?.status === 429
+                     ? "Too many login attempts. Please try again later"
+                     : loginError.response?.status === 500
+                     ? "Server error. Please try again later"
+                     : "Login failed. Please check your credentials"}
+                </p>
+              </div>
             )}
             <div className="flex items-center justify-end mt-4">
               <Link className="text-xs text-green-600 underline cursor-pointer" to="/admin/forgot-password">
@@ -154,14 +182,14 @@ const AdminLogin = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting || !formData.email || !formData.password}
-            className={` w-full py-3 px-4 rounded-lg font-medium cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-              formData.email && formData.password && !isSubmitting
+            disabled={isLoggingIn || !formData.email || !formData.password || errors.email || errors.password}
+            className={`w-full py-3 px-4 rounded-lg font-medium cursor-pointer focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              formData.email && formData.password && !isLoggingIn && !errors.email && !errors.password
                 ? "bg-purple-600 hover:bg-purple-700 text-white"
                 : "bg-purple-300 text-white"
             }`}
           >
-            {isSubmitting ? (
+            {isLoggingIn ? (
               <div className="flex items-center justify-center">
                 <img
                   src={Loader}

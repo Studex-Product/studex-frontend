@@ -14,6 +14,8 @@ const ProductCard = ({
 }) => {
   const navigate = useNavigate();
 
+  // console.log('ProductCard received id:', id); // Add this line
+
   const handleCardClick = () => {
     navigate(`/items/${id}`);
   };

@@ -2,10 +2,25 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService } from "../api/authService";
 import { toast } from "sonner";
 import { useAuthContext } from "./useAuthContext";
+import { getUserRole } from "@/utils/jwt";
+import { useNavigate } from "react-router-dom";
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
   const authContext = useAuthContext();
+  const navigate = useNavigate();
+
+  // Role-based redirect function
+  const redirectByRole = (token) => {
+    const role = getUserRole(token);
+    console.log("Redirecting user with role:", role);
+
+    if (role === 'admin') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   // Register mutation
   const register = useMutation({
@@ -19,7 +34,38 @@ export const useAuth = () => {
       console.log("Registration successful:", data);
     },
     onError: (error) => {
-      const message = error.response?.data?.message || "Registration failed";
+      let message = "Registration failed";
+
+      // Check if server provided a specific message
+      if (error.response?.data?.message) {
+        message = `Registration failed: ${error.response.data.message}`;
+      } else {
+        // Provide user-friendly messages based on status code
+        switch (error.response?.status) {
+          case 400:
+            message = "Registration failed: Invalid data provided";
+            break;
+          case 409:
+            message = "Registration failed: Email already exists";
+            break;
+          case 422:
+            message = "Registration failed: Please check your information";
+            break;
+          case 429:
+            message = "Registration failed: Too many attempts. Please try again later";
+            break;
+          case 500:
+            message = "Registration failed: Server error. Please try again later";
+            break;
+          default:
+            if (!error.response) {
+              message = "Registration failed: Network error. Please check your connection";
+            } else {
+              message = "Registration failed: Please try again";
+            }
+        }
+      }
+
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
           {message}
@@ -40,8 +86,17 @@ export const useAuth = () => {
       console.log("Account verification successful:", data);
     },
     onError: (error) => {
-      const message =
-        error.response?.data?.message || "Account verification failed";
+      let message = error.response?.data?.message;
+
+      if (!message) {
+        // Provide more descriptive default message based on error status
+        if (error.response?.status === 400 || error.response?.status === 401) {
+          message = "Verification failed: Invalid or expired token. Please login to verify your email.";
+        } else {
+          message = "Account verification failed. Please try again or contact support.";
+        }
+      }
+
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
           {message}
@@ -50,7 +105,7 @@ export const useAuth = () => {
     },
   });
 
-  // Verify Email mutation
+  // Verify Email mutation (token from URL)
   const verifyEmail = useMutation({
     mutationFn: authService.verifyEmail,
     onSuccess: (data) => {
@@ -59,11 +114,22 @@ export const useAuth = () => {
           Email verified successfully!
         </div>
       ));
-      console.log("Email verification successful:", data);
+
+      // Trigger custom event for success since React Query state might not update properly
+      window.dispatchEvent(new CustomEvent('emailVerificationSuccess', { detail: data }));
     },
     onError: (error) => {
-      const message =
-        error.response?.data?.message || "Email verification failed";
+      let message = error.response?.data?.message;
+
+      if (!message) {
+        // Provide more descriptive default message based on error status
+        if (error.response?.status === 400 || error.response?.status === 401) {
+          message = "Verification failed: Invalid or expired token. Please login to verify your email.";
+        } else {
+          message = "Email verification failed. Please try again or contact support.";
+        }
+      }
+
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
           {message}
@@ -72,30 +138,66 @@ export const useAuth = () => {
     },
   });
 
-  // Login mutation with context integration
+  // Resend Verification Email mutation
+  const resendVerification = useMutation({
+    mutationFn: authService.resendVerification,
+    onSuccess: () => {
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Verification email sent successfully!
+        </div>
+      ));
+    },
+    onError: (error) => {
+      const message =
+        error.response?.data?.message || "Failed to resend verification email";
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {message}
+        </div>
+      ));
+    },
+  });
+
+  // Login mutation with context integration and role-based redirect
   const login = useMutation({
     mutationFn: authService.login,
     onSuccess: (data) => {
+      let token, user;
+
       // Store authentication data using context
       if (data.data && data.data.token && data.data.user) {
-        authContext.login(data.data.user, data.data.token);
+        token = data.data.token;
+        user = data.data.user;
+        authContext.login(user, token);
       } else if (data.token && data.user) {
         // Alternative response structure
-        authContext.login(data.user, data.token);
+        token = data.token;
+        user = data.user;
+        authContext.login(user, token);
       } else {
         // Fallback: just store token
         if (data.token) {
-          sessionStorage.setItem("token", data.token);
+          token = data.token;
+          sessionStorage.setItem("token", token);
         }
       }
 
       // Invalidate user queries to refetch
       queryClient.invalidateQueries({ queryKey: ["user"] });
+
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
           Login successful!
         </div>
       ));
+
+      // Redirect based on user role
+      if (token) {
+        setTimeout(() => {
+          redirectByRole(token);
+        }, 1000); // Small delay to allow toast to show
+      }
     },
     onError: (error) => {
       const message = error.response?.data?.message || "Login failed";
@@ -150,6 +252,45 @@ export const useAuth = () => {
     },
   });
 
+  // OAuth Google login
+  const initiateGoogleLogin = () => {
+    try {
+      authService.initiateGoogleLogin();
+    } catch (error) {
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {error}:Failed to initiate Google login. Please try again.
+        </div>
+      ));
+    }
+  };
+
+  // OAuth callback validation
+  const validateOAuthToken = useMutation({
+    mutationFn: authService.handleOAuthCallback,
+    onSuccess: (data) => {
+      // Update auth context with user data and token from /api/auth/me
+      authContext.login(data.user, data.token);
+
+      // Invalidate user queries to refetch
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Login successful!
+        </div>
+      ));
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || "OAuth authentication failed";
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {message}
+        </div>
+      ));
+    },
+  });
+
   // Logout function
   const logout = () => {
     authContext.logout();
@@ -166,10 +307,13 @@ export const useAuth = () => {
     register,
     verifyAccount,
     verifyEmail,
+    resendVerification,
 
     // Authentication
     login,
     logout,
+    initiateGoogleLogin,
+    validateOAuthToken,
 
     // Password management
     forgotPassword,
@@ -178,6 +322,7 @@ export const useAuth = () => {
     // Auth context data
     user: authContext.user,
     token: authContext.token,
+    userRole: authContext.userRole,
     isAuthenticated: authContext.isAuthenticated,
     isAuthLoading: authContext.isLoading,
 
@@ -185,6 +330,7 @@ export const useAuth = () => {
     isRegistering: register.isPending,
     isVerifyingAccount: verifyAccount.isPending,
     isVerifyingEmail: verifyEmail.isPending,
+    isResendingVerification: resendVerification.isPending,
     isLoggingIn: login.isPending,
     isSendingResetEmail: forgotPassword.isPending,
     isResettingPassword: resetPassword.isPending,
@@ -193,6 +339,7 @@ export const useAuth = () => {
     registerError: register.error,
     verifyAccountError: verifyAccount.error,
     verifyEmailError: verifyEmail.error,
+    resendVerificationError: resendVerification.error,
     loginError: login.error,
     forgotPasswordError: forgotPassword.error,
     resetPasswordError: resetPassword.error,
@@ -201,6 +348,7 @@ export const useAuth = () => {
     isRegisterSuccess: register.isSuccess,
     isVerifyAccountSuccess: verifyAccount.isSuccess,
     isVerifyEmailSuccess: verifyEmail.isSuccess,
+    isResendVerificationSuccess: resendVerification.isSuccess,
     isLoginSuccess: login.isSuccess,
     isForgotPasswordSuccess: forgotPassword.isSuccess,
     isResetPasswordSuccess: resetPassword.isSuccess,
