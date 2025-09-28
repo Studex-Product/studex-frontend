@@ -98,8 +98,16 @@ const ItemDetail = () => {
 
   const handleSellerProfile = () => {
     console.log("Open seller profile");
-    navigate(`/seller/${item?.seller?.id}`);
-  };
+    // navigate(`/seller/${item?.seller?.id}`);
+      navigate(`/seller/${item.sellerId}`, {
+    state: { 
+      fromItem: {
+        id: item.id,
+        title: item.title
+      }
+    }
+  });
+};
 
   const handleChatNow = () => {
     console.log("Open chat with seller");
