@@ -12,6 +12,7 @@ import RoommateDetail from "@/pages/Dashboard/RoommateDetail";
 import MessagesPage from "@/pages/Dashboard/MessagesPage";
 import MyPosts from "@/pages/Dashboard/MyPosts";
 import CreateItemListing from "@/pages/Dashboard/CreateItemListing";
+import CreateRoomateListing from "@/pages/Dashboard/CreateRoomateListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -73,6 +74,7 @@ function App() {
             <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
             <Route path="/my-posts" element={<ProtectedRoute><MyPosts /></ProtectedRoute>} />
             <Route path="/create-item" element={<ProtectedRoute><CreateItemListing /></ProtectedRoute>} />
+            <Route path="/create-roommate" element={<ProtectedRoute><CreateRoomateListing /></ProtectedRoute>} />
 
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

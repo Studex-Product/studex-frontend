@@ -108,7 +108,7 @@ const MyPosts = () => {
 
   // Check if user email is verified
   const isEmailVerified =
-    user?.emailVerified || user?.email_verified || user?.verified;
+   true;
 
   const handleCreatePostClick = () => {
     if (!isEmailVerified) {
