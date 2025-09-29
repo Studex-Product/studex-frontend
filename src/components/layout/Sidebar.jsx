@@ -26,7 +26,7 @@ const Sidebar = () => {
   ];
 
   const supportItems = [
-    { name: "Support", path: "/support", icon: SupportIcon },
+    { name: "Support", path: "/contact", icon: SupportIcon },
     { name: "Settings", path: "/settings", icon: SettingsIcon },
   ];
 
