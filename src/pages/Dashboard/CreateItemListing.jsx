@@ -60,7 +60,7 @@ const CreateItemListing = () => {
         navigate("/my-posts");
       }
     }
-  }, [isCreateListingSuccess, createListing.data, formData.photos, navigate, createdListingId, uploadListingImages.mutate]);
+  }, [isCreateListingSuccess, createListing.data, formData.photos, navigate, createdListingId, uploadListingImages]);
 
   // Handle successful image upload
   useEffect(() => {
