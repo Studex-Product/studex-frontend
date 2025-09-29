@@ -15,7 +15,9 @@ export const useAuth = () => {
     const role = getUserRole(token);
     console.log("Redirecting user with role:", role);
 
-    if (role === 'admin') {
+    if (role === 'super_admin') {
+      navigate('/super-admin/dashboard');
+    } else if (role === 'admin') {
       navigate('/admin/dashboard');
     } else {
       navigate('/dashboard');

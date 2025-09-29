@@ -15,6 +15,7 @@ import CreateItemListing from "@/pages/Dashboard/CreateItemListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import SuperAdminDashboard from "@/pages/super-admin/SuperAdminDashboard";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ResetPassword from "@/pages/auth/ResetPassword";
@@ -64,6 +65,7 @@ function App() {
 
             {/* Protected Routes */}
             <Route path="/admin/dashboard" element={ <ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/super-admin/dashboard" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/items" element={<ProtectedRoute><ItemListing /></ProtectedRoute>} />
             <Route path="/items/:itemId" element={<ProtectedRoute><ItemDetail /></ProtectedRoute>} />
