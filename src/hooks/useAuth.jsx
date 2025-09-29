@@ -11,15 +11,40 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   // Role-based redirect function
-  const redirectByRole = (token) => {
-    const role = getUserRole(token);
-    console.log("Redirecting user with role:", role);
+  const redirectByRole = (userData, token) => {
+    // Get role from login response first, fallback to JWT token
+    let role = 'user';
+
+    console.log("=== ROLE DETECTION DEBUG ===");
+    console.log("User data received:", userData);
+    console.log("Token received:", token);
+
+    if (userData?.role) {
+      role = userData.role;
+      console.log("Role found in userData.role:", role);
+    } else if (userData?.user_type) {
+      role = userData.user_type;
+      console.log("Role found in userData.user_type:", role);
+    } else if (userData?.type) {
+      role = userData.type;
+      console.log("Role found in userData.type:", role);
+    } else {
+      const jwtRole = getUserRole(token);
+      role = jwtRole;
+      console.log("Role extracted from JWT token:", jwtRole);
+    }
+
+    console.log("Final role determined:", role);
+    console.log("=== END ROLE DEBUG ===");
 
     if (role === 'super_admin') {
+      console.log("Redirecting to super admin dashboard");
       navigate('/super-admin/dashboard');
     } else if (role === 'admin') {
+      console.log("Redirecting to admin dashboard");
       navigate('/admin/dashboard');
     } else {
+      console.log("Redirecting to user dashboard");
       navigate('/dashboard');
     }
   };
@@ -194,11 +219,32 @@ export const useAuth = () => {
         </div>
       ));
 
-      // Redirect based on user role
-      if (token) {
-        setTimeout(() => {
-          redirectByRole(token);
-        }, 1000); // Small delay to allow toast to show
+      // Direct redirect based on user role from login response
+      const userData = data.data?.user || data.user || user;
+      let role = 'user';
+
+      if (userData?.role) {
+        role = userData.role;
+      } else if (userData?.user_type) {
+        role = userData.user_type;
+      } else if (userData?.type) {
+        role = userData.type;
+      } else if (token) {
+        role = getUserRole(token);
+      }
+
+      console.log("Login successful, redirecting user with role:", role);
+
+      // Immediate redirect
+      if (role === 'super_admin') {
+        console.log("Redirecting to super admin dashboard");
+        navigate('/super-admin/dashboard');
+      } else if (role === 'admin') {
+        console.log("Redirecting to admin dashboard");
+        navigate('/admin/dashboard');
+      } else {
+        console.log("Redirecting to user dashboard");
+        navigate('/dashboard');
       }
     },
     onError: (error) => {
@@ -328,6 +374,7 @@ export const useAuth = () => {
     userRole: authContext.userRole,
     isAuthenticated: authContext.isAuthenticated,
     isAuthLoading: authContext.isLoading,
+    refreshUserData: authContext.refreshUserData,
 
     // Loading states
     isRegistering: register.isPending,

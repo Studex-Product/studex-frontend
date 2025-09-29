@@ -15,7 +15,14 @@ import CreateItemListing from "@/pages/Dashboard/CreateItemListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminUsers from "@/pages/admin/Users";
+import AdminUserDetail from "@/pages/admin/UserDetail";
 import SuperAdminDashboard from "@/pages/super-admin/SuperAdminDashboard";
+import AllUsers from "@/pages/super-admin/AllUsers";
+import UserDetail from "@/pages/super-admin/UserDetail";
+import AllCampuses from "@/pages/super-admin/AllCampuses";
+import CreateCampus from "@/pages/super-admin/CreateCampus";
+import CampusDetail from "@/pages/super-admin/CampusDetail";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ResetPassword from "@/pages/auth/ResetPassword";
@@ -65,7 +72,14 @@ function App() {
 
             {/* Protected Routes */}
             <Route path="/admin/dashboard" element={ <ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+            <Route path="/admin/users/:userId" element={<ProtectedRoute><AdminUserDetail /></ProtectedRoute>} />
             <Route path="/super-admin/dashboard" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />
+            <Route path="/super-admin/users" element={<ProtectedRoute><AllUsers /></ProtectedRoute>} />
+            <Route path="/super-admin/users/:userId" element={<ProtectedRoute><UserDetail /></ProtectedRoute>} />
+            <Route path="/super-admin/campuses" element={<ProtectedRoute><AllCampuses /></ProtectedRoute>} />
+            <Route path="/super-admin/campuses/create" element={<ProtectedRoute><CreateCampus /></ProtectedRoute>} />
+            <Route path="/super-admin/campuses/:campusId" element={<ProtectedRoute><CampusDetail /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/items" element={<ProtectedRoute><ItemListing /></ProtectedRoute>} />
             <Route path="/items/:itemId" element={<ProtectedRoute><ItemDetail /></ProtectedRoute>} />

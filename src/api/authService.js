@@ -62,6 +62,12 @@ export const authService = {
     window.location.href = googleAuthUrl;
   },
 
+  // Get current user data
+  getCurrentUser: async () => {
+    const response = await apiClient.get('/api/auth/me');
+    return response.data;
+  },
+
   // OAuth callback - get user data with the token
   handleOAuthCallback: async (token) => {
     // Call /api/auth/me to get user data (consistent with backend flow)
