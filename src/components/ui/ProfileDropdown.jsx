@@ -28,7 +28,7 @@ const ProfileDropdown = ({ isOpen, onClose }) => {
   const menuItems = [
     { icon: <User size={20} />, text: 'My profile', path: '/profile' },
     { icon: <Settings size={20} />, text: 'Settings', path: '/settings' },
-    { icon: <Headphones size={20} />, text: 'Help & Support', path: '/support' },
+    { icon: <Headphones size={20} />, text: 'Help & Support', path: '/contact' },
   ];
 
   return (

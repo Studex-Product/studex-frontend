@@ -87,6 +87,10 @@ const PersonalDetailsTab = () => {
           <label htmlFor="school" className="block text-sm font-medium text-gray-700 mb-1">School/Institution</label>
           <input type="text" id="school" name="school" value={formData.school} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500" />
         </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Current Address</label>
+          <input type="text" id="address" name="address" value={formData.address} onChange={handleInputChange} className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500" />
+        </div>
       </div>
 
       <div className="mt-8">

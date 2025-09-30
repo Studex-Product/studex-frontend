@@ -362,6 +362,7 @@ export const useAuth = () => {
     userRole: authContext.userRole,
     isAuthenticated: authContext.isAuthenticated,
     isAuthLoading: authContext.isLoading,
+    updateUser: authContext.updateUser,
 
     // Loading states
     isRegistering: register.isPending,
