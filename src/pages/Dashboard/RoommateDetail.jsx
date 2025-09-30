@@ -224,7 +224,7 @@ const RoommateDetail = () => {
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <h2 className="text-xl font-bold mb-3">About Me</h2>
               <p className="text-gray-600 mb-4">{roommate.aboutMe}</p>
-              <h3 className="font-semibold mb-2">Interests</h3>
+              <h3 className="font-semibold mb-2">Hobbies</h3>
               <div className="flex flex-wrap gap-2">
                 {roommate.interests.map((interest) => (
                   <span
@@ -238,7 +238,7 @@ const RoommateDetail = () => {
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h2 className="text-xl font-bold mb-4">Apartment Preference</h2>
+              <h2 className="text-xl font-bold mb-4">About Apartment</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-4">
                 <div>
                   <span className="font-semibold text-gray-500 block">
@@ -248,15 +248,15 @@ const RoommateDetail = () => {
                 </div>
                 <div>
                   <span className="font-semibold text-gray-500 block">
-                    Preferred Location
+                    Location
                   </span>{" "}
                   {roommate.apartmentPreference.location}
                 </div>
                 <div>
                   <span className="font-semibold text-gray-500 block">
-                    Budget
+                    Price
                   </span>{" "}
-                  {roommate.apartmentPreference.budget}
+                  {roommate.apartmentPreference.price}
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
