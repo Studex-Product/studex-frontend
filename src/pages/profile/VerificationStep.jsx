@@ -1,23 +1,37 @@
 import React, { useState, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useDropzone } from 'react-dropzone';
+import { useQuery } from '@tanstack/react-query';
+import { adminService } from '@/api/adminService';
 import { ShieldCheck, Clock, UploadCloud, FileText, X } from 'lucide-react';
 
-// Mock list of schools for the dropdown
-const schools = [
-  "University of Lagos (UNILAG)",
-  "University of Benin (UNIBEN)",
-  "Lagos State University (LASU)",
-  "University of Nigeria, Nsukka (UNN)",
-  "Bayero University Kano (BUK)",
+// ID document types
+const idTypes = [
+  "Student ID Card",
+  "Admission Letter",
+  "School ID Card",
+  "Matriculation Certificate",
+  "Student Handbook with ID"
 ];
 
-const VerificationStep = ({ school, idFile, onNext }) => {
-  const { user } = useAuth(); // We'll assume the user object has a verificationStatus
+const VerificationStep = ({ school, idType, idFile, onNext }) => {
+  const { user } = useAuth();
 
-//   const verificationStatus = user.verificationStatus || 'verified'; // 'verified', 'pending', 'unverified' - for testing purposes
-  
+  // Fetch active campuses for assignment
+  const { data: campuses = [], isLoading: campusesLoading, error: campusesError } = useQuery({
+    queryKey: ["activeCampuses"],
+    queryFn: () => adminService.getCampuses(),
+    select: (data) => {
+      // Handle different response structures
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return data.items || data.campuses || data.data || [];
+    }
+  });
+
   const [selectedSchool, setSelectedSchool] = useState(school || '');
+  const [selectedIdType, setSelectedIdType] = useState(idType || '');
   const [file, setFile] = useState(idFile);
   const [error, setError] = useState('');
 
@@ -43,11 +57,15 @@ const VerificationStep = ({ school, idFile, onNext }) => {
   });
 
   const handleContinue = () => {
-    if (!selectedSchool || !file) {
-      setError('Please select your school and upload a valid ID.');
+    if (!selectedSchool || !selectedIdType || !file) {
+      setError('Please select your school, ID type, and upload a valid ID document.');
       return;
     }
-    onNext({ school: selectedSchool, idFile: file });
+    onNext({
+      school: selectedSchool,
+      idType: selectedIdType,
+      idFile: file
+    });
   };
   
   // If user has already submitted and is verified
@@ -90,19 +108,49 @@ const VerificationStep = ({ school, idFile, onNext }) => {
   return (
     <div>
       <h2 className="text-2xl font-medium text-gray-900">Verification</h2>
-      <p className="text-gray-600 mt-2">Please select your school and upload a valid student ID or admission letter to get verified.</p>
+      <p className="text-gray-600 mt-2">Please select your school, ID type, and upload a valid student ID document to get verified.</p>
       
       <div className="mt-8 space-y-6">
         <div>
           <label htmlFor="school" className="block text-sm font-medium text-gray-700 mb-1">School/Institution</label>
-          <select 
-            id="school"
-            value={selectedSchool}
-            onChange={(e) => setSelectedSchool(e.target.value)}
+          {campusesLoading ? (
+            <div className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50">
+              Loading campuses...
+            </div>
+          ) : campusesError ? (
+            <div className="w-full p-2 border border-red-300 rounded-lg bg-red-50 text-red-600">
+              Error loading campuses. Please refresh the page.
+            </div>
+          ) : (
+            <select
+              id="school"
+              value={selectedSchool}
+              onChange={(e) => setSelectedSchool(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+            >
+              <option value="" disabled>Select your school</option>
+              {campuses.map(campus => (
+                <option key={campus.id} value={campus.id}>
+                  {campus.name}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {/* ID Type Selection */}
+        <div>
+          <label htmlFor="idType" className="block text-sm font-medium text-gray-700 mb-1">ID Document Type</label>
+          <select
+            id="idType"
+            value={selectedIdType}
+            onChange={(e) => setSelectedIdType(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
           >
-            <option value="" disabled>Select your school</option>
-            {schools.map(s => <option key={s} value={s}>{s}</option>)}
+            <option value="" disabled>Select ID document type</option>
+            {idTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
           </select>
         </div>
 
@@ -135,10 +183,10 @@ const VerificationStep = ({ school, idFile, onNext }) => {
       {error && <p className="text-red-500 text-sm mt-3 text-center">{error}</p>}
 
       <div className="mt-8 flex justify-end">
-        <button 
+        <button
           onClick={handleContinue}
           className="px-8 py-2.5 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 disabled:bg-purple-300 transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
-          disabled={!selectedSchool || !file}
+          disabled={!selectedSchool || !selectedIdType || !file}
         >
           Continue
         </button>

@@ -1,5 +1,16 @@
 import apiClient from "./apiClient";
 
+// Helper function to transform user data from snake_case to camelCase
+const transformUserData = (userData) => {
+  if (!userData) return userData;
+
+  return {
+    ...userData,
+    isProfileComplete: userData.is_profile_complete,
+    // Add other transformations as needed
+  };
+};
+
 export const authService = {
   // User registration
   register: async (userData) => {
@@ -87,7 +98,37 @@ export const authService = {
   // Get current user data
   getCurrentUser: async () => {
     const response = await apiClient.get('/api/auth/me');
-    return response.data;
+    return transformUserData(response.data);
+  },
+
+  // Update user profile
+  updateProfile: async (profileData) => {
+    const response = await apiClient.put('/api/auth/profile', profileData);
+    return transformUserData(response.data);
+  },
+
+  // Complete profile setup
+  completeProfileSetup: async (profileData) => {
+    // Create FormData if there are files to upload
+    const formData = new FormData();
+
+    // Add all profile data to FormData
+    Object.keys(profileData).forEach(key => {
+      if (profileData[key] instanceof File) {
+        formData.append(key, profileData[key]);
+      } else if (typeof profileData[key] === 'object') {
+        formData.append(key, JSON.stringify(profileData[key]));
+      } else {
+        formData.append(key, profileData[key]);
+      }
+    });
+
+    const response = await apiClient.post('/api/auth/complete-profile', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return transformUserData(response.data);
   },
 
   // OAuth callback - get user data with the token
@@ -98,6 +139,6 @@ export const authService = {
         Authorization: `Bearer ${token}`,
       },
     });
-    return { user: response.data, token };
+    return { user: transformUserData(response.data), token };
   },
 };

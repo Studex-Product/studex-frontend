@@ -298,6 +298,34 @@ export const useAuth = () => {
     },
   });
 
+  // Complete Profile Setup mutation
+  const completeProfileSetup = useMutation({
+    mutationFn: authService.completeProfileSetup,
+    onSuccess: (data) => {
+      // Update the user with the returned data from backend
+      const updatedUser = { ...authContext.user, ...data, isProfileComplete: true };
+      authContext.updateUser(updatedUser);
+
+      // Invalidate user queries to refetch
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Profile setup completed successfully!
+        </div>
+      ));
+      console.log("Profile setup successful:", data);
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || "Profile setup failed";
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {message}
+        </div>
+      ));
+    },
+  });
+
   // OAuth Google login
   const initiateGoogleLogin = () => {
     try {
@@ -367,6 +395,9 @@ export const useAuth = () => {
     resetPassword,
     changePassword,
 
+    // Profile management
+    completeProfileSetup,
+
     // Auth context data
     user: authContext.user,
     token: authContext.token,
@@ -385,6 +416,7 @@ export const useAuth = () => {
     isSendingResetEmail: forgotPassword.isPending,
     isResettingPassword: resetPassword.isPending,
     isChangingPassword: changePassword.isPending,
+    isCompletingProfile: completeProfileSetup.isPending,
 
     // Error states
     registerError: register.error,
@@ -395,6 +427,7 @@ export const useAuth = () => {
     forgotPasswordError: forgotPassword.error,
     resetPasswordError: resetPassword.error,
     changePasswordError: changePassword.error,
+    completeProfileError: completeProfileSetup.error,
 
     // Success states
     isRegisterSuccess: register.isSuccess,
@@ -405,5 +438,6 @@ export const useAuth = () => {
     isForgotPasswordSuccess: forgotPassword.isSuccess,
     isResetPasswordSuccess: resetPassword.isSuccess,
     isChangePasswordSuccess: changePassword.isSuccess,
+    isCompleteProfileSuccess: completeProfileSetup.isSuccess,
   };
 };
