@@ -4,11 +4,13 @@ import { getUserRole, isTokenExpired } from "@/utils/jwt";
 import { authService } from "@/api/authService";
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({ isProfileComplete: Boolean(false) });
   const [token, setToken] = useState(null);
   const [userRole, setUserRole] = useState('user');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  
 
   // Check for existing token on app load
   useEffect(() => {

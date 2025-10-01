@@ -16,7 +16,7 @@ const roommates = [
     apartmentPreference: {
       type: "Shared 2-bedroom flat",
       location: "UNILAG - Akoka / Bariga",
-      budget: "₦70,000",
+      price: "₦70,000",
       tags: ["Constant light in area", "running water", "close to campus"],
     },
     preferences: {
@@ -47,7 +47,7 @@ const roommates = [
     apartmentPreference: {
       type: "Self-contained",
       location: "UNIBEN - BDPA",
-      budget: "₦120,000",
+      price: "₦120,000",
       tags: ["Good security", "close to campus"],
     },
     preferences: {
@@ -78,7 +78,7 @@ const roommates = [
     apartmentPreference: {
       type: "1-bedroom apartment",
       location: "LASU - Iba",
-      budget: "₦90,000",
+      price: "₦90,000",
       tags: ["running water", "Good security"],
     },
     preferences: {
@@ -109,7 +109,7 @@ const roommates = [
     apartmentPreference: {
       type: "Shared room",
       location: "BUK - New Campus",
-      budget: "₦100,000",
+      price: "₦100,000",
       tags: ["Stable power", "Good water supply"],
     },
     preferences: {
@@ -140,7 +140,7 @@ const roommates = [
     apartmentPreference: {
       type: "2-bedroom apartment",
       location: "UNIPORT - Abuja Park",
-      budget: "₦80,000",
+      price: "₦80,000",
       tags: ["Good ventilation", "Art-friendly space"],
     },
     preferences: {
@@ -171,7 +171,7 @@ const roommates = [
     apartmentPreference: {
       type: "Self-contained",
       location: "Yaba - Tejuosho",
-      budget: "₦150,000",
+      price: "₦150,000",
       tags: ["Fast internet", "Stable power"],
     },
     preferences: {
@@ -202,7 +202,7 @@ const roommates = [
     apartmentPreference: {
       type: "Shared room",
       location: "UNN - Hilltop",
-      budget: "₦80,000",
+      price: "₦80,000",
       tags: ["Good kitchen", "Close to school"],
     },
     preferences: {
@@ -233,7 +233,7 @@ const roommates = [
     apartmentPreference: {
       type: "1-bedroom apartment",
       location: "BUK - Old Campus",
-      budget: "₦100,000",
+      price: "₦100,000",
       tags: ["Modern apartment", "Good security"],
     },
     preferences: {
@@ -264,7 +264,7 @@ const roommates = [
     apartmentPreference: {
       type: "Shared room",
       location: "Yaba - Akoka",
-      budget: "₦80,000",
+      price: "₦80,000",
       tags: ["Quiet neighborhood", "Stable power"],
     },
     preferences: {

@@ -15,36 +15,21 @@ export const useAuth = () => {
     // Get role from login response first, fallback to JWT token
     let role = 'user';
 
-    console.log("=== ROLE DETECTION DEBUG ===");
-    console.log("User data received:", userData);
-    console.log("Token received:", token);
-
     if (userData?.role) {
       role = userData.role;
-      console.log("Role found in userData.role:", role);
     } else if (userData?.user_type) {
       role = userData.user_type;
-      console.log("Role found in userData.user_type:", role);
     } else if (userData?.type) {
       role = userData.type;
-      console.log("Role found in userData.type:", role);
     } else {
-      const jwtRole = getUserRole(token);
-      role = jwtRole;
-      console.log("Role extracted from JWT token:", jwtRole);
+      role = getUserRole(token);
     }
 
-    console.log("Final role determined:", role);
-    console.log("=== END ROLE DEBUG ===");
-
     if (role === 'super_admin') {
-      console.log("Redirecting to super admin dashboard");
       navigate('/super-admin/dashboard');
     } else if (role === 'admin') {
-      console.log("Redirecting to admin dashboard");
       navigate('/admin/dashboard');
     } else {
-      console.log("Redirecting to user dashboard");
       navigate('/dashboard');
     }
   };
@@ -79,14 +64,17 @@ export const useAuth = () => {
             message = "Registration failed: Please check your information";
             break;
           case 429:
-            message = "Registration failed: Too many attempts. Please try again later";
+            message =
+              "Registration failed: Too many attempts. Please try again later";
             break;
           case 500:
-            message = "Registration failed: Server error. Please try again later";
+            message =
+              "Registration failed: Server error. Please try again later";
             break;
           default:
             if (!error.response) {
-              message = "Registration failed: Network error. Please check your connection";
+              message =
+                "Registration failed: Network error. Please check your connection";
             } else {
               message = "Registration failed: Please try again";
             }
@@ -118,9 +106,11 @@ export const useAuth = () => {
       if (!message) {
         // Provide more descriptive default message based on error status
         if (error.response?.status === 400 || error.response?.status === 401) {
-          message = "Verification failed: Invalid or expired token. Please login to verify your email.";
+          message =
+            "Verification failed: Invalid or expired token. Please login to verify your email.";
         } else {
-          message = "Account verification failed. Please try again or contact support.";
+          message =
+            "Account verification failed. Please try again or contact support.";
         }
       }
 
@@ -143,7 +133,9 @@ export const useAuth = () => {
       ));
 
       // Trigger custom event for success since React Query state might not update properly
-      window.dispatchEvent(new CustomEvent('emailVerificationSuccess', { detail: data }));
+      window.dispatchEvent(
+        new CustomEvent("emailVerificationSuccess", { detail: data })
+      );
     },
     onError: (error) => {
       let message = error.response?.data?.message;
@@ -151,9 +143,11 @@ export const useAuth = () => {
       if (!message) {
         // Provide more descriptive default message based on error status
         if (error.response?.status === 400 || error.response?.status === 401) {
-          message = "Verification failed: Invalid or expired token. Please login to verify your email.";
+          message =
+            "Verification failed: Invalid or expired token. Please login to verify your email.";
         } else {
-          message = "Email verification failed. Please try again or contact support.";
+          message =
+            "Email verification failed. Please try again or contact support.";
         }
       }
 
@@ -219,32 +213,10 @@ export const useAuth = () => {
         </div>
       ));
 
-      // Direct redirect based on user role from login response
-      const userData = data.data?.user || data.user || user;
-      let role = 'user';
-
-      if (userData?.role) {
-        role = userData.role;
-      } else if (userData?.user_type) {
-        role = userData.user_type;
-      } else if (userData?.type) {
-        role = userData.type;
-      } else if (token) {
-        role = getUserRole(token);
-      }
-
-      console.log("Login successful, redirecting user with role:", role);
-
-      // Immediate redirect
-      if (role === 'super_admin') {
-        console.log("Redirecting to super admin dashboard");
-        navigate('/super-admin/dashboard');
-      } else if (role === 'admin') {
-        console.log("Redirecting to admin dashboard");
-        navigate('/admin/dashboard');
-      } else {
-        console.log("Redirecting to user dashboard");
-        navigate('/dashboard');
+      // Redirect based on user role using the dedicated function
+      if (token) {
+        const userData = data.data?.user || data.user || user;
+        redirectByRole(userData, token);
       }
     },
     onError: (error) => {
@@ -301,6 +273,31 @@ export const useAuth = () => {
     },
   });
 
+  // Change Password mutation
+  const changePassword = useMutation({
+    mutationFn: authService.changePassword,
+    onSuccess: (data) => {
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Password changed successfully! You will be logged out for security.
+        </div>
+      ));
+      console.log("Password change successful:", data);
+      // Log out user after successful password change for security
+      setTimeout(() => {
+        logout();
+      }, 2000);
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || "Password change failed";
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {message}
+        </div>
+      ));
+    },
+  });
+
   // OAuth Google login
   const initiateGoogleLogin = () => {
     try {
@@ -331,7 +328,8 @@ export const useAuth = () => {
       ));
     },
     onError: (error) => {
-      const message = error.response?.data?.message || "OAuth authentication failed";
+      const message =
+        error.response?.data?.message || "OAuth authentication failed";
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
           {message}
@@ -367,6 +365,7 @@ export const useAuth = () => {
     // Password management
     forgotPassword,
     resetPassword,
+    changePassword,
 
     // Auth context data
     user: authContext.user,
@@ -375,6 +374,7 @@ export const useAuth = () => {
     isAuthenticated: authContext.isAuthenticated,
     isAuthLoading: authContext.isLoading,
     refreshUserData: authContext.refreshUserData,
+    updateUser: authContext.updateUser,
 
     // Loading states
     isRegistering: register.isPending,
@@ -384,6 +384,7 @@ export const useAuth = () => {
     isLoggingIn: login.isPending,
     isSendingResetEmail: forgotPassword.isPending,
     isResettingPassword: resetPassword.isPending,
+    isChangingPassword: changePassword.isPending,
 
     // Error states
     registerError: register.error,
@@ -393,6 +394,7 @@ export const useAuth = () => {
     loginError: login.error,
     forgotPasswordError: forgotPassword.error,
     resetPasswordError: resetPassword.error,
+    changePasswordError: changePassword.error,
 
     // Success states
     isRegisterSuccess: register.isSuccess,
@@ -402,5 +404,6 @@ export const useAuth = () => {
     isLoginSuccess: login.isSuccess,
     isForgotPasswordSuccess: forgotPassword.isSuccess,
     isResetPasswordSuccess: resetPassword.isSuccess,
+    isChangePasswordSuccess: changePassword.isSuccess,
   };
 };

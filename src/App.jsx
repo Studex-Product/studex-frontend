@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/context/AuthContext.jsx";
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import ErrorBoundary from "@/pages/ErrorBoundary";
+import RouteErrorBoundary from "@/pages/RouteErrorBoundary";
 import Home from "@/pages/Home";
 import Dashboard from "@/pages/Dashboard/Dashboard";
 import ItemListing from "@/pages/Dashboard/ItemListing";
@@ -23,6 +25,9 @@ import UserDetail from "@/pages/super-admin/UserDetail";
 import AllCampuses from "@/pages/super-admin/AllCampuses";
 import CreateCampus from "@/pages/super-admin/CreateCampus";
 import CampusDetail from "@/pages/super-admin/CampusDetail";
+import Settings from "@/pages/Dashboard/settings/Settings";
+import ProfileSetupFlow from "@/pages/profile/ProfileSetupFlow";
+import Profile from "@/pages/profile/UserProfilePage";
 import Register from "@/pages/auth/Register";
 import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ResetPassword from "@/pages/auth/ResetPassword";
@@ -48,54 +53,188 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/auth/callback" element={<OAuthCallback />} />
-            <Route path="/auth/error" element={<OAuthError />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/about" element={<AboutUs />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
-            <Route path="/api-test" element={<ApiTest />} />
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<RouteErrorBoundary><Home /></RouteErrorBoundary>} />
+              <Route path="/admin/login" element={<RouteErrorBoundary><AdminLogin /></RouteErrorBoundary>} />
+              <Route path="/forgot-password" element={<RouteErrorBoundary><ForgotPassword /></RouteErrorBoundary>} />
+              <Route path="/reset-password" element={<RouteErrorBoundary><ResetPassword /></RouteErrorBoundary>} />
+              <Route path="/login" element={<RouteErrorBoundary><Login /></RouteErrorBoundary>} />
+              <Route path="/auth/callback" element={<RouteErrorBoundary><OAuthCallback /></RouteErrorBoundary>} />
+              <Route path="/auth/error" element={<RouteErrorBoundary><OAuthError /></RouteErrorBoundary>} />
+              <Route path="/about" element={<RouteErrorBoundary><AboutUs /></RouteErrorBoundary>} />
+              <Route path="/admin/forgot-password" element={<RouteErrorBoundary><AdminForgotPassword /></RouteErrorBoundary>} />
+              <Route path="/register" element={<RouteErrorBoundary><Register /></RouteErrorBoundary>} />
+              <Route path="/contact" element={<RouteErrorBoundary><Contact /></RouteErrorBoundary>} />
+              <Route path="/api-test" element={<RouteErrorBoundary><ApiTest /></RouteErrorBoundary>} />
 
-            {/* Protected Routes */}
-            <Route path="/admin/dashboard" element={ <ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
-            <Route path="/admin/users/:userId" element={<ProtectedRoute><AdminUserDetail /></ProtectedRoute>} />
-            <Route path="/super-admin/dashboard" element={<ProtectedRoute><SuperAdminDashboard /></ProtectedRoute>} />
-            <Route path="/super-admin/users" element={<ProtectedRoute><AllUsers /></ProtectedRoute>} />
-            <Route path="/super-admin/users/:userId" element={<ProtectedRoute><UserDetail /></ProtectedRoute>} />
-            <Route path="/super-admin/campuses" element={<ProtectedRoute><AllCampuses /></ProtectedRoute>} />
-            <Route path="/super-admin/campuses/create" element={<ProtectedRoute><CreateCampus /></ProtectedRoute>} />
-            <Route path="/super-admin/campuses/:campusId" element={<ProtectedRoute><CampusDetail /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/items" element={<ProtectedRoute><ItemListing /></ProtectedRoute>} />
-            <Route path="/items/:itemId" element={<ProtectedRoute><ItemDetail /></ProtectedRoute>} />
-            <Route path="/seller/:sellerId" element={<ProtectedRoute><SellerProfile /></ProtectedRoute>} />
-            <Route path="/roommates" element={<ProtectedRoute><RoommateListing /></ProtectedRoute>} />
-            <Route path="/roommates/:roommateId" element={<ProtectedRoute><RoommateDetail /></ProtectedRoute>} />
-            <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
-            <Route path="/my-posts" element={<ProtectedRoute><MyPosts /></ProtectedRoute>} />
-            <Route path="/create-item" element={<ProtectedRoute><CreateItemListing /></ProtectedRoute>} />
+              {/* Protected Routes */}
+              {/* Admin Routes */}
+              <Route path="/admin/dashboard" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AdminDashboard />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/users" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AdminUsers />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/users/:userId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AdminUserDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
 
-            {/* 404 Route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+              {/* Super Admin Routes */}
+              <Route path="/super-admin/dashboard" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <SuperAdminDashboard />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/users" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AllUsers />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/users/:userId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <UserDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/campuses" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AllCampuses />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/campuses/create" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <CreateCampus />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/campuses/:campusId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <CampusDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+
+              {/* User Dashboard Routes */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <Dashboard />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/items" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <ItemListing />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/items/:itemId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <ItemDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/seller/:sellerId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <SellerProfile />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/roommates" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <RoommateListing />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/roommates/:roommateId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <RoommateDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/messages" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <MessagesPage />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/my-posts" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <MyPosts />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/create-item" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <CreateItemListing />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+
+              {/* Profile & Settings Routes */}
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <Settings />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/profile-setup" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <ProfileSetupFlow />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <Profile />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+
+              {/* 404 Route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

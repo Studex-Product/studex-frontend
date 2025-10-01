@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import ProductCard from "@/components/ui/ProductCard";
 import products from "@/sample data/products";
 import DashBannerImg from "@/assets/images/DashBannerImg.png";
+import ProfileCompletionBanner from "../profile/ProfileCompletionBanner";
 import ChevronRightPurple from "@/assets/icons/chevron-right-purple.svg";
 
 // Mock API services
@@ -117,6 +118,7 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="px-6">
+        <ProfileCompletionBanner />
         {/* Hero Banner */}
         <div className="bg-[url('@/assets/images/DashBannerBg.png')] bg-cover bg-no-repeat rounded-2xl p-8 mb-8 relative overflow-hidden">
           <div className="relative z-10 flex items-center justify-between">

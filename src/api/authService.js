@@ -1,15 +1,18 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
 export const authService = {
   // User registration
   register: async (userData) => {
-    const response = await apiClient.post('/api/auth/signup', userData);
+    const response = await apiClient.post("/api/auth/signup", userData);
     return response.data;
   },
 
   // Account verification (after registration)
   verifyAccount: async (verificationData) => {
-    const response = await apiClient.post('/api/auth/verify-account', verificationData);
+    const response = await apiClient.post(
+      "/api/auth/verify-account",
+      verificationData
+    );
     return response.data;
   },
 
@@ -21,25 +24,43 @@ export const authService = {
 
   // Resend verification email
   resendVerification: async (emailData) => {
-    const response = await apiClient.post('/api/auth/resend-verification', emailData);
+    const response = await apiClient.post(
+      "/api/auth/resend-verification",
+      emailData
+    );
     return response.data;
   },
 
   // Login
   login: async (credentials) => {
-    const response = await apiClient.post('/api/auth/login', credentials);
+    const response = await apiClient.post("/api/auth/login", credentials);
     return response.data;
   },
 
   // Forgot password
   forgotPassword: async (emailData) => {
-    const response = await apiClient.post('/api/auth/forgot-password', emailData);
+    const response = await apiClient.post(
+      "/api/auth/forgot-password",
+      emailData
+    );
     return response.data;
   },
 
   // Reset password
   resetPassword: async (resetData) => {
-    const response = await apiClient.post('/api/auth/reset-password', resetData);
+    const response = await apiClient.post(
+      "/api/auth/reset-password",
+      resetData
+    );
+    return response.data;
+  },
+
+  // Change password (for authenticated users)
+  changePassword: async (passwordData) => {
+    const response = await apiClient.post(
+      "/api/auth/change-password",
+      passwordData
+    );
     return response.data;
   },
 
@@ -50,12 +71,13 @@ export const authService = {
 
     // Store current location for redirect after auth, but don't store auth pages
     const currentPath = window.location.pathname;
-    const isAuthPage = currentPath.includes('/login') ||
-                      currentPath.includes('/register') ||
-                      currentPath.includes('/forgot-password');
+    const isAuthPage =
+      currentPath.includes("/login") ||
+      currentPath.includes("/register") ||
+      currentPath.includes("/forgot-password");
 
     if (!isAuthPage) {
-      sessionStorage.setItem('preAuthLocation', currentPath);
+      sessionStorage.setItem("preAuthLocation", currentPath);
     }
 
     // Redirect to backend OAuth endpoint
@@ -71,11 +93,11 @@ export const authService = {
   // OAuth callback - get user data with the token
   handleOAuthCallback: async (token) => {
     // Call /api/auth/me to get user data (consistent with backend flow)
-    const response = await apiClient.get('/api/auth/me', {
+    const response = await apiClient.get("/api/auth/me", {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
     return { user: response.data, token };
-  }
+  },
 };
