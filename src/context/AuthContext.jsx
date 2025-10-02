@@ -25,8 +25,7 @@ export const AuthProvider = ({ children }) => {
       try {
         // Check if token is expired
         if (isTokenExpired(storedToken)) {
-          console.log("Stored token is expired, clearing auth data");
-          logout();
+            logout();
         } else {
           // Role hierarchy: cached role > JWT token > default
           let role = 'user';
@@ -41,8 +40,6 @@ export const AuthProvider = ({ children }) => {
           setUser(JSON.parse(storedUser));
           setUserRole(role);
           setIsAuthenticated(true);
-
-          console.log("Auth restored from storage with role:", role);
         }
       } catch (error) {
         console.error("Error parsing stored user data:", error);
@@ -61,27 +58,16 @@ export const AuthProvider = ({ children }) => {
     // 3. Default to 'user'
     let role = 'user';
 
-    console.log("=== AUTH CONTEXT LOGIN DEBUG ===");
-    console.log("UserData received:", userData);
-    console.log("Token received:", authToken);
-
     if (userData.role) {
       role = userData.role;
-      console.log("Role found in userData.role:", role);
     } else if (userData.user_type) {
       role = userData.user_type;
-      console.log("Role found in userData.user_type:", role);
     } else if (userData.type) {
       role = userData.type;
-      console.log("Role found in userData.type:", role);
     } else {
       // Fallback to JWT token extraction
       role = getUserRole(authToken);
-      console.log("Role extracted from JWT:", role);
     }
-
-    console.log("Final role stored:", role);
-    console.log("=== END AUTH CONTEXT DEBUG ===");
 
     // Store token and user data
     storage.setItem("token", authToken);
@@ -93,8 +79,6 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setUserRole(role);
     setIsAuthenticated(true);
-
-    console.log("User logged in successfully:", userData, "with role:", role);
   };
 
   const logout = () => {
@@ -111,8 +95,6 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setUserRole('user');
     setIsAuthenticated(false);
-
-    console.log("User logged out");
   };
 
   const updateUser = (userData) => {
@@ -147,8 +129,6 @@ export const AuthProvider = ({ children }) => {
 
       setUser(freshUserData);
       setUserRole(role);
-
-      console.log("User data refreshed from /me endpoint:", freshUserData, "with role:", role);
       return freshUserData;
     } catch (error) {
       console.error("Failed to refresh user data:", error);

@@ -19,6 +19,8 @@ import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminUserDetail from "@/pages/admin/UserDetail";
+import AdminVerifications from "@/pages/admin/Verifications";
+import AdminVerificationDetail from "@/pages/admin/VerificationDetail";
 import SuperAdminDashboard from "@/pages/super-admin/SuperAdminDashboard";
 import AllUsers from "@/pages/super-admin/AllUsers";
 import UserDetail from "@/pages/super-admin/UserDetail";
@@ -92,6 +94,20 @@ function App() {
                 <ProtectedRoute>
                   <RouteErrorBoundary>
                     <AdminUserDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/verifications" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AdminVerifications />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/verifications/:verificationId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AdminVerificationDetail />
                   </RouteErrorBoundary>
                 </ProtectedRoute>
               } />

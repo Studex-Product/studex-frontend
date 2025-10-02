@@ -17,6 +17,7 @@ const AdminSidebar = () => {
   const navigationItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: HomeIcon },
     { name: "Users", path: "/admin/users", icon: UsersIcon },
+    { name: "Verifications", path: "/admin/verifications", icon: FileIcon },
     { name: "Profile", path: "/admin/profile", icon: UsersIcon },
     { name: "Roommate", path: "/admin/roommate", icon: UsersIcon },
     { name: "Market", path: "/admin/market", icon: ShopIcon },

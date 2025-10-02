@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
 import { adminService } from "@/api/adminService";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import {
   Search,
@@ -21,15 +22,20 @@ import {
 
 const Users = () => {
   const navigate = useNavigate();
+  const { userRole, user } = useAuth();
+
+  // Check if campus info is available in user context
+  console.log("Current user:", user);
+  console.log("User role:", userRole);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("");
   const [verifiedFilter, setVerifiedFilter] = useState("");
   const limit = 10;
 
-  // Fetch campus users
+  // Fetch campus users with verification submissions
   const { data: usersData, isLoading, error, refetch } = useQuery({
-    queryKey: ["campusUsers", currentPage, searchTerm, statusFilter, verifiedFilter],
+    queryKey: ["campusUsers", currentPage, searchTerm, statusFilter, verifiedFilter, user?.campus_id],
     queryFn: async () => {
       try {
         const params = {
@@ -40,107 +46,70 @@ const Users = () => {
           ...(verifiedFilter && { verified: verifiedFilter })
         };
 
-        const response = await adminService.getCampusUsers(params);
+        let response;
+
+        // Use different endpoints based on admin role
+        if (userRole === 'super_admin') {
+          response = await adminService.getAllUsers(params);
+        } else {
+          // For campus admin, ensure campus_id is available
+          if (!user?.campus_id) {
+            console.error("Campus admin user missing campus_id:", user);
+            throw new Error("Campus information not available. Please contact support.");
+          }
+          params.campus_id = user.campus_id;
+          response = await adminService.getCampusUsers(params);
+        }
+
+        console.log("Users API response:", response);
 
         // Handle different response formats
         if (Array.isArray(response)) {
           return { items: response, total: response.length, page: 1, pages: 1 };
-        } else if (response.items) {
-          return response;
-        } else if (response.data) {
-          return Array.isArray(response.data)
-            ? { items: response.data, total: response.data.length, page: 1, pages: 1 }
-            : response.data;
+        } else if (response.items || response.data) {
+          // Handle paginated response
+          const items = response.items || response.data;
+          const total = response.total || response.count || items.length;
+          const pages = response.pages || response.total_pages || Math.ceil(total / limit);
+
+          return {
+            items: Array.isArray(items) ? items : [],
+            total,
+            page: response.page || response.current_page || currentPage,
+            pages
+          };
         }
+
+        // Fallback for unexpected response format
+        console.warn("Unexpected API response format:", response);
         return { items: [], total: 0, page: 1, pages: 1 };
-      } catch (error) {
-        console.warn("Failed to fetch campus users, using mock data:", error);
-        // Fallback mock data for development
-        const mockUsers = [
-          {
-            id: 1,
-            first_name: "Adelakun",
-            last_name: "Taiwo",
-            email: "adelakun.taiwo@unilag.edu.ng",
-            student_id: "UNILAG/24/2861",
-            location: "Ikeja, Lagos",
-            is_active: true,
-            student_verified: true,
-            created_at: "2024-04-12T00:00:00Z",
-            campus_name: "University of Lagos"
-          },
-          {
-            id: 2,
-            first_name: "James",
-            last_name: "Charles",
-            email: "james.charles@unilag.edu.ng",
-            student_id: "UNILAG/21/6651",
-            location: "VI, Lagos",
-            is_active: true,
-            student_verified: false,
-            created_at: "2024-06-12T00:00:00Z",
-            campus_name: "University of Lagos"
-          },
-          {
-            id: 3,
-            first_name: "Kathryn",
-            last_name: "Bernado",
-            email: "kathryn.bernado@unilag.edu.ng",
-            student_id: "UNILAG/23/1281",
-            location: "Ife, Osun",
-            is_active: false,
-            student_verified: true,
-            created_at: "2024-07-12T00:00:00Z",
-            campus_name: "University of Lagos"
-          }
-        ];
-
-        const filteredUsers = mockUsers.filter(user => {
-          const matchesSearch = !searchTerm ||
-            user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.student_id.toLowerCase().includes(searchTerm.toLowerCase());
-
-          const matchesStatus = !statusFilter ||
-            (statusFilter === 'active' && user.is_active) ||
-            (statusFilter === 'inactive' && !user.is_active);
-
-          const matchesVerified = !verifiedFilter ||
-            (verifiedFilter === 'verified' && user.student_verified) ||
-            (verifiedFilter === 'unverified' && !user.student_verified);
-
-          return matchesSearch && matchesStatus && matchesVerified;
-        });
-
-        return {
-          items: filteredUsers,
-          total: filteredUsers.length,
-          page: currentPage,
-          pages: Math.ceil(filteredUsers.length / limit)
-        };
+      } catch (err) {
+        console.error("Error fetching users:", err);
+        throw err;
       }
+    },
+    enabled: userRole === 'super_admin' || !!user?.campus_id,
+    retry: (failureCount, error) => {
+      // Don't retry if it's a missing campus_id error
+      if (error.message?.includes("Campus information not available")) {
+        return false;
+      }
+      return failureCount < 3;
     }
   });
 
-  // Get campus info
+  // Get campus info with fallback
   const { data: campus } = useQuery({
     queryKey: ["myCampus"],
-    queryFn: async () => {
-      try {
-        const response = await adminService.getMyCampus();
-        return response;
-      } catch (error) {
-        console.warn("Failed to fetch campus info:", error);
-        return {
-          id: 1,
-          name: "University of Lagos",
-          location: "Lagos, Nigeria",
-          total_users: usersData?.total || 0
-        };
-      }
+    queryFn: () => adminService.getMyCampus(),
+    retry: false,
+    onError: (error) => {
+      console.warn("Campus info not available:", error);
     }
   });
+
+  // Use fallback if campus data is not available
+  const campusInfo = campus || { name: user?.campus_name || "Admin Dashboard" };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -175,6 +144,25 @@ const Users = () => {
     );
   }
 
+  if (error) {
+    return (
+      <AdminDashboardLayout>
+        <div className="p-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+            <div className="text-red-600 mb-2">⚠️ Error Loading Users</div>
+            <p className="text-red-700 mb-4">{error.message}</p>
+            <button
+              onClick={() => refetch()}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </AdminDashboardLayout>
+    );
+  }
+
   return (
     <AdminDashboardLayout>
       <div className="p-6 space-y-6">
@@ -183,7 +171,7 @@ const Users = () => {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Campus Users</h1>
             <p className="text-gray-600">
-              Manage users from {campus?.name || "your campus"}
+              Manage users from {campusInfo?.name || "your campus"}
             </p>
           </div>
           <div className="flex items-center gap-3">

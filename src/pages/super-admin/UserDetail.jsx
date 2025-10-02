@@ -160,7 +160,7 @@ const UserDetail = () => {
   // Mutation for assigning campus admin
   const assignCampusAdminMutation = useMutation({
     mutationFn: ({ campusId, userId }) => adminService.assignCampusAdmin(campusId, userId),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
       queryClient.invalidateQueries({ queryKey: ["allUsers"] });
       // Invalidate campus admins for the campus they were assigned to
@@ -540,34 +540,6 @@ const UserDetail = () => {
                         <p className="font-medium">{user.campus_name}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <School className="w-4 h-4 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-600">Student ID</p>
-                        <p className="font-medium font-mono">{user.school_id}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <School className="w-4 h-4 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-600">Department</p>
-                        <p className="font-medium">{user.academic_info?.department || 'Not provided'}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <School className="w-4 h-4 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-600">Level</p>
-                        <p className="font-medium">{user.academic_info?.level || 'Not provided'}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-600">Expected Graduation</p>
-                        <p className="font-medium">{user.academic_info?.graduation_year || 'Not provided'}</p>
-                      </div>
-                    </div>
                   </div>
                 </div>
 
@@ -677,7 +649,7 @@ const UserDetail = () => {
 
         {/* Campus Assignment Modal */}
         {showCampusModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
               <div className="text-center mb-6">
                 <div className="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">

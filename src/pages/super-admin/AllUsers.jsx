@@ -31,98 +31,49 @@ const AllUsers = () => {
   const { data: usersData, isLoading, error } = useQuery({
     queryKey: ["allUsers", currentPage, searchTerm, filterCampus, filterStatus],
     queryFn: async () => {
-      try {
-        const params = {
-          page: currentPage,
-          limit: usersPerPage,
-          search: searchTerm || undefined,
-          campus_name: filterCampus || undefined,
-          status: filterStatus || undefined
-        };
+      const params = {
+        page: currentPage,
+        limit: usersPerPage,
+        search: searchTerm || undefined,
+        campus_name: filterCampus || undefined,
+        status: filterStatus || undefined
+      };
 
-        const response = await adminService.getAllUsers(params);
-        console.log("API Response:", response);
+      const response = await adminService.getAllUsers(params);
 
-        // Handle the actual API response structure
-        if (response.items) {
-          const processedData = {
-            users: response.items,
-            total: response.total,
-            totalPages: Math.ceil(response.total / (response.limit || usersPerPage))
-          };
-          console.log("Processed Data:", processedData);
-          return processedData;
-        }
-
-        return response;
-      } catch (error) {
-        // Fallback to mock data if API fails
-        console.warn("API call failed, using mock data:", error);
-
-        // Mock data based on the provided structure
-        const mockUsers = Array.from({ length: 100 }, (_, i) => ({
-          id: i + 1,
-          email: `user${i + 1}@university.edu`,
-          first_name: ["John", "Jane", "Mike", "Sarah", "David", "Emma"][i % 6],
-          last_name: ["Doe", "Smith", "Johnson", "Williams", "Brown", "Davis"][i % 6],
-          is_active: Math.random() > 0.2,
-          legacy_role: "USER",
-          roles: ["USER"],
-          campus_id: (i % 5) + 1,
-          campus_name: [
-            "University of Lagos",
-            "University of Ibadan",
-            "Obafemi Awolowo University",
-            "Federal University of Technology",
-            "University of Nigeria"
-          ][i % 5],
-          school_id: `UL/2021/${String(i + 1).padStart(3, '0')}`,
-          student_verified: Math.random() > 0.3
-        }));
-
-        // Apply filters
-        let filteredUsers = mockUsers;
-
-        if (searchTerm) {
-          filteredUsers = filteredUsers.filter(user =>
-            user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.school_id.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-        }
-
-        if (filterCampus) {
-          filteredUsers = filteredUsers.filter(user => user.campus_name === filterCampus);
-        }
-
-        if (filterStatus === "active") {
-          filteredUsers = filteredUsers.filter(user => user.is_active);
-        } else if (filterStatus === "inactive") {
-          filteredUsers = filteredUsers.filter(user => !user.is_active);
-        }
-
-        // Pagination
-        const startIndex = (currentPage - 1) * usersPerPage;
-        const endIndex = startIndex + usersPerPage;
-        const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+      // Handle the actual API response structure
+      if (response.items || response.data) {
+        const items = response.items || response.data;
+        const total = response.total || response.count || items.length;
+        const totalPages = response.pages || response.total_pages || Math.ceil(total / usersPerPage);
 
         return {
-          users: paginatedUsers,
-          total: filteredUsers.length,
-          totalPages: Math.ceil(filteredUsers.length / usersPerPage)
+          users: Array.isArray(items) ? items : [],
+          total,
+          totalPages
         };
       }
+
+      // Fallback for unexpected response format
+      return {
+        users: [],
+        total: 0,
+        totalPages: 1
+      };
     }
   });
 
-  const campuses = [
-    "University of Lagos",
-    "University of Ibadan",
-    "Obafemi Awolowo University",
-    "Federal University of Technology",
-    "University of Nigeria"
-  ];
+  // Fetch campuses for filter dropdown
+  const { data: campusesData } = useQuery({
+    queryKey: ["campuses"],
+    queryFn: () => adminService.getAllCampuses(),
+    retry: false
+  });
+
+  // Extract campus names for filter dropdown
+  const campuses = campusesData?.items?.map(campus => campus.name) ||
+                   campusesData?.data?.map(campus => campus.name) ||
+                   [];
 
   // Mutation for exporting users
   const exportUsersMutation = useMutation({
@@ -256,7 +207,9 @@ const AllUsers = () => {
                 <School className="w-5 h-5 text-orange-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{campuses.length}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {campusesData?.total || campuses.length}
+                </p>
                 <p className="text-sm text-gray-600">Campuses</p>
               </div>
             </div>
@@ -330,7 +283,6 @@ const AllUsers = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {console.log("Rendering users:", usersData?.users)}
                 {usersData?.users && usersData.users.length > 0 ? (
                   usersData.users.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">

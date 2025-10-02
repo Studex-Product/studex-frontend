@@ -18,7 +18,7 @@ export const adminService = {
 
   // Get single user details (Super Admin only)
   getUserById: async (userId) => {
-    const response = await apiClient.get(`/api/admin/users/${userId}`);
+    const response = await apiClient.get(`/api/admin/users/${userId}/comprehensive`);
     return response.data;
   },
 
@@ -272,7 +272,12 @@ export const adminService = {
     if (params.status) queryParams.append('status', params.status);
     if (params.verified) queryParams.append('verified', params.verified);
 
-    const response = await apiClient.get(`/api/admin/campus/users?${queryParams.toString()}`);
+    // Use the correct endpoint: GET /api/admin/campus/{campus_id}/users
+    if (!params.campus_id) {
+      throw new Error('campus_id is required for getCampusUsers');
+    }
+
+    const response = await apiClient.get(`/api/admin/campus/${params.campus_id}/users?${queryParams.toString()}`);
     return response.data;
   },
 
@@ -285,6 +290,56 @@ export const adminService = {
   // Get campus statistics for campus admin
   getCampusStats: async () => {
     const response = await apiClient.get('/api/admin/campus/stats');
+    return response.data;
+  },
+
+  // Student Verification Management
+  // Get pending student verifications for review
+  getPendingVerifications: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.page) queryParams.append('page', params.page);
+    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.campus_id) queryParams.append('campus_id', params.campus_id);
+    if (params.status) queryParams.append('status', params.status); // 'pending', 'approved', 'rejected'
+
+    const response = await apiClient.get(`/api/admin/verifications?${queryParams.toString()}`);
+    return response.data;
+  },
+
+  // Get single verification details
+  getVerificationById: async (verificationId) => {
+    const response = await apiClient.get(`/api/admin/verifications/${verificationId}`);
+    return response.data;
+  },
+
+  // Approve or reject student verification
+  reviewVerification: async (verificationId, status, review_note = '') => {
+    const response = await apiClient.post(`/api/admin/verifications/${verificationId}/review`, {
+      status, // 'approved' or 'rejected'
+      review_note // Required for 'rejected', optional for 'approved'
+    });
+    return response.data;
+  },
+
+  // Bulk review verifications
+  bulkReviewVerifications: async (verificationIds, status, review_note = '') => {
+    const response = await apiClient.post('/api/admin/verifications/bulk-review', {
+      verification_ids: verificationIds,
+      status, // 'approved' or 'rejected'
+      review_note // Required for 'rejected', optional for 'approved'
+    });
+    return response.data;
+  },
+
+  // Get verification statistics
+  getVerificationStats: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.period) queryParams.append('period', params.period); // 'daily', 'weekly', 'monthly'
+    if (params.campus_id) queryParams.append('campus_id', params.campus_id);
+
+    const response = await apiClient.get(`/api/admin/verifications/stats?${queryParams.toString()}`);
     return response.data;
   }
 };
