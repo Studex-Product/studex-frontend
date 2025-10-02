@@ -115,6 +115,42 @@ const PersonalDetailsTab = () => {
             </div>
             <div>
               <label
+                htmlFor="dob"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Date of Birth
+              </label>
+              <input
+                type="date"
+                id="dob"
+                name="dob"
+                value={formData.dob}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="gender"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Gender
+              </label>
+              <select
+                id="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+              >
+                <option value="" disabled>
+                  Choose your gender
+                </option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div>
+              <label
                 htmlFor="phone"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >

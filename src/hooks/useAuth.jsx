@@ -345,6 +345,7 @@ export const useAuth = () => {
     onSuccess: (data) => {
       // Update auth context with user data and token from /api/auth/me
       authContext.login(data.user, data.token);
+      console.log("OAuth login successful:", data.user);
 
       // Invalidate user queries to refetch
       queryClient.invalidateQueries({ queryKey: ["user"] });

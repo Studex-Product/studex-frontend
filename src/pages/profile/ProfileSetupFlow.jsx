@@ -11,7 +11,7 @@ import { ArrowLeft } from "lucide-react";
 
 const ProfileSetupFlow = () => {
   const navigate = useNavigate();
-  const { user, completeProfileSetup, isCompletingProfile } = useAuth();
+  const { completeProfileSetup, isCompletingProfile } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [profileData, setProfileData] = useState({
     profilePicture: null,
@@ -52,11 +52,20 @@ const ProfileSetupFlow = () => {
 
       // Send data to backend and update user context
       await completeProfileSetup.mutateAsync(submissionData);
-
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Profile setup completed successfully!
+        </div>
+      ));
       // Navigate to profile page on success
       navigate("/profile");
     } catch (error) {
       console.error("Profile setup failed:", error);
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          Profile setup failed. Please try again.
+        </div>
+      ));
       // Error handling is already done in the mutation
     }
   };
