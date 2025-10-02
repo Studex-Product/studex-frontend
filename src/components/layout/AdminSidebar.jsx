@@ -16,6 +16,8 @@ const AdminSidebar = () => {
 
   const navigationItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: HomeIcon },
+    { name: "Users", path: "/admin/users", icon: UsersIcon },
+    { name: "Verifications", path: "/admin/verifications", icon: FileIcon },
     { name: "Profile", path: "/admin/profile", icon: UsersIcon },
     { name: "Roommate", path: "/admin/roommate", icon: UsersIcon },
     { name: "Market", path: "/admin/market", icon: ShopIcon },
@@ -49,7 +51,7 @@ const AdminSidebar = () => {
       <div className="px-4 py-4">
         <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">General</h3>
         <div className="space-y-1">
-          {navigationItems.slice(0, 4).map((item) => (
+          {navigationItems.slice(0, 5).map((item) => (
             <button
               key={item.name}
               onClick={() => handleNavigation(item.path)}
@@ -77,7 +79,7 @@ const AdminSidebar = () => {
       {/* Analytics & Settings Section */}
       <div className="px-4 py-4">
         <div className="space-y-1">
-          {navigationItems.slice(4).map((item) => (
+          {navigationItems.slice(5).map((item) => (
             <button
               key={item.name}
               onClick={() => handleNavigation(item.path)}

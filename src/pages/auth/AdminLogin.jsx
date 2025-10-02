@@ -25,14 +25,7 @@ const AdminLogin = () => {
   } = useAuth();
 
 
-  useEffect(() => {
-    // Redirect authenticated users
-    if (isAuthenticated && userRole === 'admin') {
-      navigate('/admin/dashboard');
-    } else if (isAuthenticated && userRole === 'user') {
-      navigate('/dashboard');
-    }
-  }, [isAuthenticated, userRole, navigate]);
+  // Removed competing redirect logic - useAuth hook handles redirects
 
   useEffect(() => {
     return () => {

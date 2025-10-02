@@ -11,14 +11,26 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   // Role-based redirect function
-  const redirectByRole = (token) => {
-    const role = getUserRole(token);
-    console.log("Redirecting user with role:", role);
+  const redirectByRole = (userData, token) => {
+    // Get role from login response first, fallback to JWT token
+    let role = 'user';
 
-    if (role === "admin") {
-      navigate("/admin/dashboard");
+    if (userData?.role) {
+      role = userData.role;
+    } else if (userData?.user_type) {
+      role = userData.user_type;
+    } else if (userData?.type) {
+      role = userData.type;
     } else {
-      navigate("/dashboard");
+      role = getUserRole(token);
+    }
+
+    if (role === 'super_admin') {
+      navigate('/super-admin/dashboard');
+    } else if (role === 'admin') {
+      navigate('/admin/dashboard');
+    } else {
+      navigate('/dashboard');
     }
   };
 
@@ -201,11 +213,10 @@ export const useAuth = () => {
         </div>
       ));
 
-      // Redirect based on user role
+      // Redirect based on user role using the dedicated function
       if (token) {
-        setTimeout(() => {
-          redirectByRole(token);
-        }, 1000); // Small delay to allow toast to show
+        const userData = data.data?.user || data.user || user;
+        redirectByRole(userData, token);
       }
     },
     onError: (error) => {
@@ -287,6 +298,34 @@ export const useAuth = () => {
     },
   });
 
+  // Complete Profile Setup mutation
+  const completeProfileSetup = useMutation({
+    mutationFn: authService.completeProfileSetup,
+    onSuccess: (data) => {
+      // Update the user with the returned data from backend
+      const updatedUser = { ...authContext.user, ...data, isProfileComplete: true };
+      authContext.updateUser(updatedUser);
+
+      // Invalidate user queries to refetch
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Profile setup completed successfully!
+        </div>
+      ));
+      console.log("Profile setup successful:", data);
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || "Profile setup failed";
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {message}
+        </div>
+      ));
+    },
+  });
+
   // OAuth Google login
   const initiateGoogleLogin = () => {
     try {
@@ -356,12 +395,16 @@ export const useAuth = () => {
     resetPassword,
     changePassword,
 
+    // Profile management
+    completeProfileSetup,
+
     // Auth context data
     user: authContext.user,
     token: authContext.token,
     userRole: authContext.userRole,
     isAuthenticated: authContext.isAuthenticated,
     isAuthLoading: authContext.isLoading,
+    refreshUserData: authContext.refreshUserData,
     updateUser: authContext.updateUser,
 
     // Loading states
@@ -373,6 +416,7 @@ export const useAuth = () => {
     isSendingResetEmail: forgotPassword.isPending,
     isResettingPassword: resetPassword.isPending,
     isChangingPassword: changePassword.isPending,
+    isCompletingProfile: completeProfileSetup.isPending,
 
     // Error states
     registerError: register.error,
@@ -383,6 +427,7 @@ export const useAuth = () => {
     forgotPasswordError: forgotPassword.error,
     resetPasswordError: resetPassword.error,
     changePasswordError: changePassword.error,
+    completeProfileError: completeProfileSetup.error,
 
     // Success states
     isRegisterSuccess: register.isSuccess,
@@ -393,5 +438,6 @@ export const useAuth = () => {
     isForgotPasswordSuccess: forgotPassword.isSuccess,
     isResetPasswordSuccess: resetPassword.isSuccess,
     isChangePasswordSuccess: changePassword.isSuccess,
+    isCompleteProfileSuccess: completeProfileSetup.isSuccess,
   };
 };

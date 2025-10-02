@@ -11,13 +11,14 @@ import { ArrowLeft } from "lucide-react";
 
 const ProfileSetupFlow = () => {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user, completeProfileSetup, isCompletingProfile } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [profileData, setProfileData] = useState({
     profilePicture: null,
     aboutMe: "",
     personalities: [],
     school: "",
+    idType: "",
     idFile: null,
   });
 
@@ -39,16 +40,25 @@ const ProfileSetupFlow = () => {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const handleCompleteSetup = () => {
+  const handleCompleteSetup = async () => {
     console.log("Profile setup complete with data:", profileData);
-    // send data to backend then update the user's isProfileComplete status in AuthContext.
-    updateUser({ ...user, isProfileComplete: true, ...profileData });
-    toast.custom(() => (
-      <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
-        {"Profile setup complete!"}
-      </div>
-    ));
-    navigate("/profile");
+
+    try {
+      // Map the data to match backend expectations
+      const submissionData = {
+        ...profileData,
+        campus: profileData.school, // Map school to campus for backend
+      };
+
+      // Send data to backend and update user context
+      await completeProfileSetup.mutateAsync(submissionData);
+
+      // Navigate to profile page on success
+      navigate("/profile");
+    } catch (error) {
+      console.error("Profile setup failed:", error);
+      // Error handling is already done in the mutation
+    }
   };
 
   const renderStep = () => {
@@ -72,6 +82,7 @@ const ProfileSetupFlow = () => {
         return (
           <VerificationStep
             school={profileData.school}
+            idType={profileData.idType}
             idFile={profileData.idFile}
             onNext={handleNext}
           />
@@ -81,6 +92,7 @@ const ProfileSetupFlow = () => {
           <ReviewStep
             profileData={profileData}
             onComplete={handleCompleteSetup}
+            isSubmitting={isCompletingProfile}
           />
         );
       default:

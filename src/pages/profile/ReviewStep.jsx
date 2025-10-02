@@ -1,4 +1,6 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { adminService } from '@/api/adminService';
 // import { Edit } from 'lucide-react';
 
 const ReviewSection = ({ title, children }) => (
@@ -15,7 +17,25 @@ const ReviewSection = ({ title, children }) => (
   </div>
 );
 
-const ReviewStep = ({ profileData, onComplete }) => {
+const ReviewStep = ({ profileData, onComplete, isSubmitting = false }) => {
+  // Fetch campuses to display the actual campus name instead of ID
+  const { data: campuses = [] } = useQuery({
+    queryKey: ["activeCampuses"],
+    queryFn: () => adminService.getCampuses(),
+    select: (data) => {
+      if (Array.isArray(data)) {
+        return data;
+      }
+      return data.items || data.campuses || data.data || [];
+    }
+  });
+
+  // Find the campus name by ID
+  const getCampusName = (campusId) => {
+    const campus = campuses.find(c => c.id === campusId || c.id === parseInt(campusId));
+    return campus ? campus.name : campusId; // Fallback to ID if not found
+  };
+
   return (
     <div>
       <h2 className="text-2xl font-bold text-gray-900">Review and Confirm</h2>
@@ -50,7 +70,8 @@ const ReviewStep = ({ profileData, onComplete }) => {
         {/* Verification Review */}
         <ReviewSection title="Verification">
           <div className="text-sm text-gray-600">
-            <p><strong className="font-medium text-gray-800">School:</strong> {profileData.school}</p>
+            <p><strong className="font-medium text-gray-800">School:</strong> {getCampusName(profileData.school)}</p>
+            {profileData.idType && <p><strong className="font-medium text-gray-800">ID Type:</strong> {profileData.idType}</p>}
             {profileData.idFile && <p><strong className="font-medium text-gray-800">Document:</strong> {profileData.idFile.name}</p>}
           </div>
         </ReviewSection>
@@ -58,11 +79,16 @@ const ReviewStep = ({ profileData, onComplete }) => {
 
       {/* Confirmation Button */}
       <div className="mt-8 flex justify-end">
-        <button 
+        <button
           onClick={onComplete}
-          className="px-8 py-2.5 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-all duration-200 cursor-pointer"
+          disabled={isSubmitting}
+          className={`px-8 py-2.5 bg-purple-600 text-white font-medium rounded-lg transition-all duration-200 ${
+            isSubmitting
+              ? 'opacity-50 cursor-not-allowed'
+              : 'hover:bg-purple-700 cursor-pointer'
+          }`}
         >
-          Confirm & Complete Profile
+          {isSubmitting ? 'Completing Profile...' : 'Confirm & Complete Profile'}
         </button>
       </div>
     </div>

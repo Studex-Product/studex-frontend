@@ -17,6 +17,16 @@ import CreateItemListing from "@/pages/Dashboard/CreateItemListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminUsers from "@/pages/admin/Users";
+import AdminUserDetail from "@/pages/admin/UserDetail";
+import AdminVerifications from "@/pages/admin/Verifications";
+import AdminVerificationDetail from "@/pages/admin/VerificationDetail";
+import SuperAdminDashboard from "@/pages/super-admin/SuperAdminDashboard";
+import AllUsers from "@/pages/super-admin/AllUsers";
+import UserDetail from "@/pages/super-admin/UserDetail";
+import AllCampuses from "@/pages/super-admin/AllCampuses";
+import CreateCampus from "@/pages/super-admin/CreateCampus";
+import CampusDetail from "@/pages/super-admin/CampusDetail";
 import Settings from "@/pages/Dashboard/settings/Settings";
 import ProfileSetupFlow from "@/pages/profile/ProfileSetupFlow";
 import Profile from "@/pages/profile/UserProfilePage";
@@ -65,6 +75,7 @@ function App() {
               <Route path="/api-test" element={<RouteErrorBoundary><ApiTest /></RouteErrorBoundary>} />
 
               {/* Protected Routes */}
+              {/* Admin Routes */}
               <Route path="/admin/dashboard" element={
                 <ProtectedRoute>
                   <RouteErrorBoundary>
@@ -72,6 +83,80 @@ function App() {
                   </RouteErrorBoundary>
                 </ProtectedRoute>
               } />
+              <Route path="/admin/users" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AdminUsers />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/users/:userId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AdminUserDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/verifications" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AdminVerifications />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/admin/verifications/:verificationId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AdminVerificationDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+
+              {/* Super Admin Routes */}
+              <Route path="/super-admin/dashboard" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <SuperAdminDashboard />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/users" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AllUsers />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/users/:userId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <UserDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/campuses" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <AllCampuses />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/campuses/create" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <CreateCampus />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+              <Route path="/super-admin/campuses/:campusId" element={
+                <ProtectedRoute>
+                  <RouteErrorBoundary>
+                    <CampusDetail />
+                  </RouteErrorBoundary>
+                </ProtectedRoute>
+              } />
+
+              {/* User Dashboard Routes */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <RouteErrorBoundary>
@@ -135,6 +220,8 @@ function App() {
                   </RouteErrorBoundary>
                 </ProtectedRoute>
               } />
+
+              {/* Profile & Settings Routes */}
               <Route path="/settings" element={
                 <ProtectedRoute>
                   <RouteErrorBoundary>
