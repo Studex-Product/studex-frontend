@@ -1,6 +1,6 @@
 import shoppingcart from "../assets/icons/shopping-cart.svg";
 import building from "../assets/icons/building.svg";
-import users from "../assets/icons/users-icon.svg";
+import users from "@/assets/icons/users-icon.svg";
 
 export const features = [
   {
