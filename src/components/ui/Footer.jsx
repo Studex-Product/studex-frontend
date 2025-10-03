@@ -1,10 +1,10 @@
 import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from "../common/Logo";
-import Facebook from "/src/assets/icons/Facebook.svg";
-import Twitter from "/src/assets/icons/Twitter.svg";
-import LinkedIn from "/src/assets/icons/linkedIn.svg";
-import TikTok from "/src/assets/icons/tikTok.svg";
+import Facebook from "@/assets/icons/Facebook.svg";
+import Twitter from "@/assets/icons/Twitter.svg";
+import LinkedIn from "@/assets/icons/linkedIn.svg";
+import TikTok from "@/assets/icons/tikTok.svg";
 
 const NAVIGATION_SECTIONS = {
   platform: [
