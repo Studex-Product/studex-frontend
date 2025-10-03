@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProductCard from "@/components/ui/ProductCard";
-import products from "@/sample data/products";
+import products from "@/sample-data/products";
 import Avatar from "@/assets/images/AdminLoginImg.jpg";
 import Verified from "@/assets/icons/check-verified.svg";
 import UserPlus from "@/assets/icons/user-plus.svg";
