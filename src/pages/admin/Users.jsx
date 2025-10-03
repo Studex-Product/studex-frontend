@@ -5,6 +5,7 @@ import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
 import { adminService } from "@/api/adminService";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import Loader from "@/assets/Loader.svg";
 import {
   Search,
   Filter,
@@ -17,7 +18,7 @@ import {
   Calendar,
   Mail,
   Phone,
-  MapPin
+  MapPin,
 } from "lucide-react";
 
 const Users = () => {
@@ -34,8 +35,20 @@ const Users = () => {
   const limit = 10;
 
   // Fetch campus users with verification submissions
-  const { data: usersData, isLoading, error, refetch } = useQuery({
-    queryKey: ["campusUsers", currentPage, searchTerm, statusFilter, verifiedFilter, user?.campus_id],
+  const {
+    data: usersData,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: [
+      "campusUsers",
+      currentPage,
+      searchTerm,
+      statusFilter,
+      verifiedFilter,
+      user?.campus_id,
+    ],
     queryFn: async () => {
       try {
         const params = {
@@ -43,19 +56,21 @@ const Users = () => {
           limit,
           ...(searchTerm && { search: searchTerm }),
           ...(statusFilter && { status: statusFilter }),
-          ...(verifiedFilter && { verified: verifiedFilter })
+          ...(verifiedFilter && { verified: verifiedFilter }),
         };
 
         let response;
 
         // Use different endpoints based on admin role
-        if (userRole === 'super_admin') {
+        if (userRole === "super_admin") {
           response = await adminService.getAllUsers(params);
         } else {
           // For campus admin, ensure campus_id is available
           if (!user?.campus_id) {
             console.error("Campus admin user missing campus_id:", user);
-            throw new Error("Campus information not available. Please contact support.");
+            throw new Error(
+              "Campus information not available. Please contact support."
+            );
           }
           params.campus_id = user.campus_id;
           response = await adminService.getCampusUsers(params);
@@ -70,13 +85,14 @@ const Users = () => {
           // Handle paginated response
           const items = response.items || response.data;
           const total = response.total || response.count || items.length;
-          const pages = response.pages || response.total_pages || Math.ceil(total / limit);
+          const pages =
+            response.pages || response.total_pages || Math.ceil(total / limit);
 
           return {
             items: Array.isArray(items) ? items : [],
             total,
             page: response.page || response.current_page || currentPage,
-            pages
+            pages,
           };
         }
 
@@ -88,14 +104,14 @@ const Users = () => {
         throw err;
       }
     },
-    enabled: userRole === 'super_admin' || !!user?.campus_id,
+    enabled: userRole === "super_admin" || !!user?.campus_id,
     retry: (failureCount, error) => {
       // Don't retry if it's a missing campus_id error
       if (error.message?.includes("Campus information not available")) {
         return false;
       }
       return failureCount < 3;
-    }
+    },
   });
 
   // Get campus info with fallback
@@ -105,7 +121,7 @@ const Users = () => {
     retry: false,
     onError: (error) => {
       console.warn("Campus info not available:", error);
-    }
+    },
   });
 
   // Use fallback if campus data is not available
@@ -135,7 +151,11 @@ const Users = () => {
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              <img
+                src={Loader}
+                alt="Loading..."
+                className="w-12 h-12 mx-auto mb-4"
+              />
               <p className="mt-2 text-gray-600">Loading users...</p>
             </div>
           </div>
@@ -207,7 +227,7 @@ const Users = () => {
               <div>
                 <p className="text-sm text-gray-600">Verified Students</p>
                 <p className="font-semibold text-green-600">
-                  {users.filter(u => u.student_verified).length}
+                  {users.filter((u) => u.student_verified).length}
                 </p>
               </div>
             </div>
@@ -221,7 +241,7 @@ const Users = () => {
               <div>
                 <p className="text-sm text-gray-600">Unverified Students</p>
                 <p className="font-semibold text-orange-600">
-                  {users.filter(u => !u.student_verified).length}
+                  {users.filter((u) => !u.student_verified).length}
                 </p>
               </div>
             </div>
@@ -235,7 +255,7 @@ const Users = () => {
               <div>
                 <p className="text-sm text-gray-600">Inactive Users</p>
                 <p className="font-semibold text-red-600">
-                  {users.filter(u => !u.is_active).length}
+                  {users.filter((u) => !u.is_active).length}
                 </p>
               </div>
             </div>
@@ -333,7 +353,8 @@ const Users = () => {
                           <div className="flex items-center">
                             <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                               <span className="text-purple-600 font-medium text-sm">
-                                {user.first_name?.charAt(0)}{user.last_name?.charAt(0)}
+                                {user.first_name?.charAt(0)}
+                                {user.last_name?.charAt(0)}
                               </span>
                             </div>
                             <div className="ml-3">
@@ -350,7 +371,7 @@ const Users = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {user.student_id || 'N/A'}
+                          {user.student_id || "N/A"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
@@ -361,21 +382,25 @@ const Users = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                            user.is_active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {user.is_active ? 'Active' : 'Inactive'}
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                              user.is_active
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {user.is_active ? "Active" : "Inactive"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                            user.student_verified
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {user.student_verified ? 'Verified' : 'Pending'}
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                              user.student_verified
+                                ? "bg-green-100 text-green-800"
+                                : "bg-yellow-100 text-yellow-800"
+                            }`}
+                          >
+                            {user.student_verified ? "Verified" : "Pending"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -388,7 +413,7 @@ const Users = () => {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => handleViewUser(user.id)}
-                              className="text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                              className="text-blue-600 hover:text-blue-800 hover:scale-[1.5] transition-all duration-200 cursor-pointer"
                               title="View user details"
                             >
                               <Eye className="w-4 h-4" />
@@ -405,11 +430,15 @@ const Users = () => {
               {totalPages > 1 && (
                 <div className="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
                   <div className="text-sm text-gray-700">
-                    Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, totalUsers)} of {totalUsers} users
+                    Showing {(currentPage - 1) * limit + 1} to{" "}
+                    {Math.min(currentPage * limit, totalUsers)} of {totalUsers}{" "}
+                    users
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
                       disabled={currentPage === 1}
                       className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                     >
@@ -419,7 +448,9 @@ const Users = () => {
                       Page {currentPage} of {totalPages}
                     </span>
                     <button
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
                       disabled={currentPage === totalPages}
                       className="px-3 py-1 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                     >

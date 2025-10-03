@@ -39,7 +39,7 @@ const ProfileDropdown = ({ isOpen, onClose }) => {
 
     // Check if trying to access profile and user is not verified
     if (path === "/profile" && !user?.isProfileComplete) {
-      console.log("OAuth login successful:", user)
+      console.log(user)
       toast.error(
         "Please complete your profile setup before accessing your profile."
       );

@@ -14,12 +14,16 @@ import {
   Download,
   Search,
   ChevronDown,
-  FileText,
+  ShoppingBag,
   Calendar,
   ExternalLink,
+  Package,
+  Home,
+  DollarSign,
+  Tag,
 } from "lucide-react";
 
-const Verifications = () => {
+const Market = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,25 +31,27 @@ const Verifications = () => {
     status: "",
     search: "",
     campus_id: "",
+    category: "",
+    type: "",
   });
-  const [selectedVerifications, setSelectedVerifications] = useState([]);
+  const [selectedListings, setSelectedListings] = useState([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
 
-  // Fetch verifications
-  const { data: verifications, isLoading } = useQuery({
-    queryKey: ["admin-verifications", currentPage, filters],
+  // Fetch listings
+  const { data: listings, isLoading } = useQuery({
+    queryKey: ["admin-listings", currentPage, filters],
     queryFn: () =>
-      adminService.getPendingVerifications({
+      adminService.getAllListings({
         page: currentPage,
         limit: 10,
         ...filters,
       }),
   });
 
-  // Fetch verification stats
+  // Fetch listing stats
   const { data: stats } = useQuery({
-    queryKey: ["verification-stats"],
-    queryFn: () => adminService.getVerificationStats(),
+    queryKey: ["listing-stats"],
+    queryFn: () => adminService.getListingStats(),
   });
 
   // Fetch campuses for filter
@@ -63,25 +69,25 @@ const Verifications = () => {
     ? campusesData.items
     : [];
 
-  // Review verification mutation
+  // Review listing mutation
   const reviewMutation = useMutation({
-    mutationFn: ({ verificationId, status, review_note }) =>
-      adminService.reviewVerification(verificationId, status, review_note),
+    mutationFn: ({ listingId, status, review_note }) =>
+      adminService.reviewListing(listingId, status, review_note),
     onSuccess: (data, variables) => {
       const actionText =
         variables.status === "approved" ? "approved" : "rejected";
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
-          Verification {actionText} successfully!
+          Listing {actionText} successfully!
         </div>
       ));
-      queryClient.invalidateQueries(["admin-verifications"]);
-      queryClient.invalidateQueries(["verification-stats"]);
+      queryClient.invalidateQueries(["admin-listings"]);
+      queryClient.invalidateQueries(["listing-stats"]);
     },
     onError: (error) => {
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
-          Failed to process verification:{" "}
+          Failed to process listing:{" "}
           {error.response?.data?.message || error.message}
         </div>
       ));
@@ -90,29 +96,24 @@ const Verifications = () => {
 
   // Bulk review mutation
   const bulkReviewMutation = useMutation({
-    mutationFn: ({ verificationIds, status, review_note }) =>
-      adminService.bulkReviewVerifications(
-        verificationIds,
-        status,
-        review_note
-      ),
+    mutationFn: ({ listingIds, status, review_note }) =>
+      adminService.bulkReviewListings(listingIds, status, review_note),
     onSuccess: (data, variables) => {
       const actionText =
         variables.status === "approved" ? "approved" : "rejected";
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
-          {variables.verificationIds.length} verifications {actionText}{" "}
-          successfully!
+          {variables.listingIds.length} listings {actionText} successfully!
         </div>
       ));
-      queryClient.invalidateQueries(["admin-verifications"]);
-      queryClient.invalidateQueries(["verification-stats"]);
-      setSelectedVerifications([]);
+      queryClient.invalidateQueries(["admin-listings"]);
+      queryClient.invalidateQueries(["listing-stats"]);
+      setSelectedListings([]);
       setShowBulkActions(false);
     },
   });
 
-  const handleSingleReview = (verificationId, action) => {
+  const handleSingleReview = (listingId, action) => {
     const review_note =
       action === "reject"
         ? prompt("Please provide a reason for rejection:")
@@ -120,7 +121,7 @@ const Verifications = () => {
     if (action === "reject" && !review_note) return;
 
     const status = action === "approve" ? "approved" : "rejected";
-    reviewMutation.mutate({ verificationId, status, review_note });
+    reviewMutation.mutate({ listingId, status, review_note });
   };
 
   const handleBulkReview = (action) => {
@@ -132,30 +133,30 @@ const Verifications = () => {
 
     const status = action === "approve" ? "approved" : "rejected";
     bulkReviewMutation.mutate({
-      verificationIds: selectedVerifications,
+      listingIds: selectedListings,
       status,
       review_note,
     });
   };
 
-  const handleViewDetails = (verificationId) => {
-    navigate(`/admin/verifications/${verificationId}`);
+  const handleViewDetails = (listingId) => {
+    navigate(`/admin/market/${listingId}`);
   };
 
   const handleSelectAll = (checked) => {
     if (checked) {
-      const allIds = verifications?.items?.map((v) => v.id) || [];
-      setSelectedVerifications(allIds);
+      const allIds = listings?.items?.map((l) => l.id) || [];
+      setSelectedListings(allIds);
     } else {
-      setSelectedVerifications([]);
+      setSelectedListings([]);
     }
   };
 
-  const handleSelectVerification = (id, checked) => {
+  const handleSelectListing = (id, checked) => {
     if (checked) {
-      setSelectedVerifications((prev) => [...prev, id]);
+      setSelectedListings((prev) => [...prev, id]);
     } else {
-      setSelectedVerifications((prev) => prev.filter((vId) => vId !== id));
+      setSelectedListings((prev) => prev.filter((lId) => lId !== id));
     }
   };
 
@@ -179,6 +180,14 @@ const Verifications = () => {
     );
   };
 
+  const getTypeIcon = (type) => {
+    return type === "room" ? (
+      <Home size={14} className="text-blue-600" />
+    ) : (
+      <Package size={14} className="text-green-600" />
+    );
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -189,6 +198,14 @@ const Verifications = () => {
     });
   };
 
+  const formatPrice = (price) => {
+    if (!price) return "N/A";
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+    }).format(price);
+  };
+
   return (
     <AdminDashboardLayout>
       {/* Header */}
@@ -196,10 +213,10 @@ const Verifications = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Student Verifications
+              Market Listings
             </h1>
             <p className="text-gray-600 mt-1">
-              Review and approve student verification requests
+              Review and approve user listing submissions
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -207,13 +224,13 @@ const Verifications = () => {
               <Download size={16} />
               Export
             </button>
-            {selectedVerifications.length > 0 && (
+            {selectedListings.length > 0 && (
               <div className="relative">
                 <button
                   onClick={() => setShowBulkActions(!showBulkActions)}
                   className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
                 >
-                  Bulk Actions ({selectedVerifications.length})
+                  Bulk Actions ({selectedListings.length})
                   <ChevronDown size={16} />
                 </button>
                 {showBulkActions && (
@@ -242,7 +259,7 @@ const Verifications = () => {
 
       {/* Stats Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
@@ -288,13 +305,27 @@ const Verifications = () => {
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.total || 0}
+                <p className="text-sm font-medium text-gray-600">Items</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {stats.items || 0}
                 </p>
               </div>
-              <div className="p-2 bg-gray-100 rounded-lg">
-                <FileText size={20} className="text-gray-600" />
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Package size={20} className="text-blue-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Rooms</p>
+                <p className="text-2xl font-bold text-purple-600">
+                  {stats.rooms || 0}
+                </p>
+              </div>
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <Home size={20} className="text-purple-600" />
               </div>
             </div>
           </div>
@@ -308,7 +339,7 @@ const Verifications = () => {
             <Search size={16} className="text-gray-400" />
             <input
               type="text"
-              placeholder="Search by name or student ID..."
+              placeholder="Search by item name or description..."
               value={filters.search}
               onChange={(e) =>
                 setFilters((prev) => ({ ...prev, search: e.target.value }))
@@ -331,6 +362,34 @@ const Verifications = () => {
           </select>
 
           <select
+            value={filters.type}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, type: e.target.value }))
+            }
+            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            <option value="">All Types</option>
+            <option value="item">Items</option>
+            <option value="room">Rooms</option>
+          </select>
+
+          <select
+            value={filters.category}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, category: e.target.value }))
+            }
+            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            <option value="">All Categories</option>
+            <option value="electronics">Electronics</option>
+            <option value="books">Books</option>
+            <option value="clothing">Clothing</option>
+            <option value="furniture">Furniture</option>
+            <option value="sports">Sports</option>
+            <option value="other">Other</option>
+          </select>
+
+          <select
             value={filters.campus_id}
             onChange={(e) =>
               setFilters((prev) => ({ ...prev, campus_id: e.target.value }))
@@ -347,7 +406,13 @@ const Verifications = () => {
 
           <button
             onClick={() =>
-              setFilters({ status: "", search: "", campus_id: "" })
+              setFilters({
+                status: "",
+                search: "",
+                campus_id: "",
+                category: "",
+                type: "",
+              })
             }
             className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50"
           >
@@ -357,7 +422,7 @@ const Verifications = () => {
         </div>
       </div>
 
-      {/* Verifications Table */}
+      {/* Listings Table */}
       <div className="bg-white rounded-xl border border-gray-200">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -368,27 +433,29 @@ const Verifications = () => {
                     type="checkbox"
                     onChange={(e) => handleSelectAll(e.target.checked)}
                     checked={
-                      selectedVerifications.length ===
-                        verifications?.items?.length &&
-                      verifications?.items?.length > 0
+                      selectedListings.length === listings?.items?.length &&
+                      listings?.items?.length > 0
                     }
                     className="rounded border-gray-300"
                   />
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Student
+                  Listing
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Campus
+                  Seller
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Document Type
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Price
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Submitted
+                  Created
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -399,7 +466,7 @@ const Verifications = () => {
               {isLoading ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="8"
                     className="px-6 py-8 text-center text-gray-500"
                   >
                     <img
@@ -407,96 +474,121 @@ const Verifications = () => {
                       alt="Loading..."
                       className="w-12 h-12 mx-auto mb-4"
                     />
-                    Loading verifications...
+                    Loading listings...
                   </td>
                 </tr>
-              ) : verifications?.items?.length === 0 ? (
+              ) : listings?.items?.length === 0 ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="8"
                     className="px-6 py-8 text-center text-gray-500"
                   >
-                    No verifications found
+                    No listings found
                   </td>
                 </tr>
               ) : (
-                verifications?.items?.map((verification) => (
-                  <tr key={verification.id} className="hover:bg-gray-50">
+                listings?.items?.map((listing) => (
+                  <tr key={listing.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="checkbox"
-                        checked={selectedVerifications.includes(
-                          verification.id
-                        )}
+                        checked={selectedListings.includes(listing.id)}
                         onChange={(e) =>
-                          handleSelectVerification(
-                            verification.id,
-                            e.target.checked
-                          )
+                          handleSelectListing(listing.id, e.target.checked)
                         }
                         className="rounded border-gray-300"
                       />
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                            <span className="text-sm font-medium text-gray-600">
-                              {verification.user_name?.split(" ")[0]?.[0]}
-                              {verification.user_name?.split(" ")[1]?.[0]}
-                            </span>
-                          </div>
+                        <div className="flex-shrink-0 h-12 w-12">
+                          {listing.images?.[0] ? (
+                            <img
+                              src={listing.images[0]}
+                              alt={listing.item_name || listing.title}
+                              className="h-12 w-12 rounded-lg object-cover"
+                            />
+                          ) : (
+                            <div className="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                              <ShoppingBag
+                                size={20}
+                                className="text-gray-400"
+                              />
+                            </div>
+                          )}
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {verification.user_name}
+                            {listing.item_name || listing.title}
                           </div>
                           <div className="text-sm text-gray-500">
-                            {verification.user_email}
+                            <div className="flex items-center gap-1">
+                              <Tag size={12} />
+                              {listing.category}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {verification.campus_name || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {verification.document_type}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-8 w-8">
+                          <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-xs font-medium text-gray-600">
+                              {listing.seller_name?.split(" ")[0]?.[0]}
+                              {listing.seller_name?.split(" ")[1]?.[0]}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-3">
+                          <div className="text-sm font-medium text-gray-900">
+                            {listing.seller_name}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {listing.seller_email}
+                          </div>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(verification.status)}
+                      <div className="flex items-center gap-2">
+                        {getTypeIcon(listing.type)}
+                        <span className="text-sm text-gray-900 capitalize">
+                          {listing.type || "Item"}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-1 text-sm text-gray-900">
+                        <DollarSign size={14} />
+                        {formatPrice(listing.price)}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(listing.status)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <Calendar size={14} />
-                        {verification.submitted_at
-                          ? formatDate(verification.submitted_at)
+                        {listing.created_at
+                          ? formatDate(listing.created_at)
                           : "N/A"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => handleViewDetails(verification.id)}
+                          onClick={() => handleViewDetails(listing.id)}
                           className="cursor-pointer hover:scale-[1.5] transition-all duration-200 text-purple-600 hover:text-purple-800"
                           title="View Details"
                         >
                           <ExternalLink size={16} />
                         </button>
-                        <button
-                          onClick={() =>
-                            window.open(verification.file_url, "_blank")
-                          }
-                          className="cursor-pointer hover:scale-[1.5] transition-all duration-200 text-blue-600 hover:text-blue-800"
-                          title="View Document"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        {verification.status === "pending" && (
+                        {listing.status === "pending" && (
                           <>
                             <button
                               onClick={() =>
-                                handleSingleReview(verification.id, "approve")
+                                handleSingleReview(listing.id, "approve")
                               }
                               disabled={reviewMutation.isPending}
                               className="cursor-pointer hover:scale-[1.5] transition-all duration-200 text-green-600 hover:text-green-800 disabled:opacity-50"
@@ -506,7 +598,7 @@ const Verifications = () => {
                             </button>
                             <button
                               onClick={() =>
-                                handleSingleReview(verification.id, "reject")
+                                handleSingleReview(listing.id, "reject")
                               }
                               disabled={reviewMutation.isPending}
                               className="cursor-pointer hover:scale-[1.5] transition-all duration-200 text-red-600 hover:text-red-800 disabled:opacity-50"
@@ -526,15 +618,15 @@ const Verifications = () => {
         </div>
 
         {/* Pagination */}
-        {verifications?.total > 10 && (
+        {listings?.total > 10 && (
           <div className="px-6 py-3 border-t border-gray-200 flex items-center justify-between">
             <div className="text-sm text-gray-500">
-              Showing {(verifications.offset || 0) + 1} to{" "}
+              Showing {(listings.offset || 0) + 1} to{" "}
               {Math.min(
-                (verifications.offset || 0) + (verifications.limit || 10),
-                verifications.total
+                (listings.offset || 0) + (listings.limit || 10),
+                listings.total
               )}{" "}
-              of {verifications.total} results
+              of {listings.total} results
             </div>
             <div className="flex items-center gap-2">
               <button
@@ -546,22 +638,20 @@ const Verifications = () => {
               </button>
               <span className="px-3 py-1 text-sm">
                 Page {currentPage} of{" "}
-                {Math.ceil(verifications.total / (verifications.limit || 10))}
+                {Math.ceil(listings.total / (listings.limit || 10))}
               </span>
               <button
                 onClick={() =>
                   setCurrentPage((prev) =>
                     Math.min(
-                      Math.ceil(
-                        verifications.total / (verifications.limit || 10)
-                      ),
+                      Math.ceil(listings.total / (listings.limit || 10)),
                       prev + 1
                     )
                   )
                 }
                 disabled={
                   currentPage ===
-                  Math.ceil(verifications.total / (verifications.limit || 10))
+                  Math.ceil(listings.total / (listings.limit || 10))
                 }
                 className="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -575,4 +665,4 @@ const Verifications = () => {
   );
 };
 
-export default Verifications;
+export default Market;

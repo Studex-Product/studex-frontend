@@ -97,13 +97,13 @@ export const authService = {
 
   // Get current user data
   getCurrentUser: async () => {
-    const response = await apiClient.get('/api/auth/me');
+    const response = await apiClient.get("/api/auth/me");
     return transformUserData(response.data);
   },
 
   // Update user profile
   updateProfile: async (profileData) => {
-    const response = await apiClient.put('/api/auth/profile', profileData);
+    const response = await apiClient.put("/api/auth/profile", profileData);
     return transformUserData(response.data);
   },
 
@@ -113,21 +113,26 @@ export const authService = {
     const formData = new FormData();
 
     // Add all profile data to FormData
-    Object.keys(profileData).forEach(key => {
+    Object.keys(profileData).forEach((key) => {
       if (profileData[key] instanceof File) {
         formData.append(key, profileData[key]);
-      } else if (typeof profileData[key] === 'object') {
+      } else if (typeof profileData[key] === "object") {
         formData.append(key, JSON.stringify(profileData[key]));
       } else {
         formData.append(key, profileData[key]);
       }
     });
 
-    const response = await apiClient.post('/api/auth/complete-profile', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await apiClient.post(
+      "/api/auth/complete-profile",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: 30000, // 30 seconds for file uploads
+      }
+    );
     return transformUserData(response.data);
   },
 

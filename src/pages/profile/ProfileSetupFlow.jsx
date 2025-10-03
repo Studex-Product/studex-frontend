@@ -41,6 +41,11 @@ const ProfileSetupFlow = () => {
   };
 
   const handleCompleteSetup = async () => {
+    // Prevent double submissions
+    if (completeProfileSetup.isPending) {
+      return;
+    }
+
     console.log("Profile setup complete with data:", profileData);
 
     try {
@@ -61,12 +66,22 @@ const ProfileSetupFlow = () => {
       navigate("/profile");
     } catch (error) {
       console.error("Profile setup failed:", error);
-      toast.custom(() => (
-        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
-          Profile setup failed. Please try again.
-        </div>
-      ));
-      // Error handling is already done in the mutation
+
+      // Check if it's a timeout error but might have succeeded
+      if (error.code === "ECONNABORTED" && error.message.includes("timeout")) {
+        toast.custom(() => (
+          <div className="bg-white rounded-lg p-3 text-sm border-2 border-yellow-500 shadow-lg max-w-sm w-full break-words">
+            Request timed out. Please check your profile page to see if the
+            setup completed.
+          </div>
+        ));
+      } else {
+        toast.custom(() => (
+          <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+            Profile setup failed. Please try again.
+          </div>
+        ));
+      }
     }
   };
 

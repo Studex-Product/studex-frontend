@@ -1,40 +1,50 @@
-import apiClient from './apiClient';
+import apiClient from "./apiClient";
 
 export const adminService = {
   // Get all users (Super Admin only)
   getAllUsers: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    if (params.search) queryParams.append('search', params.search);
-    if (params.campus_id) queryParams.append('campus_id', params.campus_id);
-    if (params.status) queryParams.append('status', params.status);
-    if (params.verified) queryParams.append('verified', params.verified);
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.search) queryParams.append("search", params.search);
+    if (params.campus_id) queryParams.append("campus_id", params.campus_id);
+    if (params.status) queryParams.append("status", params.status);
+    if (params.verified) queryParams.append("verified", params.verified);
 
-    const response = await apiClient.get(`/api/admin/users?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/users?${queryParams.toString()}`
+    );
     return response.data;
   },
 
   // Get single user details (Super Admin only)
   getUserById: async (userId) => {
-    const response = await apiClient.get(`/api/admin/users/${userId}/comprehensive`);
+    const response = await apiClient.get(
+      `/api/admin/users/${userId}/comprehensive`
+    );
     return response.data;
   },
 
   // Update user status (activate/deactivate)
   updateUserStatus: async (userId, status) => {
-    const response = await apiClient.patch(`/api/admin/users/${userId}/status`, {
-      is_active: status
-    });
+    const response = await apiClient.patch(
+      `/api/admin/users/${userId}/status`,
+      {
+        is_active: status,
+      }
+    );
     return response.data;
   },
 
   // Verify/Unverify student
   updateStudentVerification: async (userId, verified) => {
-    const response = await apiClient.patch(`/api/admin/users/${userId}/verify-student`, {
-      student_verified: verified
-    });
+    const response = await apiClient.patch(
+      `/api/admin/users/${userId}/verify-student`,
+      {
+        student_verified: verified,
+      }
+    );
     return response.data;
   },
 
@@ -42,11 +52,13 @@ export const adminService = {
   getUserActivity: async (userId, params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    if (params.type) queryParams.append('type', params.type);
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.type) queryParams.append("type", params.type);
 
-    const response = await apiClient.get(`/api/admin/users/${userId}/activity?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/users/${userId}/activity?${queryParams.toString()}`
+    );
     return response.data;
   },
 
@@ -54,11 +66,13 @@ export const adminService = {
   getUserListings: async (userId, params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    if (params.status) queryParams.append('status', params.status);
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.status) queryParams.append("status", params.status);
 
-    const response = await apiClient.get(`/api/admin/users/${userId}/listings?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/users/${userId}/listings?${queryParams.toString()}`
+    );
     return response.data;
   },
 
@@ -66,16 +80,19 @@ export const adminService = {
   exportUsers: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.format) queryParams.append('format', params.format); // csv, excel, pdf
-    if (params.campus_id) queryParams.append('campus_id', params.campus_id);
-    if (params.status) queryParams.append('status', params.status);
-    if (params.verified) queryParams.append('verified', params.verified);
-    if (params.date_from) queryParams.append('date_from', params.date_from);
-    if (params.date_to) queryParams.append('date_to', params.date_to);
+    if (params.format) queryParams.append("format", params.format); // csv, excel, pdf
+    if (params.campus_id) queryParams.append("campus_id", params.campus_id);
+    if (params.status) queryParams.append("status", params.status);
+    if (params.verified) queryParams.append("verified", params.verified);
+    if (params.date_from) queryParams.append("date_from", params.date_from);
+    if (params.date_to) queryParams.append("date_to", params.date_to);
 
-    const response = await apiClient.get(`/api/admin/users/export?${queryParams.toString()}`, {
-      responseType: 'blob' // Important for file downloads
-    });
+    const response = await apiClient.get(
+      `/api/admin/users/export?${queryParams.toString()}`,
+      {
+        responseType: "blob", // Important for file downloads
+      }
+    );
     return response;
   },
 
@@ -83,63 +100,75 @@ export const adminService = {
   getUserStats: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.period) queryParams.append('period', params.period); // daily, weekly, monthly
-    if (params.campus_id) queryParams.append('campus_id', params.campus_id);
+    if (params.period) queryParams.append("period", params.period); // daily, weekly, monthly
+    if (params.campus_id) queryParams.append("campus_id", params.campus_id);
 
-    const response = await apiClient.get(`/api/admin/users/stats?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/users/stats?${queryParams.toString()}`
+    );
     return response.data;
   },
 
   // Bulk actions on users
   bulkUpdateUsers: async (userIds, action, data = {}) => {
-    const response = await apiClient.post('/api/admin/users/bulk-action', {
+    const response = await apiClient.post("/api/admin/users/bulk-action", {
       user_ids: userIds,
       action, // 'activate', 'deactivate', 'verify', 'unverify', 'delete'
-      ...data
+      ...data,
     });
     return response.data;
   },
 
   // Send notification to user
   sendUserNotification: async (userId, notification) => {
-    const response = await apiClient.post(`/api/admin/users/${userId}/notify`, notification);
+    const response = await apiClient.post(
+      `/api/admin/users/${userId}/notify`,
+      notification
+    );
     return response.data;
   },
 
   // Get active campuses (for general use - ordered alphabetically)
   getCampuses: async () => {
-    const response = await apiClient.get('/api/campus');
+    const response = await apiClient.get("/api/campus");
     return response.data;
   },
 
   // Get active campuses with search (for dropdowns, forms, etc.)
-  getActiveCampuses: async (searchTerm = '') => {
+  getActiveCampuses: async (searchTerm = "") => {
     const queryParams = new URLSearchParams();
-    if (searchTerm) queryParams.append('search', searchTerm);
+    if (searchTerm) queryParams.append("search", searchTerm);
 
-    const response = await apiClient.get(`/api/campus?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/campus?${queryParams.toString()}`
+    );
     return response.data;
   },
 
   // Campus management endpoints
   // Create new campus
   createCampus: async (campusData) => {
-    const response = await apiClient.post('/api/campus', campusData);
+    const response = await apiClient.post("/api/campus", campusData);
     return response.data;
   },
 
   // Assign user as campus admin
   assignCampusAdmin: async (campusId, userId) => {
-    const response = await apiClient.post(`/api/campus/${campusId}/assign-admin`, {
-      user_id: userId,
-      campus_id: campusId
-    });
+    const response = await apiClient.post(
+      `/api/campus/${campusId}/assign-admin`,
+      {
+        user_id: userId,
+        campus_id: campusId,
+      }
+    );
     return response.data;
   },
 
   // Remove user from campus admin role
   removeCampusAdmin: async (campusId, userId) => {
-    const response = await apiClient.delete(`/api/campus/${campusId}/admin/${userId}`);
+    const response = await apiClient.delete(
+      `/api/campus/${campusId}/admin/${userId}`
+    );
     return response.data;
   },
 
@@ -154,20 +183,22 @@ export const adminService = {
     const queryParams = new URLSearchParams();
 
     // Always include inactive campuses for super admin
-    queryParams.append('include_inactive', 'true');
+    queryParams.append("include_inactive", "true");
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    if (params.search) queryParams.append('search', params.search);
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.search) queryParams.append("search", params.search);
 
-    const response = await apiClient.get(`/api/campus?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/campus?${queryParams.toString()}`
+    );
     return response.data;
   },
 
   // Update campus status
   updateCampusStatus: async (campusId, isActive) => {
     const response = await apiClient.patch(`/api/campus/${campusId}/status`, {
-      is_active: isActive
+      is_active: isActive,
     });
     return response.data;
   },
@@ -188,10 +219,12 @@ export const adminService = {
   getCampusAdmins: async (campusId, params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
 
-    const response = await apiClient.get(`/api/campus/${campusId}/admins?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/campus/${campusId}/admins?${queryParams.toString()}`
+    );
     return response.data;
   },
 
@@ -200,24 +233,29 @@ export const adminService = {
   getAllAdmins: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    if (params.search) queryParams.append('search', params.search);
-    if (params.campus_id) queryParams.append('campus_id', params.campus_id);
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.search) queryParams.append("search", params.search);
+    if (params.campus_id) queryParams.append("campus_id", params.campus_id);
 
-    const response = await apiClient.get(`/api/admin/admins?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/admins?${queryParams.toString()}`
+    );
     return response.data;
   },
 
   // Create new admin
   createAdmin: async (adminData) => {
-    const response = await apiClient.post('/api/admin/admins', adminData);
+    const response = await apiClient.post("/api/admin/admins", adminData);
     return response.data;
   },
 
   // Update admin permissions
   updateAdminPermissions: async (adminId, permissions) => {
-    const response = await apiClient.patch(`/api/admin/admins/${adminId}/permissions`, permissions);
+    const response = await apiClient.patch(
+      `/api/admin/admins/${adminId}/permissions`,
+      permissions
+    );
     return response.data;
   },
 
@@ -226,21 +264,26 @@ export const adminService = {
   getReportedContent: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    if (params.type) queryParams.append('type', params.type); // 'listing', 'message', 'profile'
-    if (params.status) queryParams.append('status', params.status); // 'pending', 'resolved', 'dismissed'
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.type) queryParams.append("type", params.type); // 'listing', 'message', 'profile'
+    if (params.status) queryParams.append("status", params.status); // 'pending', 'resolved', 'dismissed'
 
-    const response = await apiClient.get(`/api/admin/reports?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/reports?${queryParams.toString()}`
+    );
     return response.data;
   },
 
   // Moderate content
-  moderateContent: async (reportId, action, reason = '') => {
-    const response = await apiClient.post(`/api/admin/reports/${reportId}/moderate`, {
-      action, // 'approve', 'remove', 'warn', 'ban'
-      reason
-    });
+  moderateContent: async (reportId, action, reason = "") => {
+    const response = await apiClient.post(
+      `/api/admin/reports/${reportId}/moderate`,
+      {
+        action, // 'approve', 'remove', 'warn', 'ban'
+        reason,
+      }
+    );
     return response.data;
   },
 
@@ -248,16 +291,18 @@ export const adminService = {
   getSystemAnalytics: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.period) queryParams.append('period', params.period);
-    if (params.metric) queryParams.append('metric', params.metric);
+    if (params.period) queryParams.append("period", params.period);
+    if (params.metric) queryParams.append("metric", params.metric);
 
-    const response = await apiClient.get(`/api/admin/analytics?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/analytics?${queryParams.toString()}`
+    );
     return response.data;
   },
 
   // Platform health check
   getPlatformHealth: async () => {
-    const response = await apiClient.get('/api/admin/health');
+    const response = await apiClient.get("/api/admin/health");
     return response.data;
   },
 
@@ -266,30 +311,32 @@ export const adminService = {
   getCampusUsers: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    if (params.search) queryParams.append('search', params.search);
-    if (params.status) queryParams.append('status', params.status);
-    if (params.verified) queryParams.append('verified', params.verified);
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.search) queryParams.append("search", params.search);
+    if (params.status) queryParams.append("status", params.status);
+    if (params.verified) queryParams.append("verified", params.verified);
 
     // Use the correct endpoint: GET /api/admin/campus/{campus_id}/users
     if (!params.campus_id) {
-      throw new Error('campus_id is required for getCampusUsers');
+      throw new Error("campus_id is required for getCampusUsers");
     }
 
-    const response = await apiClient.get(`/api/admin/campus/${params.campus_id}/users?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/campus/${params.campus_id}/users?${queryParams.toString()}`
+    );
     return response.data;
   },
 
   // Get campus admin's own campus details
   getMyCampus: async () => {
-    const response = await apiClient.get('/api/admin/campus/my-campus');
+    const response = await apiClient.get("/api/admin/campus/my-campus");
     return response.data;
   },
 
   // Get campus statistics for campus admin
   getCampusStats: async () => {
-    const response = await apiClient.get('/api/admin/campus/stats');
+    const response = await apiClient.get("/api/admin/campus/stats");
     return response.data;
   },
 
@@ -298,37 +345,51 @@ export const adminService = {
   getPendingVerifications: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    if (params.campus_id) queryParams.append('campus_id', params.campus_id);
-    if (params.status) queryParams.append('status', params.status); // 'pending', 'approved', 'rejected'
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.campus_id) queryParams.append("campus_id", params.campus_id);
+    if (params.status) queryParams.append("status", params.status); // 'pending', 'approved', 'rejected'
 
-    const response = await apiClient.get(`/api/admin/verifications?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/verifications?${queryParams.toString()}`
+    );
     return response.data;
   },
 
   // Get single verification details
   getVerificationById: async (verificationId) => {
-    const response = await apiClient.get(`/api/admin/verifications/${verificationId}`);
+    const response = await apiClient.get(
+      `/api/admin/verifications/${verificationId}`
+    );
     return response.data;
   },
 
   // Approve or reject student verification
-  reviewVerification: async (verificationId, status, review_note = '') => {
-    const response = await apiClient.post(`/api/admin/verifications/${verificationId}/review`, {
-      status, // 'approved' or 'rejected'
-      review_note // Required for 'rejected', optional for 'approved'
-    });
+  reviewVerification: async (verificationId, status, review_note = "") => {
+    const response = await apiClient.post(
+      `/api/admin/verifications/${verificationId}/review`,
+      {
+        status, // 'approved' or 'rejected'
+        review_note, // Required for 'rejected', optional for 'approved'
+      }
+    );
     return response.data;
   },
 
   // Bulk review verifications
-  bulkReviewVerifications: async (verificationIds, status, review_note = '') => {
-    const response = await apiClient.post('/api/admin/verifications/bulk-review', {
-      verification_ids: verificationIds,
-      status, // 'approved' or 'rejected'
-      review_note // Required for 'rejected', optional for 'approved'
-    });
+  bulkReviewVerifications: async (
+    verificationIds,
+    status,
+    review_note = ""
+  ) => {
+    const response = await apiClient.post(
+      "/api/admin/verifications/bulk-review",
+      {
+        verification_ids: verificationIds,
+        status, // 'approved' or 'rejected'
+        review_note, // Required for 'rejected', optional for 'approved'
+      }
+    );
     return response.data;
   },
 
@@ -336,10 +397,78 @@ export const adminService = {
   getVerificationStats: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.period) queryParams.append('period', params.period); // 'daily', 'weekly', 'monthly'
-    if (params.campus_id) queryParams.append('campus_id', params.campus_id);
+    if (params.period) queryParams.append("period", params.period); // 'daily', 'weekly', 'monthly'
+    if (params.campus_id) queryParams.append("campus_id", params.campus_id);
 
-    const response = await apiClient.get(`/api/admin/verifications/stats?${queryParams.toString()}`);
+    const response = await apiClient.get(
+      `/api/admin/verifications/stats?${queryParams.toString()}`
+    );
     return response.data;
-  }
+  },
+
+  // Listing Management (Market)
+  // Get all listings for admin review
+  getAllListings: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.search) queryParams.append("search", params.search);
+    if (params.status) queryParams.append("status", params.status); // 'pending', 'approved', 'rejected'
+    if (params.category) queryParams.append("category", params.category);
+    if (params.campus_id) queryParams.append("campus_id", params.campus_id);
+    if (params.type) queryParams.append("type", params.type); // 'item', 'room'
+
+    const response = await apiClient.get(
+      `/api/admin/listings?${queryParams.toString()}`
+    );
+    return response.data;
+  },
+
+  // Get single listing details for admin
+  getListingById: async (listingId) => {
+    const response = await apiClient.get(`/api/admin/listings/${listingId}`);
+    return response.data;
+  },
+
+  // Approve or reject listing
+  reviewListing: async (listingId, status, review_note = "") => {
+    const response = await apiClient.post(
+      `/api/admin/listings/${listingId}/review`,
+      {
+        status, // 'approved' or 'rejected'
+        review_note, // Required for 'rejected', optional for 'approved'
+      }
+    );
+    return response.data;
+  },
+
+  // Bulk review listings
+  bulkReviewListings: async (listingIds, status, review_note = "") => {
+    const response = await apiClient.post("/api/admin/listings/bulk-review", {
+      listing_ids: listingIds,
+      status, // 'approved' or 'rejected'
+      review_note, // Required for 'rejected', optional for 'approved'
+    });
+    return response.data;
+  },
+
+  // Get listing statistics
+  getListingStats: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.period) queryParams.append("period", params.period); // 'daily', 'weekly', 'monthly'
+    if (params.campus_id) queryParams.append("campus_id", params.campus_id);
+    if (params.type) queryParams.append("type", params.type); // 'item', 'room'
+
+    const response = await apiClient.get(
+      `/api/admin/listings/stats?${queryParams.toString()}`
+    );
+    return response.data;
+  },
+
+  // Get pending listings for review
+  getPendingListings: async (params = {}) => {
+    return this.getAllListings({ ...params, status: "pending" });
+  },
 };

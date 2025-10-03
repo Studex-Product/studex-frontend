@@ -13,7 +13,7 @@ export const useAuth = () => {
   // Role-based redirect function
   const redirectByRole = (userData, token) => {
     // Get role from login response first, fallback to JWT token
-    let role = 'user';
+    let role = "user";
 
     if (userData?.role) {
       role = userData.role;
@@ -25,12 +25,12 @@ export const useAuth = () => {
       role = getUserRole(token);
     }
 
-    if (role === 'super_admin') {
-      navigate('/super-admin/dashboard');
-    } else if (role === 'admin') {
-      navigate('/admin/dashboard');
+    if (role === "super_admin") {
+      navigate("/super-admin/dashboard");
+    } else if (role === "admin") {
+      navigate("/admin/dashboard");
     } else {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   };
 
@@ -303,7 +303,13 @@ export const useAuth = () => {
     mutationFn: authService.completeProfileSetup,
     onSuccess: (data) => {
       // Update the user with the returned data from backend
-      const updatedUser = { ...authContext.user, ...data, isProfileComplete: true };
+      // Ensure backend data takes priority over existing user data
+      const updatedUser = {
+        ...authContext.user,
+        ...(data.data || data), // Handle both response formats
+        isProfileComplete: true,
+      };
+
       authContext.updateUser(updatedUser);
 
       // Invalidate user queries to refetch

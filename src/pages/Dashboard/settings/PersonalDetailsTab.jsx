@@ -125,8 +125,9 @@ const PersonalDetailsTab = () => {
                 id="dob"
                 name="dob"
                 value={formData.dob}
+                disabled
                 onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               />
             </div>
             <div>
@@ -138,12 +139,13 @@ const PersonalDetailsTab = () => {
               </label>
               <select
                 id="gender"
+                disabled
                 value={formData.gender}
                 onChange={handleInputChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
               >
                 <option value="" disabled>
-                  Choose your gender
+                   Your gender
                 </option>
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -178,7 +180,7 @@ const PersonalDetailsTab = () => {
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
               >
-                <option value="" disabled>
+                <option value={formData.school} disabled>
                   Select your school
                 </option>
                 {schools.map((s) => (

@@ -55,21 +55,63 @@ const UserProfilePage = () => {
   useEffect(() => {
     // Priority: API profile data > local user data
     const profilePicture =
-      profileData?.profile_image || profileData?.avatar || user?.profilePicture;
+      profileData?.avatar_url ||
+      profileData?.profilePicture ||
+      profileData?.profile_image ||
+      profileData?.avatar ||
+      user?.profilePicture;
 
     if (profilePicture) {
       if (typeof profilePicture === "string") {
         // If it's already a URL (e.g., from a server)
         setProfilePictureUrl(profilePicture);
+      } else if (
+        profilePicture instanceof File ||
+        profilePicture instanceof Blob
+      ) {
+        // If it's a File or Blob object from the setup flow
+        try {
+          const url = URL.createObjectURL(profilePicture);
+          setProfilePictureUrl(url);
+          // Clean up the object URL when the component unmounts
+          return () => URL.revokeObjectURL(url);
+        } catch (error) {
+          console.error("Error creating object URL:", error);
+          setProfilePictureUrl("");
+        }
+      } else if (
+        profilePicture &&
+        typeof profilePicture === "object" &&
+        profilePicture.path
+      ) {
+        // Handle objects with path property (from file dropzone)
+        try {
+          // If it has a path property, it might be a dropzone file object
+          // Try to create a File object from it if possible, otherwise just use the path
+          setProfilePictureUrl(profilePicture.path);
+        } catch (error) {
+          console.error("Error handling path object:", error);
+          setProfilePictureUrl("");
+        }
       } else {
-        // If it's a File object from the setup flow
-        const url = URL.createObjectURL(profilePicture);
-        setProfilePictureUrl(url);
-        // Clean up the object URL when the component unmounts
-        return () => URL.revokeObjectURL(url);
+        // Handle any other unexpected types
+        console.warn(
+          "Unexpected profile picture type:",
+          typeof profilePicture,
+          profilePicture
+        );
+        setProfilePictureUrl("");
       }
+    } else {
+      setProfilePictureUrl("");
     }
-  }, [profileData?.profile_image, profileData?.avatar, user?.profilePicture]);
+  }, [
+    profileData?.avatar_url,
+    profileData?.profilePicture,
+    profileData?.profile_image,
+    profileData?.avatar,
+    user?.profilePicture,
+  ]);
 
   // Get verification status from API data or fallback to user data
   const verificationStatus =

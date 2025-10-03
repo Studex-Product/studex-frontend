@@ -88,9 +88,9 @@ const PersonalInfoForm = ({
         </div>
 
         {/* Date of Birth & Gender */}
-        <div className="flex flex-col md:flex-row w-full gap-2">
+        {/* <div className="flex flex-col md:flex-row w-full gap-2"> */}
           {/* Date of Birth */}
-          <div className="flex w-full flex-col">
+          {/* <div className="flex w-full flex-col">
             <label
               htmlFor="dob"
               className="text-sm text-accent-foreground font-medium"
@@ -109,10 +109,10 @@ const PersonalInfoForm = ({
             {formErrors.dob && (
               <p className="text-destructive text-xs">{formErrors.dob}</p>
             )}
-          </div>
+          </div> */}
 
           {/* Gender */}
-          <div className="flex w-full flex-col">
+          {/* <div className="flex w-full flex-col">
             <label htmlFor="gender" className="text-sm text-accent-foreground font-medium">
               Gender
             </label>
@@ -132,7 +132,7 @@ const PersonalInfoForm = ({
               <p className="text-destructive text-xs">{formErrors.gender}</p>
             )}
           </div>
-        </div>
+        </div> */}
 
         {/* Email Input */}
         <div className="mb-4 relative">

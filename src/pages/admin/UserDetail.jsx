@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
 import { adminService } from "@/api/adminService";
 import { toast } from "sonner";
+import Loader from "@/assets/Loader.svg";
 import {
   ArrowLeft,
   User,
@@ -144,7 +145,7 @@ const UserDetail = () => {
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              <img src={Loader} alt="Loading..." className="w-12 h-12 mx-auto mb-4" />
               <p className="mt-2 text-gray-600">Loading user details...</p>
             </div>
           </div>
@@ -346,7 +347,7 @@ const UserDetail = () => {
                         <p className="text-sm text-gray-600">Full Name</p>
                         <p className="font-medium">{user.first_name} {user.last_name}</p>
                       </div>
-                      <div>
+                      {/* <div>
                         <p className="text-sm text-gray-600">Student ID</p>
                         <p className="font-medium">{user.student_id}</p>
                       </div>
@@ -357,7 +358,7 @@ const UserDetail = () => {
                       <div>
                         <p className="text-sm text-gray-600">Level</p>
                         <p className="font-medium">{user.level || 'Not specified'}</p>
-                      </div>
+                      </div> */}
                       <div>
                         <p className="text-sm text-gray-600">Campus</p>
                         <p className="font-medium">{user.campus_name}</p>
