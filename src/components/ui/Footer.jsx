@@ -1,51 +1,53 @@
-import { memo } from 'react';
-import { Link } from 'react-router-dom';
+import { memo } from "react";
+import { Link } from "react-router-dom";
 import Logo from "../common/Logo";
-import Facebook from "@/assets/icons/Facebook.svg";
-import Twitter from "@/assets/icons/Twitter.svg";
-import LinkedIn from "@/assets/icons/linkedIn.svg";
-import TikTok from "@/assets/icons/tikTok.svg";
+import Facebook from "@/assets/icons/facebook.svg";
+import Twitter from "@/assets/icons/twitter.svg";
+import LinkedIn from "@/assets/icons/LinkedIn.svg";
+import TikTok from "@/assets/icons/tiktok.svg";
 
 const NAVIGATION_SECTIONS = {
   platform: [
-    { text: 'About Us', url: '/about' },
-    { text: 'Why StudEx', url: '/#why-studex' },
-    { text: 'Testimonials', url: '/#testimonials' },
-    { text: 'Blog', url: '/#blog' }
+    { text: "About Us", url: "/about" },
+    { text: "Why StudEx", url: "/#why-studex" },
+    { text: "Testimonials", url: "/#testimonials" },
+    { text: "Blog", url: "/#blog" },
   ],
   explore: [
-    { text: 'Resale Listings', url: '/#listings' },
-    { text: 'Roommate Listings', url: '/#roommates' },
-    { text: 'Student Deals', url: '/#deals' },
-    { text: 'Resale Guidelines', url: '#/guidelines' },
-    { text: 'FAQs', url: '/#faq' }
+    { text: "Resale Listings", url: "/#listings" },
+    { text: "Roommate Listings", url: "/#roommates" },
+    { text: "Student Deals", url: "/#deals" },
+    { text: "Resale Guidelines", url: "#/guidelines" },
+    { text: "FAQs", url: "/#faq" },
   ],
   account: [
-    { text: 'My Purchases', url: '/login' },
-    { text: 'Payment Methods', url: '/login' },
-    { text: 'My Info', url: '/login' }
-  ]
+    { text: "My Purchases", url: "/login" },
+    { text: "Payment Methods", url: "/login" },
+    { text: "My Info", url: "/login" },
+  ],
 };
 
 const SOCIAL_LINKS = [
-  { icon: Facebook, alt: 'Facebook', href: '#' },
-  { icon: Twitter, alt: 'Twitter', href: '#' },
-  { icon: LinkedIn, alt: 'LinkedIn', href: '#' },
-  { icon: TikTok, alt: 'TikTok', href: '#' }
+  { icon: Facebook, alt: "Facebook", href: "#" },
+  { icon: Twitter, alt: "Twitter", href: "#" },
+  { icon: LinkedIn, alt: "LinkedIn", href: "#" },
+  { icon: TikTok, alt: "TikTok", href: "#" },
 ];
 
-const CONTACT_EMAILS = [
-  'StudEx@hotmail.com',
-  'StudEx@gmail.com'
-];
+const CONTACT_EMAILS = ["StudEx@hotmail.com", "StudEx@gmail.com"];
 
 const NavSection = ({ title, links, className = "", orderClass = "" }) => (
-  <div className={`flex flex-col gap-2 py-4 md:py-12 px-2 ${orderClass} ${className}`}>
+  <div
+    className={`flex flex-col gap-2 py-4 md:py-12 px-2 ${orderClass} ${className}`}
+  >
     <h3 className="text-white font-semibold mb-4">{title}</h3>
     <ul className="space-y-3 ">
-      {links.map(link => (
+      {links.map((link) => (
         <li key={link.text}>
-          <Link to={link.url} className="text-gray-300 hover:text-white hover:-translate-y-1 cursor-pointer transition-all duration-300 inline-block">
+          <Link
+            to={link.url}
+            className="text-gray-300 hover:text-white hover:-translate-y-1 cursor-pointer transition-all duration-300 inline-block"
+          >
             {link.text}
           </Link>
         </li>
@@ -59,7 +61,7 @@ const ContactSection = () => (
     <h5 className="text-white font-semibold">Contact Us</h5>
     <hr className="w-16 border-t border-white my-2" />
     <ul className="space-y-3">
-      {CONTACT_EMAILS.map(email => (
+      {CONTACT_EMAILS.map((email) => (
         <li key={email}>
           <a
             href={`mailto:${email}`}
@@ -76,7 +78,11 @@ const ContactSection = () => (
 const SocialLinks = () => (
   <div className="flex space-x-4">
     {SOCIAL_LINKS.map(({ icon, alt, href }) => (
-      <a key={alt} href={href} className="text-gray-300 hover:text-white hover:-translate-y-1 transition-all duration-300 inline-block">
+      <a
+        key={alt}
+        href={href}
+        className="text-gray-300 hover:text-white hover:-translate-y-1 transition-all duration-300 inline-block"
+      >
         <img src={icon} alt={alt} className="w-6 h-6" />
       </a>
     ))}
@@ -102,19 +108,19 @@ const Footer = memo(() => {
 
         {/* Navigation sections */}
         <div className="grid grid-cols-2 lg:grid-cols-4  md:gap-2 lg:gap-8 w-full">
-          <NavSection 
-            title="Platform" 
+          <NavSection
+            title="Platform"
             links={NAVIGATION_SECTIONS.platform}
             className="w-full"
             orderClass="order-2 md:order-none"
           />
-          <NavSection 
-            title="Explore" 
+          <NavSection
+            title="Explore"
             links={NAVIGATION_SECTIONS.explore}
             orderClass="order-3 md:order-none"
           />
-          <NavSection 
-            title="My Account" 
+          <NavSection
+            title="My Account"
             links={NAVIGATION_SECTIONS.account}
             orderClass="order-1 md:order-none"
           />
