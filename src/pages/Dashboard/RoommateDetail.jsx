@@ -5,7 +5,7 @@ import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useAuth } from "@/hooks/useAuth";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import roommates from "@/sample data/mates";
+import roommates from "@/sample-data/mates";
 import Verified from "@/assets/icons/check-verified.svg";
 import {
   User,

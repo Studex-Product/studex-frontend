@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ChatWindow from "@/components/messaging/ChatWindow";
 import Inbox from "@/components/messaging/Inbox";
-import { conversations as mockConversations, currentUserId } from "@/sample data/messages";
+import {
+  conversations as mockConversations,
+  currentUserId,
+} from "@/sample-data/messages";
 import { Search, MoreVertical } from "lucide-react";
 import DoubleChatBubble from "@/assets/icons/double-chat-bubble.svg";
 
@@ -22,12 +25,16 @@ const MessagesPage = () => {
       id: Date.now(), // Use a timestamp for a unique ID for demo
       senderId: currentUserId,
       text,
-      timestamp: new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', hour12: true }).format(new Date()),
-      readStatus: 'sent',
+      timestamp: new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      }).format(new Date()),
+      readStatus: "sent",
     };
 
     // Find the conversation and add the new message to it
-    const updatedConversations = conversations.map(convo => {
+    const updatedConversations = conversations.map((convo) => {
       if (convo.id === selectedConversationId) {
         return { ...convo, messages: [...convo.messages, newMessage] };
       }
@@ -42,14 +49,23 @@ const MessagesPage = () => {
       <div className="h-screen md:p-6 md:bg-purple-50">
         <div className="h-full bg-white md:rounded-lg flex overflow-hidden">
           {/* Left Panel: Inbox List */}
-          <div className={`w-full md:max-w-sm border-r border-gray-200 flex-col ${selectedConversationId ? "hidden md:flex" : "flex"}`}>
+          <div
+            className={`w-full md:max-w-sm border-r border-gray-200 flex-col ${
+              selectedConversationId ? "hidden md:flex" : "flex"
+            }`}
+          >
             <div className="p-4 border-b border-gray-200">
               <div className="flex justify-between items-center mb-4">
                 <h1 className="text-2xl font-bold">Messages</h1>
-                <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer"><MoreVertical size={20} /></button>
+                <button className="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
+                  <MoreVertical size={20} />
+                </button>
               </div>
               <div className="relative">
-                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
                 <input
                   type="text"
                   placeholder="Search messages..."
@@ -70,16 +86,25 @@ const MessagesPage = () => {
           </div>
 
           {/* Right Panel: Chat Window or Empty State */}
-          <div className={`w-full flex-col ${selectedConversationId ? "flex" : "hidden md:flex"}`}>
+          <div
+            className={`w-full flex-col ${
+              selectedConversationId ? "flex" : "hidden md:flex"
+            }`}
+          >
             {!selectedConversation ? (
               <div className="flex-1 flex items-center justify-center text-center p-4">
                 <div>
                   <div className="w-20 h-20 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <img src={DoubleChatBubble} alt="No Messages" className="w-10 h-10" />
+                    <img
+                      src={DoubleChatBubble}
+                      alt="No Messages"
+                      className="w-10 h-10"
+                    />
                   </div>
                   <h2 className="text-xl font-semibold">No Message yet</h2>
                   <p className="text-gray-500 mt-1 max-w-xs mx-auto">
-                    Check your inbox or start by exploring items in the marketplace or finding a roommate.
+                    Check your inbox or start by exploring items in the
+                    marketplace or finding a roommate.
                   </p>
                 </div>
               </div>

@@ -1,12 +1,13 @@
 import Header from "@/components/common/Header";
 import Hero from "@/components/ui/HeroSection";
 import FeatureCard from "@/components/ui/FeatureCard";
-import  { features } from "@/sample data/features";
-import whyChoose from "@/sample data/whyChoose";
+import { features } from "@/sample-data/features";
+import whyChoose from "@/sample-data/whyChoose";
 import whyChooseImage from "@/assets/images/WhyChooseImg.jpg";
-import products from "@/sample data/products";
+import products from "@/sample-data/products";
 import ProductCard from "@/components/ui/ProductCard";
-import Banner from "@/components/common/Banner";import Footer from "@/components/ui/Footer";
+import Banner from "@/components/common/Banner";
+import Footer from "@/components/ui/Footer";
 import PreFooter from "@/components/ui/PreFooter";
 import Testimonial from "@/components/ui/TestimonialCard";
 import FAQ from "@/components/ui/FAQitem";
@@ -58,7 +59,10 @@ const Home = () => {
         </section>
 
         {/* Why Choose StudEx Section */}
-        <section id="why-studex" className="px-4 md:px-12 lg:px-20 py-6 md:py-12 lg:py-20 flex justify-center">
+        <section
+          id="why-studex"
+          className="px-4 md:px-12 lg:px-20 py-6 md:py-12 lg:py-20 flex justify-center"
+        >
           <div className="max-w-6xl w-full flex flex-col md:flex-row items-center justify-around gap-10">
             {/* Heading */}
             <div className="space-y-6 w-full md:w-1/2 text-center lg:text-left flex flex-col">
@@ -111,16 +115,16 @@ const Home = () => {
             ))}
           </div>
 
-        <div className="flex justify-center">
-          <button className="bg-[#9046CF] text-white font-semibold py-3  rounded-lg hover:bg-purple-700 w-full md:w-[30%] transition">
-            Browse Listings
-          </button>
-        </div>
-      </section>
+          <div className="flex justify-center">
+            <button className="bg-[#9046CF] text-white font-semibold py-3  rounded-lg hover:bg-purple-700 w-full md:w-[30%] transition">
+              Browse Listings
+            </button>
+          </div>
+        </section>
 
         <Banner />
-        <Testimonial/>
-        <FAQ/>
+        <Testimonial />
+        <FAQ />
       </main>
       {/* Footer Section */}
       <PreFooter />

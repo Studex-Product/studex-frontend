@@ -2,37 +2,53 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import RoommateCard from "@/components/ui/RoommateCard";
-import roommates from "@/sample data/mates";
-import { List, LayoutGridIcon, ListFilterIcon, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import roommates from "@/sample-data/mates";
+import {
+  List,
+  LayoutGridIcon,
+  ListFilterIcon,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+} from "lucide-react";
 import RoommateFilterModal from "@/components/ui/RoommateFilterModal";
 
 const parsePrice = (priceStr) => {
-    if (typeof priceStr !== 'string') return 0;
-    return Number(priceStr.replace(/[^0-9.-]+/g, ""));
+  if (typeof priceStr !== "string") return 0;
+  return Number(priceStr.replace(/[^0-9.-]+/g, ""));
 };
 
-const fetchRoommates = async ({ page = 1, sortBy = "newest", filters = {} }) => {
+const fetchRoommates = async ({
+  page = 1,
+  sortBy = "newest",
+  filters = {},
+}) => {
   await new Promise((resolve) => setTimeout(resolve, 800));
-  
+
   let allRoommates = [...roommates, ...roommates, ...roommates];
 
-  // Filtering Logic 
-  if (filters.gender && filters.gender !== 'Any') {
-    allRoommates = allRoommates.filter(r => r.gender === filters.gender);
+  // Filtering Logic
+  if (filters.gender && filters.gender !== "Any") {
+    allRoommates = allRoommates.filter((r) => r.gender === filters.gender);
   }
 
-  if (filters.roomType && filters.roomType !== 'All') {
-    allRoommates = allRoommates.filter(r => r.roomType === filters.roomType);
+  if (filters.roomType && filters.roomType !== "All") {
+    allRoommates = allRoommates.filter((r) => r.roomType === filters.roomType);
   }
 
   if (filters.distance) {
-    allRoommates = allRoommates.filter(r => {
+    allRoommates = allRoommates.filter((r) => {
       switch (filters.distance) {
-        case "Within 1km": return r.distance <= 1;
-        case "1 - 3 km": return r.distance > 1 && r.distance <= 3;
-        case "3 - 5 km": return r.distance > 3 && r.distance <= 5;
-        case "5 km+": return r.distance > 5;
-        default: return true;
+        case "Within 1km":
+          return r.distance <= 1;
+        case "1 - 3 km":
+          return r.distance > 1 && r.distance <= 3;
+        case "3 - 5 km":
+          return r.distance > 3 && r.distance <= 5;
+        case "5 km+":
+          return r.distance > 5;
+        default:
+          return true;
       }
     });
   }
@@ -40,24 +56,26 @@ const fetchRoommates = async ({ page = 1, sortBy = "newest", filters = {} }) => 
   if (filters.budgetRange) {
     const from = Number(filters.budgetRange.from) || 0;
     const to = Number(filters.budgetRange.to) || Infinity;
-    allRoommates = allRoommates.filter(r => {
+    allRoommates = allRoommates.filter((r) => {
       const price = parsePrice(r.price);
       return price >= from && price <= to;
     });
   }
 
   // Sorting Logic
-//   if (sortBy === 'newest') {
-//       allRoommates = allRoommates.reverse();
-//   } else if (sortBy === 'oldest') {
-//       // already in oldest order
-//   } else if (sortBy === 'price-low' || sortBy === 'price-high') {
-// //      
-//   }
+  //   if (sortBy === 'newest') {
+  //       allRoommates = allRoommates.reverse();
+  //   } else if (sortBy === 'oldest') {
+  //       // already in oldest order
+  //   } else if (sortBy === 'price-low' || sortBy === 'price-high') {
+  // //
+  //   }
   allRoommates.sort((a, b) => {
-      if (sortBy === 'price-low') return parsePrice(a.price) - parsePrice(b.price);
-      if (sortBy === 'price-high') return parsePrice(b.price) - parsePrice(a.price);
-      return 0;
+    if (sortBy === "price-low")
+      return parsePrice(a.price) - parsePrice(b.price);
+    if (sortBy === "price-high")
+      return parsePrice(b.price) - parsePrice(a.price);
+    return 0;
   });
 
   const itemsPerPage = 9;
@@ -209,11 +227,7 @@ const FindRoommate = () => {
               }
             >
               {roommateProfiles.map((roommate) => (
-                <RoommateCard
-                  key={roommate.id}
-                  {...roommate}
-                  view={viewMode}
-                />
+                <RoommateCard key={roommate.id} {...roommate} view={viewMode} />
               ))}
             </div>
 
