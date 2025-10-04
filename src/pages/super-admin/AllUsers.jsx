@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import SuperAdminDashboardLayout from "@/components/layout/SuperAdminDashboardLayout";
 import { adminService } from "@/api/adminService";
 import { toast } from "sonner";
+import Loader from "@/assets/Loader.svg";
 import {
   Users,
   Search,
@@ -118,7 +119,7 @@ const AllUsers = () => {
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              <img src={Loader} alt="Loading..." className="w-12 h-12 mx-auto mb-4" />
               <p className="mt-2 text-gray-600">Loading users...</p>
             </div>
           </div>
@@ -329,7 +330,7 @@ const AllUsers = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => handleViewUser(user.id)}
-                        className="text-purple-600 hover:text-purple-900 flex items-center gap-1 ml-auto"
+                        className="text-purple-600 hover:text-purple-900 hover:scale-110 flex items-center gap-1 ml-auto cursor-pointer transition-transform duration-200"
                       >
                         <Eye className="w-4 h-4" />
                         View

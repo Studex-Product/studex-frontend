@@ -21,7 +21,7 @@ export const authService = {
   // Account verification (after registration)
   verifyAccount: async (verificationData) => {
     const response = await apiClient.post(
-      "/api/auth/verify-account",
+      "/api/auth/verify-student",
       verificationData
     );
     return response.data;

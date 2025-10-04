@@ -419,38 +419,85 @@ export const adminService = {
     if (params.campus_id) queryParams.append("campus_id", params.campus_id);
     if (params.type) queryParams.append("type", params.type); // 'item', 'room'
 
-    const response = await apiClient.get(
-      `/api/admin/listings?${queryParams.toString()}`
-    );
-    return response.data;
+    try {
+      const response = await apiClient.get(
+        `/api/admin/listings?${queryParams.toString()}`
+      );
+      return response.data;
+    } catch (error) {
+      // If API endpoints don't exist yet, return mock/empty data
+      if (error.response?.status === 404 || error.response?.status === 405) {
+        console.warn(
+          "Listings API endpoint not available, using fallback data"
+        );
+        return {
+          items: [],
+          total: 0,
+          offset: params.page ? (params.page - 1) * (params.limit || 10) : 0,
+          limit: params.limit || 10,
+        };
+      }
+      throw error;
+    }
   },
 
   // Get single listing details for admin
   getListingById: async (listingId) => {
-    const response = await apiClient.get(`/api/admin/listings/${listingId}`);
-    return response.data;
+    try {
+      const response = await apiClient.get(`/api/admin/listings/${listingId}`);
+      return response.data;
+    } catch (error) {
+      // If API endpoints don't exist yet, return mock data or throw meaningful error
+      if (error.response?.status === 404 || error.response?.status === 405) {
+        console.warn("Listing detail API endpoint not available");
+        throw new Error("Listing not found or API not available");
+      }
+      throw error;
+    }
   },
 
   // Approve or reject listing
   reviewListing: async (listingId, status, review_note = "") => {
-    const response = await apiClient.post(
-      `/api/admin/listings/${listingId}/review`,
-      {
-        status, // 'approved' or 'rejected'
-        review_note, // Required for 'rejected', optional for 'approved'
+    try {
+      const response = await apiClient.post(
+        `/api/admin/listings/${listingId}/review`,
+        {
+          status, // 'approved' or 'rejected'
+          review_note, // Required for 'rejected', optional for 'approved'
+        }
+      );
+      return response.data;
+    } catch (error) {
+      // If API endpoints don't exist yet, simulate response
+      if (error.response?.status === 404 || error.response?.status === 405) {
+        console.warn("Review listing API endpoint not available");
+        throw new Error(
+          "Review functionality not yet implemented on the backend"
+        );
       }
-    );
-    return response.data;
+      throw error;
+    }
   },
 
   // Bulk review listings
   bulkReviewListings: async (listingIds, status, review_note = "") => {
-    const response = await apiClient.post("/api/admin/listings/bulk-review", {
-      listing_ids: listingIds,
-      status, // 'approved' or 'rejected'
-      review_note, // Required for 'rejected', optional for 'approved'
-    });
-    return response.data;
+    try {
+      const response = await apiClient.post("/api/admin/listings/bulk-review", {
+        listing_ids: listingIds,
+        status, // 'approved' or 'rejected'
+        review_note, // Required for 'rejected', optional for 'approved'
+      });
+      return response.data;
+    } catch (error) {
+      // If API endpoints don't exist yet, simulate response
+      if (error.response?.status === 404 || error.response?.status === 405) {
+        console.warn("Bulk review listing API endpoint not available");
+        throw new Error(
+          "Bulk review functionality not yet implemented on the backend"
+        );
+      }
+      throw error;
+    }
   },
 
   // Get listing statistics
@@ -461,10 +508,28 @@ export const adminService = {
     if (params.campus_id) queryParams.append("campus_id", params.campus_id);
     if (params.type) queryParams.append("type", params.type); // 'item', 'room'
 
-    const response = await apiClient.get(
-      `/api/admin/listings/stats?${queryParams.toString()}`
-    );
-    return response.data;
+    try {
+      const response = await apiClient.get(
+        `/api/admin/listings/stats?${queryParams.toString()}`
+      );
+      return response.data;
+    } catch (error) {
+      // If API endpoints don't exist yet, return mock stats
+      if (error.response?.status === 404 || error.response?.status === 405) {
+        console.warn(
+          "Listing stats API endpoint not available, using fallback data"
+        );
+        return {
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+          items: 0,
+          rooms: 0,
+          total: 0,
+        };
+      }
+      throw error;
+    }
   },
 
   // Get pending listings for review

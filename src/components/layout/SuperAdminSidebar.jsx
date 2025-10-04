@@ -142,10 +142,6 @@ const SuperAdminSidebar = () => {
           <div className="w-8 h-8">
             <Logo />
           </div>
-          <div>
-            <h1 className="text-lg font-bold text-gray-900">StudEx</h1>
-            <p className="text-xs text-purple-600 font-medium">Super Admin</p>
-          </div>
         </div>
 
         {/* Navigation */}

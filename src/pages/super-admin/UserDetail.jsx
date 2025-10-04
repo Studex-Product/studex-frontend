@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import SuperAdminDashboardLayout from "@/components/layout/SuperAdminDashboardLayout";
 import { adminService } from "@/api/adminService";
 import { toast } from "sonner";
+import Loader from "@/assets/Loader.svg"
 import {
   ArrowLeft,
   User,
@@ -27,6 +28,8 @@ import {
   Home,
   MessageSquare
 } from "lucide-react";
+import { Image } from "lucide-react";
+import { UserSearchIcon } from "lucide-react";
 
 const UserDetail = () => {
   const { userId } = useParams();
@@ -256,7 +259,7 @@ const UserDetail = () => {
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              <img src={Loader} alt="Loading..." className="w-12 h-12 mx-auto mb-4" />
               <p className="mt-2 text-gray-600">Loading user details...</p>
             </div>
           </div>
@@ -489,6 +492,20 @@ const UserDetail = () => {
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
                   <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <Image className="w-4 h-4 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-600">Profile Image</p>
+                        {user.profile_image ? (
+                          <img src={user.profile_image} alt={`${user.first_name} ${user.last_name}`} className="w-32 h-32 rounded object-cover" />
+                        ) : (
+                          <div className="w-32 h-32 bg-gray-200 rounded flex items-center justify-center text-gray-400">
+                            No Image
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     <div className="flex items-center gap-3">
                       <User className="w-4 h-4 text-gray-400" />
                       <div>
@@ -516,6 +533,15 @@ const UserDetail = () => {
                         <p className="text-sm text-gray-600">Date of Birth</p>
                         <p className="font-medium">
                           {user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : 'Not provided'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <UserSearchIcon className="w-4 h-4 text-gray-400" />
+                      <div>
+                        <p className="text-sm text-gray-600">Gender</p>
+                        <p className="font-medium">
+                          {user.gender || 'Not provided'}
                         </p>
                       </div>
                     </div>

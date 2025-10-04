@@ -134,7 +134,7 @@ const DashboardLayout = ({ children }) => {
                   onClick={handleDropdown}
                   className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition duration-300"
                 >
-                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-purple-300 rounded-full flex items-center justify-center">
                     {finalAvatarUrl ? (
                       <>
                         <img

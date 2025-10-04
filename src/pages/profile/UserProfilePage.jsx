@@ -382,16 +382,16 @@ const UserProfilePage = () => {
               {/* Right Column */}
               <div className="space-y-6">
                 {/* Contact Information */}
-                <div className="bg-white rounded-lg shadow p-6">
+                <div className="bg-white rounded-lg shadow p-4">
                   <h2 className="text-lg font-medium text-gray-900 mb-4">
                     Contact Information
                   </h2>
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex gap-3 items-center">
                       <Mail className="w-4 h-4 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-600">Email</p>
-                        <p className="font-medium">{displayData.email}</p>
+                        <p className="font-medium text-xs">{displayData.email}</p>
                       </div>
                     </div>
                     {displayData.phone && (

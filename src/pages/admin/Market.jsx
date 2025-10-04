@@ -46,18 +46,44 @@ const Market = () => {
         limit: 10,
         ...filters,
       }),
+    retry: false,
+    onError: (error) => {
+      console.warn("Listings API not available:", error.message);
+    },
+    // Provide fallback data when API fails
+    select: (data) => data || { items: [], total: 0, offset: 0, limit: 10 },
   });
 
   // Fetch listing stats
   const { data: stats } = useQuery({
     queryKey: ["listing-stats"],
     queryFn: () => adminService.getListingStats(),
+    retry: false,
+    onError: (error) => {
+      console.warn("Listing stats API not available:", error.message);
+    },
+    // Provide fallback data when API fails
+    select: (data) =>
+      data || {
+        pending: 0,
+        approved: 0,
+        rejected: 0,
+        items: 0,
+        rooms: 0,
+        total: 0,
+      },
   });
 
   // Fetch campuses for filter
   const { data: campusesData } = useQuery({
     queryKey: ["campuses"],
     queryFn: () => adminService.getCampuses(),
+    retry: false,
+    onError: (error) => {
+      console.warn("Campuses API error:", error.message);
+    },
+    // Provide fallback data when API fails
+    select: (data) => data || [],
   });
 
   // Ensure campuses is always an array
