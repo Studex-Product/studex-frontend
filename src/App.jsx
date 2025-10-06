@@ -14,6 +14,7 @@ import RoommateDetail from "@/pages/Dashboard/RoommateDetail";
 import MessagesPage from "@/pages/Dashboard/MessagesPage";
 import MyPosts from "@/pages/Dashboard/MyPosts";
 import CreateItemListing from "@/pages/Dashboard/CreateItemListing";
+import CreateRoomateListing from "@/pages/Dashboard/CreateRoomateListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
