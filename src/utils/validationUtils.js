@@ -40,7 +40,8 @@ export const validateRegistrationForm = (values) => {
   } else if (!/(?=.*\d)/.test(values.password)) {
     errors.password = "Password must contain at least one number";
   } else if (!/(?=.*[@$!%*?&.,])/.test(values.password)) {
-    errors.password = "Password must contain at least one special character (@$!%*?&.,)";
+    errors.password =
+      "Password must contain at least one special character (@$!%*?&.,)";
   }
 
   // Confirm password validation
@@ -48,6 +49,12 @@ export const validateRegistrationForm = (values) => {
     errors.confirmPassword = "Please confirm your password";
   } else if (values.confirmPassword !== values.password) {
     errors.confirmPassword = "Password does not match";
+  }
+
+  // Terms and conditions validation
+  if (!values.agreeToTerms) {
+    errors.agreeToTerms =
+      "You must agree to our terms and privacy policy to continue";
   }
 
   return errors;

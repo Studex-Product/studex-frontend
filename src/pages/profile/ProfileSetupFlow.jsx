@@ -76,11 +76,7 @@ const ProfileSetupFlow = () => {
           </div>
         ));
       } else {
-        toast.custom(() => (
-          <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
-            Profile setup failed. Please try again.
-          </div>
-        ));
+        console.log("Error details:", error.response || "Profile setup failed. Please try again." );
       }
     }
   };

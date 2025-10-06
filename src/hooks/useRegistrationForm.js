@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
-import { validateRegistrationForm } from '../utils/validationUtils';
+import { useState, useEffect } from "react";
+import { validateRegistrationForm } from "../utils/validationUtils";
 
 export const useRegistrationForm = () => {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    agreeToTerms: false,
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmit, setIsSubmit] = useState(false);
@@ -27,14 +28,28 @@ export const useRegistrationForm = () => {
 
   useEffect(() => {
     if (Object.keys(formErrors).length === 0 && isSubmit) {
-      console.log('Form data valid:', formData);
+      console.log("Form data valid:", formData);
     }
   }, [formErrors, formData, isSubmit]);
 
   const isFormValid = () => {
-    const { firstName, lastName, email, password, confirmPassword } = formData;
-    return firstName && lastName && email && password && confirmPassword && 
-           Object.keys(formErrors).length === 0;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+      agreeToTerms,
+    } = formData;
+    return (
+      firstName &&
+      lastName &&
+      email &&
+      password &&
+      confirmPassword &&
+      agreeToTerms &&
+      Object.keys(formErrors).length === 0
+    );
   };
 
   return {

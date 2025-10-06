@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import Eye from '../../assets/icons/eye.svg';
-import EyeOff from '../../assets/icons/eye-off.svg';
+import { useState } from "react";
+import Eye from "../../assets/icons/eye.svg";
+import EyeOff from "../../assets/icons/eye-off.svg";
 
-const PersonalInfoForm = ({ 
-  formData, 
-  formErrors, 
-  updateField, 
-  onSubmit, 
+const PersonalInfoForm = ({
+  formData,
+  formErrors,
+  updateField,
+  onSubmit,
   isSubmitting,
-  isFormValid 
+  isFormValid,
 }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -18,14 +18,12 @@ const PersonalInfoForm = ({
     if (isFormValid()) {
       await onSubmit();
     }
-
   };
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
-        <h3 className="text-[var(--primary)]">Personal Information</h3>
+      <h3 className="text-[var(--primary)]">Personal Information</h3>
       <div className="space-y-4 md:space-y-6">
-        
         {/* Names Input */}
         <div className="flex flex-col md:flex-row w-full gap-2">
           {/* First name */}
@@ -40,20 +38,18 @@ const PersonalInfoForm = ({
               type="text"
               id="first-name"
               value={formData.firstName}
-              onChange={(e) => updateField('firstName', e.target.value)}
+              onChange={(e) => updateField("firstName", e.target.value)}
               placeholder="Fatima"
               className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                 formData.firstName.length < 3 && formData.firstName.length > 0
-                  ? 'border-destructive'
+                  ? "border-destructive"
                   : formData.firstName.length >= 3
-                  ? 'border-chart-2'
-                  : 'border-border'
+                  ? "border-chart-2"
+                  : "border-border"
               }`}
             />
             {formErrors.firstName && (
-              <p className="text-destructive text-xs">
-                {formErrors.firstName}
-              </p>
+              <p className="text-destructive text-xs">{formErrors.firstName}</p>
             )}
           </div>
 
@@ -70,27 +66,25 @@ const PersonalInfoForm = ({
               id="last-name"
               placeholder="Yusuf"
               value={formData.lastName}
-              onChange={(e) => updateField('lastName', e.target.value)}
+              onChange={(e) => updateField("lastName", e.target.value)}
               className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
                 formData.lastName.length < 3 && formData.lastName.length > 0
-                  ? 'border-destructive'
+                  ? "border-destructive"
                   : formData.lastName.length >= 3
-                  ? 'border-chart-2'
-                  : 'border-border'
+                  ? "border-chart-2"
+                  : "border-border"
               }`}
             />
             {formErrors.lastName && (
-              <p className="text-destructive text-xs">
-                {formErrors.lastName}
-              </p>
+              <p className="text-destructive text-xs">{formErrors.lastName}</p>
             )}
           </div>
         </div>
 
         {/* Date of Birth & Gender */}
         {/* <div className="flex flex-col md:flex-row w-full gap-2"> */}
-          {/* Date of Birth */}
-          {/* <div className="flex w-full flex-col">
+        {/* Date of Birth */}
+        {/* <div className="flex w-full flex-col">
             <label
               htmlFor="dob"
               className="text-sm text-accent-foreground font-medium"
@@ -111,8 +105,8 @@ const PersonalInfoForm = ({
             )}
           </div> */}
 
-          {/* Gender */}
-          {/* <div className="flex w-full flex-col">
+        {/* Gender */}
+        {/* <div className="flex w-full flex-col">
             <label htmlFor="gender" className="text-sm text-accent-foreground font-medium">
               Gender
             </label>
@@ -147,7 +141,7 @@ const PersonalInfoForm = ({
             id="email"
             placeholder="e.g fatimayusuf@unilag.edu.ng"
             value={formData.email}
-            onChange={(e) => updateField('email', e.target.value)}
+            onChange={(e) => updateField("email", e.target.value)}
             className="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
           {formErrors.email && (
@@ -167,10 +161,10 @@ const PersonalInfoForm = ({
             </label>
             <div className="relative">
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 id="password"
                 value={formData.password}
-                onChange={(e) => updateField('password', e.target.value)}
+                onChange={(e) => updateField("password", e.target.value)}
                 className="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 placeholder="********"
               />
@@ -203,10 +197,10 @@ const PersonalInfoForm = ({
             </label>
             <div className="relative">
               <input
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 id="confirm-password"
                 value={formData.confirmPassword}
-                onChange={(e) => updateField('confirmPassword', e.target.value)}
+                onChange={(e) => updateField("confirmPassword", e.target.value)}
                 className="w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                 placeholder="********"
               />
@@ -230,17 +224,47 @@ const PersonalInfoForm = ({
           </div>
         </div>
 
+        {/* Terms and Conditions */}
+        <div className="flex items-start gap-3 py-2">
+          <input
+            type="checkbox"
+            id="agree-terms"
+            checked={formData.agreeToTerms}
+            onChange={(e) => updateField("agreeToTerms", e.target.checked)}
+            className="mt-1 h-4 w-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500 focus:ring-2"
+          />
+          <label
+            htmlFor="agree-terms"
+            className="text-sm text-gray-700 leading-5"
+          >
+            I agree to the{" "}
+            <a
+              href="/docs/DataPrivay-UsePolicy.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-green-600 hover:text-green-800 underline font-medium"
+            >
+              Terms of Service and Privacy Policy
+            </a>
+          </label>
+        </div>
+        {formErrors.agreeToTerms && (
+          <p className="text-destructive text-xs -mt-2">
+            {formErrors.agreeToTerms}
+          </p>
+        )}
+
         {/* Continue Button */}
         <button
           type="submit"
           className={`w-full bg-[#9046CF] md:mt-4 text-white py-3 px-4 rounded-lg font-medium focus:outline-none transition-colors ${
             !isFormValid() || isSubmitting
-              ? 'opacity-50 cursor-not-allowed'
-              : 'hover:bg-purple-700 cursor-pointer'
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-purple-700 cursor-pointer"
           }`}
           disabled={!isFormValid() || isSubmitting}
         >
-          {isSubmitting ? 'Processing...' : 'Continue'}
+          {isSubmitting ? "Processing..." : "Continue"}
         </button>
       </div>
     </form>

@@ -323,7 +323,7 @@ export const useAuth = () => {
       console.log("Profile setup successful:", data);
     },
     onError: (error) => {
-      const message = error.response?.data?.message || "Profile setup failed";
+      const message = error.response?.data?.message || "Profile setup failed. Please try again.";
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
           {message}

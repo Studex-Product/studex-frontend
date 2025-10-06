@@ -1,17 +1,11 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminService } from "@/api/adminService";
-// import { Edit } from 'lucide-react';
 
 const ReviewSection = ({ title, children }) => (
-  // const ReviewSection = ({ title, children, onEdit }) => (
   <div className="py-4 border-b">
     <div className="flex justify-between items-center mb-2">
       <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-      {/* The onEdit function is a placeholder for future functionality */}
-      {/* <button onClick={onEdit} className="text-sm text-purple-600 font-semibold flex items-center gap-1 hover:underline">
-        <Edit size={14} /> Edit
-      </button> */}
     </div>
     {children}
   </div>

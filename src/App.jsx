@@ -387,6 +387,16 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/create-roommate"
+                element={
+                  <ProtectedRoute>
+                    <RouteErrorBoundary>
+                      <CreateRoomateListing />
+                    </RouteErrorBoundary>
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Profile & Settings Routes */}
               <Route
