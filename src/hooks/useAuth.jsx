@@ -11,14 +11,26 @@ export const useAuth = () => {
   const navigate = useNavigate();
 
   // Role-based redirect function
-  const redirectByRole = (token) => {
-    const role = getUserRole(token);
-    console.log("Redirecting user with role:", role);
+  const redirectByRole = (userData, token) => {
+    // Get role from login response first, fallback to JWT token
+    let role = "user";
 
-    if (role === 'admin') {
-      navigate('/admin/dashboard');
+    if (userData?.role) {
+      role = userData.role;
+    } else if (userData?.user_type) {
+      role = userData.user_type;
+    } else if (userData?.type) {
+      role = userData.type;
     } else {
-      navigate('/dashboard');
+      role = getUserRole(token);
+    }
+
+    if (role === "super_admin") {
+      navigate("/super-admin/dashboard");
+    } else if (role === "admin") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/dashboard");
     }
   };
 
@@ -52,14 +64,17 @@ export const useAuth = () => {
             message = "Registration failed: Please check your information";
             break;
           case 429:
-            message = "Registration failed: Too many attempts. Please try again later";
+            message =
+              "Registration failed: Too many attempts. Please try again later";
             break;
           case 500:
-            message = "Registration failed: Server error. Please try again later";
+            message =
+              "Registration failed: Server error. Please try again later";
             break;
           default:
             if (!error.response) {
-              message = "Registration failed: Network error. Please check your connection";
+              message =
+                "Registration failed: Network error. Please check your connection";
             } else {
               message = "Registration failed: Please try again";
             }
@@ -91,9 +106,11 @@ export const useAuth = () => {
       if (!message) {
         // Provide more descriptive default message based on error status
         if (error.response?.status === 400 || error.response?.status === 401) {
-          message = "Verification failed: Invalid or expired token. Please login to verify your email.";
+          message =
+            "Verification failed: Invalid or expired token. Please login to verify your email.";
         } else {
-          message = "Account verification failed. Please try again or contact support.";
+          message =
+            "Account verification failed. Please try again or contact support.";
         }
       }
 
@@ -116,7 +133,9 @@ export const useAuth = () => {
       ));
 
       // Trigger custom event for success since React Query state might not update properly
-      window.dispatchEvent(new CustomEvent('emailVerificationSuccess', { detail: data }));
+      window.dispatchEvent(
+        new CustomEvent("emailVerificationSuccess", { detail: data })
+      );
     },
     onError: (error) => {
       let message = error.response?.data?.message;
@@ -124,9 +143,11 @@ export const useAuth = () => {
       if (!message) {
         // Provide more descriptive default message based on error status
         if (error.response?.status === 400 || error.response?.status === 401) {
-          message = "Verification failed: Invalid or expired token. Please login to verify your email.";
+          message =
+            "Verification failed: Invalid or expired token. Please login to verify your email.";
         } else {
-          message = "Email verification failed. Please try again or contact support.";
+          message =
+            "Email verification failed. Please try again or contact support.";
         }
       }
 
@@ -192,11 +213,10 @@ export const useAuth = () => {
         </div>
       ));
 
-      // Redirect based on user role
+      // Redirect based on user role using the dedicated function
       if (token) {
-        setTimeout(() => {
-          redirectByRole(token);
-        }, 1000); // Small delay to allow toast to show
+        const userData = data.data?.user || data.user || user;
+        redirectByRole(userData, token);
       }
     },
     onError: (error) => {
@@ -253,6 +273,65 @@ export const useAuth = () => {
     },
   });
 
+  // Change Password mutation
+  const changePassword = useMutation({
+    mutationFn: authService.changePassword,
+    onSuccess: (data) => {
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Password changed successfully! You will be logged out for security.
+        </div>
+      ));
+      console.log("Password change successful:", data);
+      // Log out user after successful password change for security
+      setTimeout(() => {
+        logout();
+      }, 2000);
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || "Password change failed";
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {message}
+        </div>
+      ));
+    },
+  });
+
+  // Complete Profile Setup mutation
+  const completeProfileSetup = useMutation({
+    mutationFn: authService.completeProfileSetup,
+    onSuccess: (data) => {
+      // Update the user with the returned data from backend
+      // Ensure backend data takes priority over existing user data
+      const updatedUser = {
+        ...authContext.user,
+        ...(data.data || data), // Handle both response formats
+        isProfileComplete: true,
+      };
+
+      authContext.updateUser(updatedUser);
+
+      // Invalidate user queries to refetch
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Profile setup completed successfully!
+        </div>
+      ));
+      console.log("Profile setup successful:", data);
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || "Profile setup failed";
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {message}
+        </div>
+      ));
+    },
+  });
+
   // OAuth Google login
   const initiateGoogleLogin = () => {
     try {
@@ -272,6 +351,7 @@ export const useAuth = () => {
     onSuccess: (data) => {
       // Update auth context with user data and token from /api/auth/me
       authContext.login(data.user, data.token);
+      console.log("OAuth login successful:", data.user);
 
       // Invalidate user queries to refetch
       queryClient.invalidateQueries({ queryKey: ["user"] });
@@ -283,7 +363,8 @@ export const useAuth = () => {
       ));
     },
     onError: (error) => {
-      const message = error.response?.data?.message || "OAuth authentication failed";
+      const message =
+        error.response?.data?.message || "OAuth authentication failed";
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
           {message}
@@ -319,6 +400,10 @@ export const useAuth = () => {
     // Password management
     forgotPassword,
     resetPassword,
+    changePassword,
+
+    // Profile management
+    completeProfileSetup,
 
     // Auth context data
     user: authContext.user,
@@ -326,6 +411,8 @@ export const useAuth = () => {
     userRole: authContext.userRole,
     isAuthenticated: authContext.isAuthenticated,
     isAuthLoading: authContext.isLoading,
+    refreshUserData: authContext.refreshUserData,
+    updateUser: authContext.updateUser,
 
     // Loading states
     isRegistering: register.isPending,
@@ -335,6 +422,8 @@ export const useAuth = () => {
     isLoggingIn: login.isPending,
     isSendingResetEmail: forgotPassword.isPending,
     isResettingPassword: resetPassword.isPending,
+    isChangingPassword: changePassword.isPending,
+    isCompletingProfile: completeProfileSetup.isPending,
 
     // Error states
     registerError: register.error,
@@ -344,6 +433,8 @@ export const useAuth = () => {
     loginError: login.error,
     forgotPasswordError: forgotPassword.error,
     resetPasswordError: resetPassword.error,
+    changePasswordError: changePassword.error,
+    completeProfileError: completeProfileSetup.error,
 
     // Success states
     isRegisterSuccess: register.isSuccess,
@@ -353,5 +444,7 @@ export const useAuth = () => {
     isLoginSuccess: login.isSuccess,
     isForgotPasswordSuccess: forgotPassword.isSuccess,
     isResetPasswordSuccess: resetPassword.isSuccess,
+    isChangePasswordSuccess: changePassword.isSuccess,
+    isCompleteProfileSuccess: completeProfileSetup.isSuccess,
   };
 };

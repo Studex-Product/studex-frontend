@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProductCard from "@/components/ui/ProductCard";
-import products from "@/sample data/products";
+import products from "@/sample-data/products";
 import Avatar from "@/assets/images/AdminLoginImg.jpg";
 import Verified from "@/assets/icons/check-verified.svg";
 import UserPlus from "@/assets/icons/user-plus.svg";
@@ -16,6 +16,8 @@ import {
   PhoneIcon,
   MessageSquareTextIcon,
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 // Mock API services (assuming these are correct and unchanged)
 const fetchSellerProfile = async (sellerId) => {
@@ -55,6 +57,7 @@ const SellerProfile = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { sellerId } = useParams();
+  const { user } = useAuth();
 
   // Get the item data that was passed when navigating to this seller profile
   const fromItem = location.state?.fromItem;
@@ -88,11 +91,25 @@ const SellerProfile = () => {
   const handleBreadcrumbNavigation = (path) => navigate(path);
 
   const handleContact = () => {
+    if (!user?.isProfileComplete) {
+      toast.error(
+        "Please complete your profile setup before contacting sellers."
+      );
+      navigate("/profile-setup");
+      return;
+    }
     console.log("Open contact modal or redirect to contact");
     window.location.href = `tel:${seller?.number}`;
   };
 
   const handleChatNow = () => {
+    if (!user?.isProfileComplete) {
+      toast.error(
+        "Please complete your profile setup before chatting with sellers."
+      );
+      navigate("/profile-setup");
+      return;
+    }
     console.log("Open chat with seller");
   };
 
@@ -186,7 +203,7 @@ const SellerProfile = () => {
                   className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer"
                 >
                   <PhoneIcon className="w-4 h-4" />
-                  <span>{seller?.number}</span>
+                  <span>Call Now</span>
                 </button>
 
                 <button

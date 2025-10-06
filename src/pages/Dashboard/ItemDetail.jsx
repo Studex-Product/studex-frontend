@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProductCard from "@/components/ui/ProductCard";
-import products from "@/sample data/products";
+import products from "@/sample-data/products";
 import Avatar from "@/assets/images/AdminLoginImg.jpg";
 import locationIcon from "@/assets/icons/Location-icon.svg";
 import Verified from "@/assets/icons/check-verified.svg";
@@ -12,6 +12,8 @@ import UserPlus from "@/assets/icons/user-plus.svg";
 import { PhoneIcon } from "lucide-react";
 import { MessageSquareTextIcon } from "lucide-react";
 import { Flag } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 // Mock API services
 const fetchItemDetails = async (itemId) => {
@@ -68,6 +70,7 @@ const ItemDetail = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const navigate = useNavigate();
   const { itemId } = useParams();
+  const { user } = useAuth();
 
   // Fetch item details
   const {
@@ -92,24 +95,37 @@ const ItemDetail = () => {
   };
 
   const handleContact = () => {
-    console.log("Open contact modal or redirect to contact");
+    if (!user?.isProfileComplete) {
+      toast.error(
+        "Please complete your profile setup before contacting sellers."
+      );
+      navigate("/profile-setup");
+      return;
+    }
     window.location.href = `tel:${item?.seller?.number}`;
   };
 
   const handleSellerProfile = () => {
     console.log("Open seller profile");
     // navigate(`/seller/${item?.seller?.id}`);
-      navigate(`/seller/${item.sellerId}`, {
-    state: { 
-      fromItem: {
-        id: item.id,
-        title: item.title
-      }
-    }
-  });
-};
+    navigate(`/seller/${item.sellerId}`, {
+      state: {
+        fromItem: {
+          id: item.id,
+          title: item.title,
+        },
+      },
+    });
+  };
 
   const handleChatNow = () => {
+    if (!user?.isProfileComplete) {
+      toast.error(
+        "Please complete your profile setup before chatting with sellers."
+      );
+      navigate("/profile-setup");
+      return;
+    }
     console.log("Open chat with seller");
   };
 
@@ -228,18 +244,10 @@ const ItemDetail = () => {
                 Item Condition
               </h3>
               <ul className="space-y-2 text-gray-700">
-                <li>
-                  • Condition: {item?.condition?.status}
-                </li>
-                <li>
-                  • Size: {item?.condition?.size}
-                </li>
-                <li>
-                  • Color: {item?.condition?.color}
-                </li>
-                <li>
-                  • Material: {item?.condition?.material}
-                </li>
+                <li>• Condition: {item?.condition?.status}</li>
+                <li>• Size: {item?.condition?.size}</li>
+                <li>• Color: {item?.condition?.color}</li>
+                <li>• Material: {item?.condition?.material}</li>
               </ul>
 
               <button
@@ -288,7 +296,10 @@ const ItemDetail = () => {
                 />
                 <div>
                   <div className="flex items-center space-x-2">
-                    <button onClick={handleSellerProfile} className="font-medium text-gray-900 cursor-pointer hover:text-green-600 transition duration-300">
+                    <button
+                      onClick={handleSellerProfile}
+                      className="font-medium text-gray-900 cursor-pointer hover:text-green-600 transition duration-300"
+                    >
                       {item?.seller?.name}
                     </button>
                     {item?.seller?.isVerified && (
@@ -327,7 +338,7 @@ const ItemDetail = () => {
                   className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer"
                 >
                   <PhoneIcon className="w-4 h-4" />
-                  <span>{item?.seller?.number}</span>
+                  <span>Call Now</span>
                 </button>
 
                 <button
@@ -349,36 +360,48 @@ const ItemDetail = () => {
                 <li className="flex items-start space-x-2">
                   <span className="w-2 h-2 bg-purple-800 rounded-full mt-2 flex-shrink-0"></span>
                   <span>
-                    <strong className="font-semibold">Meet in public,</strong> preferably on campus,
-                    cafés, or busy spots near campus.
+                    <strong className="font-semibold">Meet in public,</strong>{" "}
+                    preferably on campus, cafés, or busy spots near campus.
                   </span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <span className="w-2 h-2 bg-purple-800 rounded-full mt-2 flex-shrink-0"></span>
                   <span>
-                    <strong className="font-semibold">Inspect item before paying.</strong> Check that the
-                    item matches the description and is in good condition.
+                    <strong className="font-semibold">
+                      Inspect item before paying.
+                    </strong>{" "}
+                    Check that the item matches the description and is in good
+                    condition.
                   </span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <span className="w-2 h-2 bg-purple-800 rounded-full mt-2 flex-shrink-0"></span>
                   <span>
-                    <strong className="font-semibold">Use in-app chat first.</strong> Keep initial
-                    conversations within StudEx to verify credibility.
+                    <strong className="font-semibold">
+                      Use in-app chat first.
+                    </strong>{" "}
+                    Keep initial conversations within StudEx to verify
+                    credibility.
                   </span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <span className="w-2 h-2 bg-purple-800 rounded-full mt-2 flex-shrink-0"></span>
                   <span>
-                    <strong className="font-semibold">Trust Your Instincts.</strong> If a deal feels
-                    suspicious or too good to be true, walk away.
+                    <strong className="font-semibold">
+                      Trust Your Instincts.
+                    </strong>{" "}
+                    If a deal feels suspicious or too good to be true, walk
+                    away.
                   </span>
                 </li>
                 <li className="flex items-start space-x-2">
                   <span className="w-2 h-2 bg-purple-800 rounded-full mt-2 flex-shrink-0"></span>
                   <span>
-                    <strong className="font-semibold">Report Suspicious Activity.</strong> Use the
-                    "Report" button to flag suspicious listings or behavior.
+                    <strong className="font-semibold">
+                      Report Suspicious Activity.
+                    </strong>{" "}
+                    Use the "Report" button to flag suspicious listings or
+                    behavior.
                   </span>
                 </li>
               </ul>

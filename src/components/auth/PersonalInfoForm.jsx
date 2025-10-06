@@ -87,6 +87,53 @@ const PersonalInfoForm = ({
           </div>
         </div>
 
+        {/* Date of Birth & Gender */}
+        {/* <div className="flex flex-col md:flex-row w-full gap-2"> */}
+          {/* Date of Birth */}
+          {/* <div className="flex w-full flex-col">
+            <label
+              htmlFor="dob"
+              className="text-sm text-accent-foreground font-medium"
+            >
+              Date of Birth
+            </label>
+            <input
+              type="date"
+              id="dob"
+              value={formData.dob}
+              onChange={(e) => updateField('dob', e.target.value)}
+              className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                formErrors.dob ? 'border-destructive' : 'border-border'
+              }`}
+            />
+            {formErrors.dob && (
+              <p className="text-destructive text-xs">{formErrors.dob}</p>
+            )}
+          </div> */}
+
+          {/* Gender */}
+          {/* <div className="flex w-full flex-col">
+            <label htmlFor="gender" className="text-sm text-accent-foreground font-medium">
+              Gender
+            </label>
+            <select
+              id="gender"
+              value={formData.gender}
+              onChange={(e) => updateField('gender', e.target.value)}
+              className={`w-full px-3 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                formErrors.gender ? 'border-destructive' : 'border-border'
+              }`}
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+            {formErrors.gender && (
+              <p className="text-destructive text-xs">{formErrors.gender}</p>
+            )}
+          </div>
+        </div> */}
+
         {/* Email Input */}
         <div className="mb-4 relative">
           <label

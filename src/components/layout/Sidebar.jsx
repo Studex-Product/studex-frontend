@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import Logo from "@/components/common/Logo";
 import PlusIcon from "@/assets/icons/plus-icon.svg";
 import HomeIcon from "@/assets/icons/home-icon.svg";
@@ -13,7 +14,7 @@ import SettingsIcon from "@/assets/icons/settings-icon.svg";
 import LogoutIcon from "@/assets/icons/logout-icon.svg";
 
 const Sidebar = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,7 +27,7 @@ const Sidebar = () => {
   ];
 
   const supportItems = [
-    { name: "Support", path: "/support", icon: SupportIcon },
+    { name: "Support", path: "/contact", icon: SupportIcon },
     { name: "Settings", path: "/settings", icon: SettingsIcon },
   ];
 
@@ -36,6 +37,18 @@ const Sidebar = () => {
 
   const handleNavigation = (path) => {
     navigate(path);
+  };
+
+    const handlePostItemClick = () => {
+    // Check if the user's profile is incomplete
+    if (!user?.isProfileComplete) {
+      toast.error("Please complete your profile setup before posting an item.");
+      // Optionally, navigate them to the settings page
+      // navigate('/settings'); 
+      return; // Stop the function here
+    }
+    // If profile is complete, proceed with navigation
+    navigate("/my-posts");
   };
 
   const handleLogout = () => {
@@ -53,7 +66,7 @@ const Sidebar = () => {
       {/* Post Item Button */}
       <div className="p-4 border-gray-100">
         <button
-          onClick={() => handleNavigation("/my-posts")}
+          onClick={handlePostItemClick}
           className="w-full text-purple-600 py-3 px-4 rounded-sm font-medium hover:bg-purple-100 transition-colors cursor-pointer flex items-center justify-between duration-300"
         >
           <span>Post Item</span>

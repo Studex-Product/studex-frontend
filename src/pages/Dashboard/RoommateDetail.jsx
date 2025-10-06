@@ -1,11 +1,11 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import { useAuth } from "@/hooks/useAuth";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import roommates from "@/sample data/mates";
+import roommates from "@/sample-data/mates";
 import Verified from "@/assets/icons/check-verified.svg";
 import {
   User,
@@ -15,6 +15,7 @@ import {
   Flag,
   CheckCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 
 // This simulates the currently logged-in user for compatibility calculation
 const currentUser = {
@@ -90,6 +91,7 @@ const fetchRoommateDetails = async (roommateId) => {
 const RoommateDetail = () => {
   const { roommateId } = useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   // temporary user object for compatibility check.
   // This uses the real logged-in user but attaches mock preferences for now.
@@ -120,13 +122,31 @@ const RoommateDetail = () => {
   });
 
   const handleChatNow = () => {
+    if (!user?.isProfileComplete) {
+      toast.error(
+        "Please complete your profile setup before chatting with roommates."
+      );
+      navigate("/profile-setup");
+      return;
+    }
     console.log("Open chat with seller");
+  };
+
+  const handleContact = () => {
+    if (!user?.isProfileComplete) {
+      toast.error(
+        "Please complete your profile setup before contacting roommates."
+      );
+      navigate("/profile-setup");
+      return;
+    }
+    window.location.href = `tel:${roommate?.phoneNumber}`;
   };
 
   if (isLoading) {
     return (
       <DashboardLayout>
-         <div className="p-6 bg-purple-50 min-h-screen">
+        <div className="p-6 bg-purple-50 min-h-screen">
           <div className="animate-pulse space-y-8">
             <div className="h-4 bg-gray-200 rounded w-1/3 mb-8"></div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -136,7 +156,7 @@ const RoommateDetail = () => {
               <div className="lg:col-span-2 bg-gray-200 rounded-lg p-6 h-48"></div>
               <div className="bg-gray-200 rounded-lg p-6 h-48"></div>
             </div>
-              <div className="bg-gray-200 rounded-lg p-6 h-48"></div>
+            <div className="bg-gray-200 rounded-lg p-6 h-48"></div>
           </div>
         </div>
       </DashboardLayout>
@@ -176,7 +196,10 @@ const RoommateDetail = () => {
                 />
                 {/* online badge */}
                 {roommate.isOnline && (
-                  <span title={roommate.isOnline ? "Online" : "Offline"} className="absolute top-1 right-1 block h-4 w-4 rounded-full bg-green-500 border-2 border-white" />
+                  <span
+                    title={roommate.isOnline ? "Online" : "Offline"}
+                    className="absolute top-1 right-1 block h-4 w-4 rounded-full bg-green-500 border-2 border-white"
+                  />
                 )}
               </div>
               <div>
@@ -201,19 +224,19 @@ const RoommateDetail = () => {
               </div>
             </div>
             <div className="flex items-center gap-3 mt-4 sm:mt-0 w-full sm:w-auto">
-              <a
-                href={`tel:${roommate.phoneNumber}`}
+              <button
+                onClick={handleContact}
                 className="flex-1 text-center whitespace-nowrap px-4 py-2 border border-purple-600 text-purple-600 rounded-lg text-sm font-semibold hover:bg-purple-50 flex items-center justify-center gap-2"
               >
-                <Phone size={16} /> {roommate.phoneNumber}
-              </a>
-                <button
-                  onClick={handleChatNow}
-                  className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm bg-purple-100 border border-purple-200 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors cursor-pointer"
-                >
-                  <MessageSquareTextIcon className="w-4 h-4" />
-                  <span>Chat Now</span>
-                </button>
+                <Phone size={16} /> Call Now
+              </button>
+              <button
+                onClick={handleChatNow}
+                className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm bg-purple-100 border border-purple-200 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors cursor-pointer"
+              >
+                <MessageSquareTextIcon className="w-4 h-4" />
+                <span>Chat Now</span>
+              </button>
             </div>
           </div>
         </div>
@@ -224,7 +247,7 @@ const RoommateDetail = () => {
             <div className="bg-white p-6 rounded-xl shadow-sm">
               <h2 className="text-xl font-bold mb-3">About Me</h2>
               <p className="text-gray-600 mb-4">{roommate.aboutMe}</p>
-              <h3 className="font-semibold mb-2">Interests</h3>
+              <h3 className="font-semibold mb-2">Hobbies</h3>
               <div className="flex flex-wrap gap-2">
                 {roommate.interests.map((interest) => (
                   <span
@@ -238,7 +261,7 @@ const RoommateDetail = () => {
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow-sm">
-              <h2 className="text-xl font-bold mb-4">Apartment Preference</h2>
+              <h2 className="text-xl font-bold mb-4">About Apartment</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-4">
                 <div>
                   <span className="font-semibold text-gray-500 block">
@@ -248,15 +271,15 @@ const RoommateDetail = () => {
                 </div>
                 <div>
                   <span className="font-semibold text-gray-500 block">
-                    Preferred Location
+                    Location
                   </span>{" "}
                   {roommate.apartmentPreference.location}
                 </div>
                 <div>
                   <span className="font-semibold text-gray-500 block">
-                    Budget
+                    Price
                   </span>{" "}
-                  {roommate.apartmentPreference.budget}
+                  {roommate.apartmentPreference.price}
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">

@@ -29,7 +29,10 @@ export const decodeJWT = (token) => {
 
 export const getUserRole = (token) => {
   const payload = decodeJWT(token);
-  return payload?.role || 'user'; // Default to 'user' if no role found
+  if (!payload) return 'user';
+
+  // Check multiple possible role field names
+  return payload.role || payload.user_type || payload.type || payload.user_role || 'user';
 };
 
 export const isTokenExpired = (token) => {

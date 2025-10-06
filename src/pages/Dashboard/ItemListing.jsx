@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProductCard from "@/components/ui/ProductCard";
-import products from "@/sample data/products";
+import products from "@/sample-data/products";
 import { List } from "lucide-react";
 import { LayoutGridIcon } from "lucide-react";
 import { ListFilterIcon } from "lucide-react";
@@ -220,11 +220,7 @@ const ItemListing = () => {
                   }
                 >
                   {items.map((item) => (
-                    <ProductCard
-                      key={item.id}
-                      {...item}
-                      view={viewMode}
-                    />
+                    <ProductCard key={item.id} {...item} view={viewMode} />
                   ))}
                 </div>
 

@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useQuery } from "@tanstack/react-query";
 import ProductCard from "@/components/ui/ProductCard";
-import products from "@/sample data/products";
+import products from "@/sample-data/products";
 import DashBannerImg from "@/assets/images/DashBannerImg.png";
+import ProfileCompletionBanner from "../profile/ProfileCompletionBanner";
 import ChevronRightPurple from "@/assets/icons/chevron-right-purple.svg";
 
 // Mock API services
@@ -64,15 +65,15 @@ const fetchRoommateMatches = async () => {
       id: 5,
       image:
         "https://images.unsplash.com/photo-1574362848149-11496d93a7c7?w=400",
-        title: "2-Bedroom Apartment, Furnished",
-        description: "Yaba, Lagos State",
-        price: "₦250,000 / year",
-        location: "Yaba, Lagos State",
-        category: "Apartment",
-      },
-      {
-        id: 6,
-        image:
+      title: "2-Bedroom Apartment, Furnished",
+      description: "Yaba, Lagos State",
+      price: "₦250,000 / year",
+      location: "Yaba, Lagos State",
+      category: "Apartment",
+    },
+    {
+      id: 6,
+      image:
         "https://images.unsplash.com/photo-1574362848149-11496d93a7c7?w=400",
       title: "2-Bedroom Apartment, Furnished",
       description: "Yaba, Lagos State",
@@ -84,7 +85,6 @@ const fetchRoommateMatches = async () => {
 };
 
 const Dashboard = () => {
-
   const navigate = useNavigate();
 
   // Fetch recent items
@@ -117,6 +117,7 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="px-6">
+        <ProfileCompletionBanner />
         {/* Hero Banner */}
         <div className="bg-[url('@/assets/images/DashBannerBg.png')] bg-cover bg-no-repeat rounded-2xl p-8 mb-8 relative overflow-hidden">
           <div className="relative z-10 flex items-center justify-between">

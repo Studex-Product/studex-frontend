@@ -1,12 +1,14 @@
-import React, { useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { User, Settings, Headphones } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import React, { useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { User, Settings, Headphones } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import LogoutIcon from "@/assets/icons/logout-icon.svg";
 
 const ProfileDropdown = ({ isOpen, onClose }) => {
   const dropdownRef = useRef(null);
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   // Close dropdown if clicked outside
   useEffect(() => {
@@ -16,20 +18,40 @@ const ProfileDropdown = ({ isOpen, onClose }) => {
       }
     };
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
   const menuItems = [
-    { icon: <User size={20} />, text: 'My profile', path: '/profile' },
-    { icon: <Settings size={20} />, text: 'Settings', path: '/settings' },
-    { icon: <Headphones size={20} />, text: 'Help & Support', path: '/support' },
+    { icon: <User size={20} />, text: "My profile", path: "/profile" },
+    { icon: <Settings size={20} />, text: "Settings", path: "/settings" },
+    { icon: <Headphones size={20} />, text: "Help & Support", path: "/contact", },
   ];
+
+  const handleNavigation = (path, event) => {
+    // Prevent default navigation
+    event.preventDefault();
+
+    // Check if trying to access profile and user is not verified
+    if (path === "/profile" && !user?.isProfileComplete) {
+      console.log(user)
+      toast.error(
+        "Please complete your profile setup before accessing your profile."
+      );
+      navigate("/profile-setup");
+      onClose();
+      return;
+    }
+
+    // If validation passes, navigate to the intended path
+    navigate(path);
+    onClose();
+  };
 
   return (
     <div
@@ -41,7 +63,7 @@ const ProfileDropdown = ({ isOpen, onClose }) => {
           <Link
             key={item.text}
             to={item.path}
-            onClick={onClose}
+            onClick={(event) => handleNavigation(item.path, event)}
             className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition duration-300"
           >
             <span className="mr-3 text-gray-500">{item.icon}</span>
@@ -56,7 +78,9 @@ const ProfileDropdown = ({ isOpen, onClose }) => {
           }}
           className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
         >
-          <span className="mr-3"><img src={LogoutIcon} alt="logout icon" className='w-4 h-4' /> </span>
+          <span className="mr-3">
+            <img src={LogoutIcon} alt="logout icon" className="w-4 h-4" />{" "}
+          </span>
           Log Out
         </button>
       </div>

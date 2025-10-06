@@ -3,9 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "@/hooks/useAuthContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useListing } from "@/hooks/useListing";
+import { toast } from "sonner";
 import DashboardLayout from "@/components/layout/DashboardLayout";
-import Loader from '@/assets/Loader.svg';
-import { Plus, FileSearch, Users, List, Eye, MoreHorizontal } from "lucide-react";
+import Loader from "@/assets/Loader.svg";
+import {
+  Plus,
+  FileSearch,
+  Users,
+  List,
+  Eye,
+  MoreHorizontal,
+} from "lucide-react";
 
 // ListingCard component to display individual listings
 const ListingCard = ({ listing }) => {
@@ -13,9 +21,9 @@ const ListingCard = ({ listing }) => {
 
   // Format price
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -23,10 +31,10 @@ const ListingCard = ({ listing }) => {
   // Format date
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -104,7 +112,12 @@ const MyPosts = () => {
 
   const { user } = useAuthContext();
   const { resendVerification } = useAuth();
-  const { userListings, isLoadingUserListings, userListingsError, refetchUserListings } = useListing();
+  const {
+    userListings,
+    isLoadingUserListings,
+    userListingsError,
+    refetchUserListings,
+  } = useListing();
 
   // Check if user email is verified
   const isEmailVerified =
@@ -113,6 +126,9 @@ const MyPosts = () => {
   const handleCreatePostClick = () => {
     if (!isEmailVerified) {
       setShowVerificationModal(true);
+    } else if (!user?.isProfileComplete) {
+      toast.error("Please complete your profile setup before posting.");
+      return;
     } else {
       setShowCreateModal(true);
     }
@@ -149,7 +165,7 @@ const MyPosts = () => {
           </div>
           <button
             onClick={handleCreatePostClick}
-            className="text-purple-700 hover:text-purple-800 border-1 border-purple-700 hover:border-purple-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+            className="text-purple-700 hover:text-purple-800 border-1 border-purple-700 hover:bg-purple-50 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Create New Post
@@ -188,19 +204,37 @@ const MyPosts = () => {
             {/* Loading State */}
             {isLoadingUserListings ? (
               <div className="text-center py-12">
-                <img src={Loader} alt="Loading..." className="w-12 h-12 mx-auto mb-4" />
+                <img
+                  src={Loader}
+                  alt="Loading..."
+                  className="w-12 h-12 mx-auto mb-4"
+                />
                 <p className="text-gray-600">Loading your listings...</p>
               </div>
             ) : userListingsError ? (
               /* Error State */
               <div className="text-center py-12">
                 <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L5.232 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                  <svg
+                    className="w-8 h-8 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L5.232 15.5c-.77.833.192 2.5 1.732 2.5z"
+                    />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Failed to load listings</h3>
-                <p className="text-gray-600 mb-6">There was an error loading your listings. Please try again.</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Failed to load listings
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  There was an error loading your listings. Please try again.
+                </p>
                 <button
                   onClick={() => refetchUserListings()}
                   className="text-purple-700 hover:text-purple-800 font-medium text-sm"
@@ -225,12 +259,12 @@ const MyPosts = () => {
                   No Post yet
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  You haven't listed any items yet. Start by posting an item you'd
-                  like to sell.
+                  You haven't listed any items yet. Start by posting an item
+                  you'd like to sell.
                 </p>
                 <button
                   onClick={handleCreatePostClick}
-                  className="text-purple-700 hover:text-purple-800 font-medium text-sm flex items-center gap-1 mx-auto"
+                  className="text-purple-700 hover:text-purple-800 font-medium text-sm flex items-center gap-1 mx-auto cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   Create New Post
@@ -252,7 +286,7 @@ const MyPosts = () => {
             </p>
             <button
               onClick={handleCreatePostClick}
-              className="text-purple-700 hover:text-purple-800 font-medium text-sm flex items-center gap-1 mx-auto"
+              className="text-purple-700 hover:text-purple-800 font-medium text-sm flex items-center gap-1 mx-auto cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Create New Post
@@ -351,7 +385,7 @@ const MyPosts = () => {
 
         {/* Email Verification Modal */}
         {showVerificationModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
               <div className="text-center">
                 <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
@@ -380,7 +414,7 @@ const MyPosts = () => {
                   <button
                     onClick={handleResendVerification}
                     disabled={resendVerification.isPending}
-                    className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200"
+                    className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-purple-400 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 cursor-pointer"
                   >
                     {resendVerification.isPending
                       ? "Sending..."
@@ -388,7 +422,7 @@ const MyPosts = () => {
                   </button>
                   <button
                     onClick={() => setShowVerificationModal(false)}
-                    className="w-full text-gray-600 hover:text-gray-800 py-2 px-4 font-medium transition-colors duration-200"
+                    className="w-full text-gray-600 hover:text-gray-800 py-2 px-4 font-medium transition-colors duration-200 cursor-pointer"
                   >
                     Close
                   </button>
