@@ -91,7 +91,7 @@ const SellerProfile = () => {
   const handleBreadcrumbNavigation = (path) => navigate(path);
 
   const handleContact = () => {
-    if (!user?.isProfileComplete) {
+    if (!user?.is_profile_complete) {
       toast.error(
         "Please complete your profile setup before contacting sellers."
       );
@@ -103,7 +103,7 @@ const SellerProfile = () => {
   };
 
   const handleChatNow = () => {
-    if (!user?.isProfileComplete) {
+    if (!user?.is_profile_complete) {
       toast.error(
         "Please complete your profile setup before chatting with sellers."
       );

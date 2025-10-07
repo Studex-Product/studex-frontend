@@ -95,7 +95,7 @@ const ItemDetail = () => {
   };
 
   const handleContact = () => {
-    if (!user?.isProfileComplete) {
+    if (!user?.is_profile_complete) {
       toast.error(
         "Please complete your profile setup before contacting sellers."
       );
@@ -119,7 +119,7 @@ const ItemDetail = () => {
   };
 
   const handleChatNow = () => {
-    if (!user?.isProfileComplete) {
+    if (!user?.is_profile_complete) {
       toast.error(
         "Please complete your profile setup before chatting with sellers."
       );

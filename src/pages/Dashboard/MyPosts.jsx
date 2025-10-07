@@ -126,7 +126,7 @@ const MyPosts = () => {
   const handleCreatePostClick = () => {
     if (!isEmailVerified) {
       setShowVerificationModal(true);
-    } else if (!user?.isProfileComplete) {
+    } else if (!user?.is_profile_complete) {
       toast.error("Please complete your profile setup before posting.");
       return;
     } else {

@@ -8,7 +8,7 @@ const ProfileCompletionBanner = () => {
   const navigate = useNavigate();
 
   // If the profile is complete or there's no user, show nothing.
-  if (!user || user.isProfileComplete) {
+  if (!user || user.is_profile_complete) {
     return null;
   }
 

@@ -38,7 +38,7 @@ const ProfileDropdown = ({ isOpen, onClose }) => {
     event.preventDefault();
 
     // Check if trying to access profile and user is not verified
-    if (path === "/profile" && !user?.isProfileComplete) {
+    if (path === "/profile" && !user?.is_profile_complete) {
       console.log(user)
       toast.error(
         "Please complete your profile setup before accessing your profile."

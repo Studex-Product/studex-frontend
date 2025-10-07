@@ -122,7 +122,7 @@ const RoommateDetail = () => {
   });
 
   const handleChatNow = () => {
-    if (!user?.isProfileComplete) {
+    if (!user?.is_profile_complete) {
       toast.error(
         "Please complete your profile setup before chatting with roommates."
       );
@@ -133,7 +133,7 @@ const RoommateDetail = () => {
   };
 
   const handleContact = () => {
-    if (!user?.isProfileComplete) {
+    if (!user?.is_profile_complete) {
       toast.error(
         "Please complete your profile setup before contacting roommates."
       );

@@ -41,7 +41,7 @@ const Sidebar = () => {
 
     const handlePostItemClick = () => {
     // Check if the user's profile is incomplete
-    if (!user?.isProfileComplete) {
+    if (!user?.is_profile_complete) {
       toast.error("Please complete your profile setup before posting an item.");
       // Optionally, navigate them to the settings page
       // navigate('/settings'); 
