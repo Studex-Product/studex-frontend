@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { adminService } from '@/api/adminService';
 import AdminDashboardLayout from '@/components/layout/AdminDashboardLayout';
 import { toast } from 'sonner';
+import Loader from '@/assets/Loader.svg';
 import {
   ArrowLeft,
   Check,
@@ -124,7 +125,11 @@ const VerificationDetail = () => {
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              <img
+                              src={Loader}
+                              alt="Loading..."
+                              className="w-12 h-12 mx-auto mb-4"
+              />
               <p className="mt-2 text-gray-600">Loading verification details...</p>
             </div>
           </div>

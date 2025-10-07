@@ -3,9 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { adminService } from "@/api/adminService";
 import DragDropFileUpload from "./DragDropFileUpload";
 
-const VerificationForm = ({ onSubmit, onSkip }) => {
+const VerificationForm = ({ onSubmit, onSkip, email, isSubmitting, error }) => {
   // Fetch active campuses for assignment
-  const { data: campuses = [], isLoading: campusesLoading, error: campusesError } = useQuery({
+  const {
+    data: campuses = [],
+    isLoading: campusesLoading,
+    error: campusesError,
+  } = useQuery({
     queryKey: ["activeCampuses"],
     queryFn: () => adminService.getCampuses(),
     select: (data) => {
@@ -14,7 +18,7 @@ const VerificationForm = ({ onSubmit, onSkip }) => {
         return data;
       }
       return data.items || data.campuses || data.data || [];
-    }
+    },
   });
 
   const [selectedCampus, setSelectedCampus] = useState("");
@@ -23,7 +27,9 @@ const VerificationForm = ({ onSubmit, onSkip }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log({ email, selectedCampus, documentType, selectedFile });
     onSubmit({
+      email,
       campus: selectedCampus,
       documentType,
       selectedFile: selectedFile?.name,
@@ -39,7 +45,8 @@ const VerificationForm = ({ onSubmit, onSkip }) => {
           Student Verification
         </h3>
         <p className="font-medium text-ring text-base mb-0">
-          Select your campus and upload a valid document that confirms you're a student. We accept:
+          Select your campus and upload a valid document that confirms you're a
+          student. We accept:
         </p>
         <ul className="text-muted-foreground">
           <li>- Your current student ID card</li>
@@ -70,7 +77,7 @@ const VerificationForm = ({ onSubmit, onSkip }) => {
               <option value="" disabled>
                 Select your campus
               </option>
-              {campuses.map(campus => (
+              {campuses.map((campus) => (
                 <option key={campus.id} value={campus.id}>
                   {campus.name}
                 </option>
@@ -95,7 +102,9 @@ const VerificationForm = ({ onSubmit, onSkip }) => {
             <option value="student-id">Student ID Card</option>
             <option value="admission-letter">Admission Letter</option>
             <option value="school-id">School ID Card</option>
-            <option value="matriculation-cert">Matriculation Certificate</option>
+            <option value="matriculation-cert">
+              Matriculation Certificate
+            </option>
             <option value="student-handbook">Student Handbook with ID</option>
           </select>
         </div>
@@ -105,6 +114,13 @@ const VerificationForm = ({ onSubmit, onSkip }) => {
           selectedFile={selectedFile}
           onFileSelect={setSelectedFile}
         />
+
+        {/* Error Message */}
+        {error && (
+          <div className="text-red-600 text-sm mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+            {error}
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-4 flex-col md:flex-row justify-between mt-12">
@@ -118,13 +134,13 @@ const VerificationForm = ({ onSubmit, onSkip }) => {
           <button
             type="submit"
             className={`w-full bg-[#9046CF]  text-white py-3 px-4 rounded-lg font-medium focus:outline-none transition-colors ${
-              !isFormValid
-                ? 'opacity-50 cursor-not-allowed'
-                : 'hover:bg-purple-700 cursor-pointer'
+              !isFormValid || isSubmitting
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-purple-700 cursor-pointer"
             }`}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isSubmitting}
           >
-            Continue
+            {isSubmitting ? "Submitting..." : "Continue"}
           </button>
         </div>
       </div>

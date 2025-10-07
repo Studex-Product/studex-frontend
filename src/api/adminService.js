@@ -26,7 +26,15 @@ export const adminService = {
     return response.data;
   },
 
-  // Update user status (activate/deactivate)
+  // Get single user details for campus admin
+  getCampusUserById: async (campusId, userId) => {
+    const response = await apiClient.get(
+      `/api/admin/campus/${campusId}/users/${userId}`
+    );
+    return response.data;
+  },
+
+  // Update user status (activate/deactivate) - Super Admin
   updateUserStatus: async (userId, status) => {
     const response = await apiClient.patch(
       `/api/admin/users/${userId}/status`,
@@ -37,10 +45,32 @@ export const adminService = {
     return response.data;
   },
 
-  // Verify/Unverify student
+  // Update user status (activate/deactivate) - Campus Admin
+  updateCampusUserStatus: async (campusId, userId, status) => {
+    const response = await apiClient.patch(
+      `/api/admin/campus/${campusId}/users/${userId}/status`,
+      {
+        is_active: status,
+      }
+    );
+    return response.data;
+  },
+
+  // Verify/Unverify student - Super Admin
   updateStudentVerification: async (userId, verified) => {
     const response = await apiClient.patch(
       `/api/admin/users/${userId}/verify-student`,
+      {
+        student_verified: verified,
+      }
+    );
+    return response.data;
+  },
+
+  // Verify/Unverify student - Campus Admin
+  updateCampusStudentVerification: async (campusId, userId, verified) => {
+    const response = await apiClient.patch(
+      `/api/admin/campus/${campusId}/users/${userId}/verify-student`,
       {
         student_verified: verified,
       }

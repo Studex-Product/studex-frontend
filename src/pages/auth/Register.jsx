@@ -26,7 +26,8 @@ const Register = () => {
   // Email verification states
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
-  const [hasTriggeredVerification, setHasTriggeredVerification] = useState(false);
+  const [hasTriggeredVerification, setHasTriggeredVerification] =
+    useState(false);
 
   // API hooks
   const {
@@ -43,15 +44,11 @@ const Register = () => {
     isVerifyEmailSuccess,
     isResendVerificationSuccess,
     registerError,
-    verifyAccountError
+    verifyAccountError,
   } = useAuth();
 
-  const {
-    formData,
-    formErrors,
-    updateField,
-    isFormValid,
-  } = useRegistrationForm();
+  const { formData, formErrors, updateField, isFormValid } =
+    useRegistrationForm();
 
   // Handle personal info submission
   const handlePersonalInfoSubmit = async () => {
@@ -60,16 +57,18 @@ const Register = () => {
       first_name: formData.firstName,
       last_name: formData.lastName,
       email: formData.email,
-      password: formData.password
+      password: formData.password,
     });
   };
 
   // Handle verification submission
   const handleVerificationSubmit = async (verificationData) => {
-    // Call the API
+    // Call the API with email, campus, documentType, and file
     verifyAccount.mutate({
-      email: formData.email,
-      verificationCode: verificationData.code
+      email: verificationData.email, // Email from the verification form
+      campus_id: verificationData.campus,
+      document_type: verificationData.documentType,
+      verification_document: verificationData.selectedFile,
     });
   };
 
@@ -84,13 +83,13 @@ const Register = () => {
 
   // Check for verification token in URL on mount
   useEffect(() => {
-    const token = searchParams.get('token');
+    const token = searchParams.get("token");
     if (token && !hasTriggeredVerification) {
       setHasTriggeredVerification(true);
       // Call verification API with the token from email link
       verifyEmail.mutate(token);
     }
-  }, [searchParams, hasTriggeredVerification, verifyEmail]); 
+  }, [searchParams, hasTriggeredVerification, verifyEmail]);
   // Success handling - move to next step when API calls succeed
   useEffect(() => {
     if (isRegisterSuccess) {
@@ -110,10 +109,16 @@ const Register = () => {
       setCurrentStep("success");
     };
 
-    window.addEventListener('emailVerificationSuccess', handleEmailVerificationSuccess);
+    window.addEventListener(
+      "emailVerificationSuccess",
+      handleEmailVerificationSuccess
+    );
 
     return () => {
-      window.removeEventListener('emailVerificationSuccess', handleEmailVerificationSuccess);
+      window.removeEventListener(
+        "emailVerificationSuccess",
+        handleEmailVerificationSuccess
+      );
     };
   }, []);
 
@@ -150,7 +155,6 @@ const Register = () => {
     // Call the API to resend verification email
     resendVerification.mutate({ email: formData.email });
   };
-
 
   // Handle continue to login
   const handleContinueToLogin = () => {
@@ -194,10 +198,13 @@ const Register = () => {
               disabled={!canResend || isResendingVerification}
               className="text-purple-600 hover:text-purple-800 font-medium text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isResendingVerification ? "Sending..." : !canResend ? `Resend in ${resendTimer}s` : "Resend Link"}
+              {isResendingVerification
+                ? "Sending..."
+                : !canResend
+                ? `Resend in ${resendTimer}s`
+                : "Resend Link"}
             </button>
           </div>
-
         </div>
       </div>
     );
@@ -239,15 +246,12 @@ const Register = () => {
   }
 
   return (
-    <AuthLayout
-      image={RegisterImg}
-      imageAlt="Student smiling at her phone"
-    >
+    <AuthLayout image={RegisterImg} imageAlt="Student smiling at her phone">
       <div className="flex flex-col gap-4 max-w-full pt-4 p-1 overflow-hidden">
         <h1 className="text-2xl font-semibold text-gray-900 mb-2">Sign up</h1>
         <p className="text-gray-600">
-          Create your free StudEx account to start selling, buying or finding
-          a roommate within your university community.
+          Create your free StudEx account to start selling, buying or finding a
+          roommate within your university community.
         </p>
 
         <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
@@ -255,7 +259,7 @@ const Register = () => {
         {currentStep === 1 && (
           <PersonalInfoForm
             formData={formData}
-            formErrors={{...formErrors, apiError: registerError?.message}}
+            formErrors={{ ...formErrors, apiError: registerError?.message }}
             updateField={updateField}
             onSubmit={handlePersonalInfoSubmit}
             isSubmitting={isRegistering}
@@ -267,7 +271,7 @@ const Register = () => {
           <VerificationForm
             onSubmit={handleVerificationSubmit}
             onSkip={handleSkip}
-            personalData={formData}
+            email={formData.email}
             isSubmitting={isVerifyingAccount}
             error={verifyAccountError?.message}
           />
