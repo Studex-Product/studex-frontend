@@ -73,8 +73,8 @@ const DashboardLayout = ({ children }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar */}
-        <header className="bg-white px-4 py-3 lg:px-6">
-          <div className="flex items-center justify-between">
+        <header className="bg-white px-4 py-3 lg:px-6 border-b border-gray-200">
+          <div className="flex items-center">
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMobileMenu}
@@ -95,34 +95,23 @@ const DashboardLayout = ({ children }) => {
               </svg>
             </button>
 
-            {/* Search Bar */}
-            <div className="flex-1 max-w-md mx-4">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="I'm looking for..."
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition duration-300"
-                />
-              </div>
-            </div>
+            {/* Greeting */}
+            <h1 className="text-lg md:text-2xl font-medium text-gray-900 ">
+              {(() => {
+                const currentHour = new Date().getHours();
+                if (currentHour < 12) {
+                  return "Good morning";
+                } else if (currentHour < 18) {
+                  return "Good afternoon";
+                } else {
+                  return "Good evening";
+                }
+              })()}
+              , {user?.first_name || "User"}!
+            </h1>
 
             {/* User Menu */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 ml-auto">
               {/* Notifications */}
               <button className="p-2 rounded-full text-gray-400 hover:text-gray-500 cursor-pointer hover:bg-gray-100 transition duration-300">
                 <img src={NotifIcon} alt="Notifications" className="w-5 h-5" />

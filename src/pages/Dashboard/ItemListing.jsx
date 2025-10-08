@@ -16,11 +16,29 @@ const parsePrice = (priceStr) => {
   return Number(priceStr.replace(/[^0-9.-]+/g, ""));
 };
 
-// Mock API service updated to handle filters and sorting
-const fetchItems = async ({ page = 1, sortBy = "newest", filters = {} }) => {
+// Mock API service updated to handle filters, sorting, and search
+const fetchItems = async ({
+  page = 1,
+  sortBy = "newest",
+  filters = {},
+  searchQuery = "",
+}) => {
   await new Promise((resolve) => setTimeout(resolve, 800));
 
   let allProducts = [...products, ...products, ...products];
+
+  // --- Search Logic ---
+  if (searchQuery && searchQuery.trim() !== "") {
+    const query = searchQuery.toLowerCase().trim();
+    allProducts = allProducts.filter((p) => {
+      return (
+        p.title?.toLowerCase().includes(query) ||
+        p.description?.toLowerCase().includes(query) ||
+        p.category?.toLowerCase().includes(query) ||
+        p.location?.toLowerCase().includes(query)
+      );
+    });
+  }
 
   // --- Filtering Logic ---
   if (filters.category && filters.category !== "All") {
@@ -71,13 +89,19 @@ const ItemListing = () => {
   const [sortBy, setSortBy] = useState("newest");
   const [viewMode, setViewMode] = useState("grid");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [activeFilters, setActiveFilters] = useState({}); // Added state for filters
+  const [activeFilters, setActiveFilters] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Updated useQuery to be aware of filters
+  // Updated useQuery to be aware of filters and search
   const { data, isLoading, error } = useQuery({
-    queryKey: ["items", currentPage, sortBy, activeFilters],
+    queryKey: ["items", currentPage, sortBy, activeFilters, searchQuery],
     queryFn: () =>
-      fetchItems({ page: currentPage, sortBy, filters: activeFilters }),
+      fetchItems({
+        page: currentPage,
+        sortBy,
+        filters: activeFilters,
+        searchQuery,
+      }),
     staleTime: 1000 * 60 * 2,
   });
 
@@ -102,6 +126,12 @@ const ItemListing = () => {
     setActiveFilters(filters);
     setCurrentPage(1); // Go back to page 1 when filters change
     setIsFilterOpen(false); // Close modal
+  };
+
+  // Handler for search input
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1); // Go back to page 1 when search changes
   };
 
   const getPageNumbers = () => {
@@ -144,6 +174,34 @@ const ItemListing = () => {
             >
               <List />
             </button>
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex-1 max-w-md mx-4">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg
+                  className="h-5 w-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={handleSearchChange}
+                placeholder="Search by name, description, category, location..."
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition duration-300"
+              />
+            </div>
           </div>
 
           {/* Sort and Filter */}
