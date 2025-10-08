@@ -155,7 +155,7 @@ const MyPosts = () => {
     <DashboardLayout>
       <div className="p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex max-sm:flex-col space-y-3 md:items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-medium text-gray-900">My Posts</h1>
             <p className="text-gray-600 mt-1">
@@ -165,7 +165,7 @@ const MyPosts = () => {
           </div>
           <button
             onClick={handleCreatePostClick}
-            className="text-purple-700 hover:text-purple-800 border-1 border-purple-700 hover:bg-purple-50 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2 cursor-pointer"
+            className="text-purple-700 hover:text-purple-800 border-1 border-purple-700 hover:bg-purple-50 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             Create New Post

@@ -14,8 +14,6 @@ const ProductCard = ({
 }) => {
   const navigate = useNavigate();
 
-  // console.log('ProductCard received id:', id); // Add this line
-
   const handleCardClick = () => {
     navigate(`/items/${id}`);
   };
@@ -25,13 +23,13 @@ const ProductCard = ({
       <div
         key={id}
         onClick={handleCardClick}
-        className="bg-white flex items-center rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+        className="bg-white flex items-stretch rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       >
-        <div className="flex-shrink-0 relative">
+        <div className="flex-shrink-0 relative w-42">
           <img
             src={image}
             alt={title}
-            className="object-cover border-r w-42 h-40 rounded-l-lg"
+            className="object-cover w-full h-full rounded-l-lg"
           />
           <span
             className={`absolute top-2 left-2 px-3 py-1 text-xs font-semibold rounded-sm ${
@@ -44,9 +42,9 @@ const ProductCard = ({
           </span>
         </div>
 
-        <div className="flex items-center justify-between w-full">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full">
           <div className="flex-1 min-w-0 p-4">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
+            <h3 className="md:text-lg font-semibold text-gray-900 overflow-hidden text-ellipsis">
               {title}
             </h3>
             <p className="text-gray-600 text-sm mt-1 line-clamp-2">
@@ -57,8 +55,8 @@ const ProductCard = ({
               <span>{location}</span>
             </div>
           </div>
-          <div className="flex-shrink-0 text-right">
-            <div className="text-2xl font-semibold text-gray-900">{price}</div>
+          <div className="flex-shrink-0 md:text-right">
+            <div className="text-lg md:text-2xl px-2 font-semibold text-gray-900">{price}</div>
             {/* Example of conditional text */}
             {/* {category === "Apartment" && (
               <div className="text-sm text-gray-500">/ year</div>

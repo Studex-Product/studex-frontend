@@ -204,7 +204,7 @@ const RoommateDetail = () => {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold text-gray-900">
+                  <h1 className="text-lg md:text-2xl font-bold text-gray-900">
                     {roommate.name}
                   </h1>
                   <div className="flex items-center w-fit bg-green-100 text-green-800 text-xs font-medium  p-0.5 rounded-md mt-1">

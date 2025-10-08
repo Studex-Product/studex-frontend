@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+// import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import AuthLayout from "@/components/auth/AuthLayout";
 import ForgotPasswordImg from "@/assets/images/ForgotPasswordImg.jpg";
@@ -9,7 +9,7 @@ import EyeOff from "@/assets/icons/eye-off.svg";
 import { useAuth } from "@/hooks/useAuth";
 
 function Login() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: "", password: "" });
@@ -19,7 +19,7 @@ function Login() {
   const {
     login,
     isLoggingIn,
-    isLoginSuccess,
+    // isLoginSuccess,
     loginError,
     initiateGoogleLogin
   } = useAuth();
@@ -51,8 +51,6 @@ function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log("Submitting login with:", { email, password });
-
       // Call the API through our hook
       login.mutate({
         email,

@@ -144,8 +144,8 @@ const FindRoommate = () => {
           </h1>
         </div>
 
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between mb-6 flex-wrap">
+          <div className="flex items-center space-x-2 max-sm:mb-2">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-2 rounded-md transition-colors cursor-pointer ${

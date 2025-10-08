@@ -176,7 +176,7 @@ const SellerProfile = () => {
         {/* Seller Info */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           <div className="lg:col-span-2 bg-white rounded-lg p-6 border border-gray-200">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center">
+            <div className="flex flex-col space-y-3 md:flex-row md:justify-between md:items-center">
               <div className="flex items-center space-x-4">
                 <img
                   src={seller?.avatar}
@@ -218,8 +218,8 @@ const SellerProfile = () => {
 
             <hr className="my-6 border-gray-200" />
 
-            <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-200 text-sm">
-              <div className="flex flex-col items-start px-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 divide-x space-y-2 divide-gray-200 text-sm">
+              <div className="flex flex-col items-center md:items-start px-2">
                 <div>
                   <p className="text-gray-500">Joined</p>
                   <p className="flex gap-2 font-medium text-gray-900 mt-1">
@@ -246,7 +246,7 @@ const SellerProfile = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col items-end px-2">
+              <div className="flex flex-col items-center md:items-end px-2">
                 <div>
                   <p className="text-gray-500">Location</p>
                   <p className="flex gap-2 font-medium text-gray-900 mt-1">

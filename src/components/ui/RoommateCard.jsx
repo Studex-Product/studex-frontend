@@ -1,8 +1,17 @@
-import React from 'react';
-import { MapPin } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const RoommateCard = ({ id, name, image, university, location, price, tags, view = 'grid' }) => {
+const RoommateCard = ({
+  id,
+  name,
+  image,
+  university,
+  location,
+  price,
+  tags,
+  view = "grid",
+}) => {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
@@ -13,35 +22,42 @@ const RoommateCard = ({ id, name, image, university, location, price, tags, view
     return (
       <div
         onClick={handleCardClick}
-        className="bg-white flex items-center rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+        className="bg-white flex items-stretch rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
       >
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 w-40">
           <img
             src={image}
             alt={name}
-            className="object-cover w-40 h-40 rounded-l-lg"
+            className="object-cover w-full h-full rounded-l-lg"
           />
         </div>
 
-        <div className="flex items-center justify-between w-full p-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full p-4">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-semibold text-gray-900 truncate">
+            <h3 className="md:text-lg font-semibold text-gray-900 overflow-hidden text-ellipsis">
               {name}
             </h3>
             <div className="flex items-center mt-1 text-sm text-gray-500">
               <MapPin size={14} className="mr-1.5 flex-shrink-0" />
-              <span>{university} - {location}</span>
+              <span>
+                {university} - {location}
+              </span>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               {tags.map((tag) => (
-                <span key={tag} className="bg-gray-100 text-xs px-2 py-1 rounded-full">
+                <span
+                  key={tag}
+                  className="bg-gray-100 text-xs px-2 py-1 rounded-full"
+                >
                   {tag}
                 </span>
               ))}
             </div>
           </div>
-          <div className="flex-shrink-0 text-right ml-4">
-            <div className="text-xl font-semibold text-gray-900">{price}</div>
+          <div className="flex-shrink-0 md:text-right md:ml-4">
+            <div className="text-lg md:text-xl font-semibold text-gray-900">
+              {price}
+            </div>
           </div>
         </div>
       </div>
@@ -49,7 +65,7 @@ const RoommateCard = ({ id, name, image, university, location, price, tags, view
   }
 
   return (
-    <div 
+    <div
       onClick={handleCardClick}
       className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 cursor-pointer"
     >
@@ -59,13 +75,18 @@ const RoommateCard = ({ id, name, image, university, location, price, tags, view
         <div className="flex items-center justify-between text-sm text-gray-600 mt-1">
           <div className="flex items-center">
             <MapPin size={14} className="mr-1 text-gray-400" />
-            <span>{university} - {location}</span>
+            <span>
+              {university} - {location}
+            </span>
           </div>
           <span className="font-semibold">{price}</span>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           {tags.slice(0, 3).map((tag, index) => (
-            <span key={index} className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+            <span
+              key={index}
+              className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"
+            >
               {tag}
             </span>
           ))}
