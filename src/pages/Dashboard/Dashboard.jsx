@@ -4,22 +4,68 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 import { useQuery } from "@tanstack/react-query";
 import ProductCard from "@/components/ui/ProductCard";
 import products from "@/sample-data/products";
+import { listingService } from "@/api/listingService";
 import DashBannerImg from "@/assets/images/DashBannerImg.png";
 import ProfileCompletionBanner from "../profile/ProfileCompletionBanner";
 import ChevronRightPurple from "@/assets/icons/chevron-right-purple.svg";
 
-// Mock API services
-const fetchRecentItems = async () => {
+// Mock API service (fallback)
+const fetchRecentItemsMock = async () => {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  // For now, return sample data - replace with actual API call
+  // Return sample data
   return products.slice(0, 6);
 };
 
-const fetchRoommateMatches = async () => {
+// Real API service - fetches recent items
+const fetchRecentItems = async () => {
+  try {
+    const response = await listingService.getAllListings({});
+    let items = response.data || response || [];
+
+    // Filter to only show approved items
+    items = items.filter((item) => item.status === "approved");
+
+    // Sort by creation date (newest first)
+    items.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Take only first 6 items
+    items = items.slice(0, 6);
+
+    // Transform to match ProductCard expectations
+    return items.map((item) => ({
+      id: item.id,
+      image:
+        item.image_urls && item.image_urls.length > 0
+          ? item.image_urls[0]
+          : null,
+      title: item.item_name,
+      description: item.description,
+      price: new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+      }).format(item.price),
+      location:
+        item.state && item.local_government
+          ? `${item.local_government}, ${item.state}`
+          : item.state || "Location not specified",
+      category: item.condition || item.category || "Used",
+    }));
+  } catch (error) {
+    console.error(
+      "Error fetching recent items from API, falling back to mock data:",
+      error
+    );
+    return fetchRecentItemsMock();
+  }
+};
+
+// Mock roommate data (fallback)
+const fetchRoommateMatchesMock = async () => {
   // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  // Mock roommate data - replace with actual API call
+  // Mock roommate data
   return [
     {
       id: 1,
@@ -84,6 +130,59 @@ const fetchRoommateMatches = async () => {
   ];
 };
 
+// Real API service - fetches roommate matches
+// TODO: Update when roommate API endpoint is available
+const fetchRoommateMatches = async () => {
+  try {
+    // For now, fetch listings with type 'room' or 'roommate' filter
+    // This assumes the API supports filtering by type
+    const response = await listingService.getAllListings({ type: "room" });
+    let items = response.data || response || [];
+
+    // Filter to only show approved roommate/room listings
+    items = items.filter((item) => item.status === "approved");
+
+    // Sort by creation date (newest first)
+    items.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Take only first 6 items
+    items = items.slice(0, 6);
+
+    // If no room listings found, use mock data
+    if (items.length === 0) {
+      console.log("No room listings found, using mock data");
+      return fetchRoommateMatchesMock();
+    }
+
+    // Transform to match ProductCard expectations
+    return items.map((item) => ({
+      id: item.id,
+      image:
+        item.image_urls && item.image_urls.length > 0
+          ? item.image_urls[0]
+          : null,
+      title: item.item_name,
+      description: item.description,
+      price: new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+      }).format(item.price),
+      location:
+        item.state && item.local_government
+          ? `${item.local_government}, ${item.state}`
+          : item.state || "Location not specified",
+      category: item.category || "Apartment",
+    }));
+  } catch (error) {
+    console.error(
+      "Error fetching roommate matches from API, falling back to mock data:",
+      error
+    );
+    return fetchRoommateMatchesMock();
+  }
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
 
@@ -96,6 +195,7 @@ const Dashboard = () => {
     queryKey: ["recentItems"],
     queryFn: fetchRecentItems,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1,
   });
 
   // Fetch roommate matches
@@ -107,6 +207,7 @@ const Dashboard = () => {
     queryKey: ["roommateMatches"],
     queryFn: fetchRoommateMatches,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1,
   });
 
   const handleViewAll = (section) => {

@@ -13,6 +13,7 @@ import RoommateListing from "@/pages/Dashboard/RoommateListing";
 import RoommateDetail from "@/pages/Dashboard/RoommateDetail";
 import MessagesPage from "@/pages/Dashboard/MessagesPage";
 import MyPosts from "@/pages/Dashboard/MyPosts";
+import MyPostDetail from "@/pages/Dashboard/MyPostDetail";
 import CreateItemListing from "@/pages/Dashboard/CreateItemListing";
 import CreateRoomateListing from "@/pages/Dashboard/CreateRoomateListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
@@ -373,6 +374,16 @@ function App() {
                   <ProtectedRoute>
                     <RouteErrorBoundary>
                       <MyPosts />
+                    </RouteErrorBoundary>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/my-posts/:listingId"
+                element={
+                  <ProtectedRoute>
+                    <RouteErrorBoundary>
+                      <MyPostDetail />
                     </RouteErrorBoundary>
                   </ProtectedRoute>
                 }

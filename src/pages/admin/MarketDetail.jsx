@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
-import { adminService } from "@/api/adminService";
+// import { adminService } from "@/api/adminService";
 import { listingService } from "@/api/listingService";
 import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
 import { toast } from "sonner";
@@ -283,6 +283,24 @@ const MarketDetail = () => {
             </div>
 
             <div className="space-y-4">
+              {/* Images */}
+              {/* {listing?.image_urls && listing.image_urls.length > 0 && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">Images</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    {listing.image_urls.map((imageUrl, index) => (
+                      <div key={index} className="relative">
+                        <img
+                          src={imageUrl}
+                          alt={`${listing.item_name} - Image ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )} */}
+
               <div>
                 <p className="text-sm text-gray-600">Title</p>
                 <p className="font-medium text-gray-900 text-lg">
@@ -316,7 +334,6 @@ const MarketDetail = () => {
                 <div>
                   <p className="text-sm text-gray-600">Price</p>
                   <div className="flex items-center gap-2">
-                    <DollarSign className="w-4 h-4 text-green-600" />
                     <p className="font-medium text-lg text-green-600">
                       {formatPrice(listing?.price)}
                     </p>
@@ -400,16 +417,26 @@ const MarketDetail = () => {
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                   <span className="text-purple-600 font-medium">
-                    {listing?.seller_name?.split(" ")[0]?.[0]}
-                    {listing?.seller_name?.split(" ")[1]?.[0]}
+                    {listing?.seller_avatar_url ? (
+                      <img
+                        src={listing.seller_avatar_url}
+                        alt={`${listing.seller_first_name} ${listing.seller_last_name}`}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    ) : (
+                      <>
+                        {listing?.seller_first_name?.split(" ")[0]?.[0]}
+                        {listing?.seller_last_name?.split(" ")[1]?.[0]}
+                      </>
+                    )}
                   </span>
                 </div>
                 <div>
                   <p className="font-medium text-gray-900">
-                    {listing?.seller_name}
+                    {listing?.seller_first_name} {listing?.seller_last_name}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Seller ID: {listing?.seller_id}
+                    Seller ID: {listing?.user_id || "N/A"}
                   </p>
                 </div>
               </div>
@@ -437,7 +464,7 @@ const MarketDetail = () => {
                   <School className="w-4 h-4 text-gray-400" />
                   <div>
                     <p className="text-sm text-gray-600">Campus</p>
-                    <p className="font-medium">{listing?.campus_name}</p>
+                    <p className="font-medium">{listing?.state}</p>
                   </div>
                 </div>
 
@@ -456,7 +483,7 @@ const MarketDetail = () => {
         </div>
 
         {/* Images Gallery */}
-        {listing?.images && listing.images.length > 0 && (
+        {listing?.image_urls && listing.image_urls.length > 0 && (
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Listing Images
@@ -465,26 +492,26 @@ const MarketDetail = () => {
             {/* Main Image */}
             <div className="mb-4">
               <img
-                src={listing.images[selectedImageIndex]}
+                src={listing.image_urls[selectedImageIndex]}
                 alt={`${listing.item_name} - Image ${selectedImageIndex + 1}`}
-                className="w-full h-64 object-cover rounded-lg border border-gray-200"
+                className="w-full h-96 object-contain rounded-lg border border-gray-200 bg-gray-50 cursor-pointer"
                 onClick={() =>
-                  window.open(listing.images[selectedImageIndex], "_blank")
+                  window.open(listing.image_urls[selectedImageIndex], "_blank")
                 }
               />
             </div>
 
             {/* Thumbnail Gallery */}
-            {listing.images.length > 1 && (
+            {listing.image_urls.length > 1 && (
               <div className="flex gap-2 overflow-x-auto">
-                {listing.images.map((image, index) => (
+                {listing.image_urls.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImageIndex(index)}
-                    className={`flex-shrink-0 w-16 h-16 rounded-lg border-2 overflow-hidden ${
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg border-2 overflow-hidden transition-all ${
                       selectedImageIndex === index
-                        ? "border-purple-500"
-                        : "border-gray-200"
+                        ? "border-purple-500 ring-2 ring-purple-200"
+                        : "border-gray-200 hover:border-purple-300"
                     }`}
                   >
                     <img

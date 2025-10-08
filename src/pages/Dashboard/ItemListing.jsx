@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProductCard from "@/components/ui/ProductCard";
 import products from "@/sample-data/products";
+import { listingService } from "@/api/listingService";
 import { List } from "lucide-react";
 import { LayoutGridIcon } from "lucide-react";
 import { ListFilterIcon } from "lucide-react";
@@ -16,8 +17,8 @@ const parsePrice = (priceStr) => {
   return Number(priceStr.replace(/[^0-9.-]+/g, ""));
 };
 
-// Mock API service updated to handle filters, sorting, and search
-const fetchItems = async ({
+// Mock API service (fallback) - handles filters, sorting, and search
+const fetchItemsMock = async ({
   page = 1,
   sortBy = "newest",
   filters = {},
@@ -82,6 +83,106 @@ const fetchItems = async ({
     totalPages: Math.ceil(allProducts.length / itemsPerPage),
     currentPage: page,
   };
+};
+
+// Real API service - fetches from backend
+const fetchItems = async ({
+  page = 1,
+  sortBy = "newest",
+  filters = {},
+  searchQuery = "",
+}) => {
+  try {
+    // Build API params
+    const params = {};
+
+    if (searchQuery && searchQuery.trim() !== "") {
+      params.search = searchQuery.trim();
+    }
+
+    if (filters.category && filters.category !== "All") {
+      params.category = filters.category;
+    }
+
+    if (filters.condition && filters.condition !== "All") {
+      params.condition = filters.condition;
+    }
+
+    if (filters.location && filters.location !== "All") {
+      params.state = filters.location.split(" ")[0]; // Extract state name
+    }
+
+    if (filters.priceRange) {
+      const { from, to } = filters.priceRange;
+      if (from) params.minPrice = Number(from);
+      if (to) params.maxPrice = Number(to);
+    }
+
+    // Fetch from API
+    const response = await listingService.getAllListings(params);
+
+    // Transform API response to match expected format
+    let items = response.data || response || [];
+
+    // Filter to only show approved items
+    items = items.filter((item) => item.status === "approved");
+
+    // Client-side sorting (before transformation, using raw price values)
+    items.sort((a, b) => {
+      if (sortBy === "price-low") return a.price - b.price;
+      if (sortBy === "price-high") return b.price - a.price;
+      if (sortBy === "oldest")
+        return new Date(a.created_at) - new Date(b.created_at);
+      // Default: newest first
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+
+    // Transform API data to match ProductCard props (after sorting)
+    items = items.map((item) => ({
+      id: item.id,
+      image:
+        item.image_urls && item.image_urls.length > 0
+          ? item.image_urls[0]
+          : null,
+      title: item.item_name,
+      description: item.description,
+      price: new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+      }).format(item.price),
+      location:
+        item.state && item.local_government
+          ? `${item.local_government}, ${item.state}`
+          : item.state || "Location not specified",
+      category: item.condition || item.category || "Used",
+      // Keep original data for reference
+      rawPrice: item.price, // Keep the raw price for any future use
+      created_at: item.created_at,
+    }));
+
+    // Pagination
+    const itemsPerPage = 9;
+    const totalItems = items.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedItems = items.slice(startIndex, endIndex);
+
+    return {
+      items: paginatedItems,
+      totalItems,
+      totalPages,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.error(
+      "Error fetching items from API, falling back to mock data:",
+      error
+    );
+    // Fallback to mock data
+    return fetchItemsMock({ page, sortBy, filters, searchQuery });
+  }
 };
 
 const ItemListing = () => {

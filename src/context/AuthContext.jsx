@@ -5,7 +5,7 @@ import { authService } from "@/api/authService";
 import { transformUserData } from "@/utils/userTransform";
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState({ isProfileComplete: Boolean(false) });
+  const [user, setUser] = useState({ is_profile_complete: Boolean(false) });
   const [token, setToken] = useState(null);
   const [userRole, setUserRole] = useState('user');
   const [isAuthenticated, setIsAuthenticated] = useState(false);

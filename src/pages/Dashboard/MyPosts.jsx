@@ -1,111 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthContext } from "@/hooks/useAuthContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useListing } from "@/hooks/useListing";
+import { listingService } from "@/api/listingService";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import ListingCard from "@/components/ui/ListingCard";
 import Loader from "@/assets/Loader.svg";
-import {
-  Plus,
-  FileSearch,
-  Users,
-  List,
-  Eye,
-  MoreHorizontal,
-} from "lucide-react";
-
-// ListingCard component to display individual listings
-const ListingCard = ({ listing }) => {
-  // const navigate = useNavigate();
-
-  // Format price
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency: "NGN",
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  // Get the first image or use placeholder
-  const getImageUrl = (listing) => {
-    if (listing.images && listing.images.length > 0) {
-      return listing.images[0].url || listing.images[0];
-    }
-    return null;
-  };
-
-  return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-      <div className="flex gap-4">
-        {/* Image */}
-        <div className="w-24 h-24 flex-shrink-0">
-          {getImageUrl(listing) ? (
-            <img
-              src={getImageUrl(listing)}
-              alt={listing.item_name}
-              className="w-full h-full object-cover rounded-lg"
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-              <FileSearch className="w-8 h-8 text-gray-400" />
-            </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-lg font-medium text-gray-900 truncate">
-                  {listing.item_name}
-                </h3>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  Active
-                </span>
-              </div>
-              <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                {listing.description}
-              </p>
-              <div className="flex items-center gap-4 text-sm text-gray-500">
-                <span className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
-                  {listing.view_count || 0} views
-                </span>
-                <span>Posted {formatDate(listing.created_at)}</span>
-              </div>
-            </div>
-
-            {/* Price and Actions */}
-            <div className="flex flex-col items-end gap-2 ml-4">
-              <div className="text-lg font-semibold text-gray-900">
-                {formatPrice(listing.price)}
-              </div>
-              <button className="p-1 hover:bg-gray-100 rounded">
-                <MoreHorizontal className="w-4 h-4 text-gray-400" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+import { Plus, FileSearch, Users, List } from "lucide-react";
 
 const MyPosts = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [activeTab, setActiveTab] = useState("listings");
@@ -119,9 +27,25 @@ const MyPosts = () => {
     refetchUserListings,
   } = useListing();
 
+  // Delete listing mutation
+  const deleteMutation = useMutation({
+    mutationFn: (id) => listingService.deleteListing(id),
+    onSuccess: () => {
+      toast.success("Listing deleted successfully!");
+      queryClient.invalidateQueries(["user-listings"]);
+      refetchUserListings();
+    },
+    onError: (error) => {
+      toast.error(
+        `Failed to delete listing: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    },
+  });
+
   // Check if user email is verified
-  const isEmailVerified =
-   true;
+  const isEmailVerified = true;
 
   const handleCreatePostClick = () => {
     if (!isEmailVerified) {
@@ -148,6 +72,12 @@ const MyPosts = () => {
   const handleResendVerification = () => {
     if (user?.email) {
       resendVerification.mutate({ email: user.email });
+    }
+  };
+
+  const handleDeleteListing = (listingId) => {
+    if (window.confirm("Are you sure you want to delete this listing?")) {
+      deleteMutation.mutate(listingId);
     }
   };
 
@@ -246,7 +176,11 @@ const MyPosts = () => {
               /* Listings Grid */
               <div className="space-y-4">
                 {userListings.map((listing) => (
-                  <ListingCard key={listing.id} listing={listing} />
+                  <ListingCard
+                    key={listing.id}
+                    listing={listing}
+                    onDelete={handleDeleteListing}
+                  />
                 ))}
               </div>
             ) : (

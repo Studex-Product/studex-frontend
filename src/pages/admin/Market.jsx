@@ -551,17 +551,17 @@ const Market = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-8 w-8">
+                        {/* <div className="flex-shrink-0 h-8 w-8">
                           <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
                             <span className="text-xs font-medium text-gray-600">
-                              {listing.seller_name?.split(" ")[0]?.[0]}
-                              {listing.seller_name?.split(" ")[1]?.[0]}
+                              {listing.seller_first_name?.split(" ")[0]?.[0]}
+                              {listing.seller_last_name?.split(" ")[1]?.[0]}
                             </span>
                           </div>
-                        </div>
+                        </div> */}
                         <div className="ml-3">
                           <div className="text-sm font-medium text-gray-900">
-                            {listing.seller_name}
+                            {listing.seller_first_name} {listing.seller_last_name}
                           </div>
                           <div className="text-sm text-gray-500">
                             {listing.seller_email}
@@ -579,7 +579,6 @@ const Market = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1 text-sm text-gray-900">
-                        <DollarSign size={14} />
                         {formatPrice(listing.price)}
                       </div>
                     </td>

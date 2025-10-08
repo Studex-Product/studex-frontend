@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProductCard from "@/components/ui/ProductCard";
 import products from "@/sample-data/products";
+import { listingService } from "@/api/listingService";
 import Avatar from "@/assets/images/AdminLoginImg.jpg";
 import locationIcon from "@/assets/icons/Location-icon.svg";
 import Verified from "@/assets/icons/check-verified.svg";
@@ -15,8 +16,8 @@ import { Flag } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
-// Mock API services
-const fetchItemDetails = async (itemId) => {
+// Mock API service (fallback)
+const fetchItemDetailsMock = async (itemId) => {
   await new Promise((resolve) => setTimeout(resolve, 800));
 
   // Find the actual item from your products data using the itemId
@@ -55,15 +56,126 @@ const fetchItemDetails = async (itemId) => {
   };
 };
 
-const fetchSimilarItems = async () => {
+// Real API service - fetches listing details from backend
+const fetchItemDetails = async (itemId) => {
+  try {
+    const response = await listingService.getListingById(itemId);
+    const listing = response.data || response;
+
+    // Transform API response to match component expectations
+    return {
+      id: listing.id,
+      title: listing.item_name,
+      description: listing.description,
+      price: new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+      }).format(listing.price),
+      location:
+        listing.state && listing.local_government
+          ? `${listing.local_government}, ${listing.state}`
+          : listing.state || "Location not specified",
+      category: listing.condition || listing.category || "Used",
+      images:
+        listing.image_urls && listing.image_urls.length > 0
+          ? listing.image_urls
+          : [listing.image_urls?.[0] || null],
+      condition: {
+        status: listing.condition || "Used",
+        size: listing.size || "Standard size",
+        color: listing.colour || "As shown in image",
+        material: listing.material || "N/A",
+      },
+      seller: {
+        id: listing.user_id,
+        name:
+          `${listing.seller_first_name || ""} ${
+            listing.seller_last_name || ""
+          }`.trim() || "Unknown Seller",
+        number: listing.seller_phone || "Not provided",
+        email: listing.seller_email,
+        avatar: listing.seller_avatar_url || Avatar,
+        responseTime: "Usually replies within 1 hour",
+        joinDate: listing.seller_join_date
+          ? `Joined ${new Date(listing.seller_join_date).toLocaleDateString(
+              "en-US",
+              { month: "short", year: "numeric" }
+            )}`
+          : "Joined StudEx",
+        isVerified: listing.seller_is_verified || false,
+      },
+      // Keep original data
+      rawData: listing,
+    };
+  } catch (error) {
+    console.error(
+      "Error fetching item details from API, falling back to mock data:",
+      error
+    );
+    return fetchItemDetailsMock(itemId);
+  }
+};
+
+// Mock similar items (fallback)
+const fetchSimilarItemsMock = async () => {
   await new Promise((resolve) => setTimeout(resolve, 600));
   // Make sure we return products with all necessary fields including id
   const similarItems = products.slice(0, 3).map((product) => ({
     ...product,
     id: product.id, // Ensure id is explicitly included
   }));
-  console.log("Similar items with IDs:", similarItems); // Debug log
   return similarItems;
+};
+
+// Real API service - fetches similar items
+const fetchSimilarItems = async (itemId, category) => {
+  try {
+    // Fetch similar items based on category
+    const params = {};
+    if (category) {
+      params.category = category;
+    }
+
+    const response = await listingService.getAllListings(params);
+    let items = response.data || response || [];
+
+    // Filter to only show approved items and exclude current item
+    items = items.filter(
+      (item) =>
+        item.status === "approved" && item.id.toString() !== itemId.toString()
+    );
+
+    // Take only first 3 items
+    items = items.slice(0, 3);
+
+    // Transform to match ProductCard expectations
+    return items.map((item) => ({
+      id: item.id,
+      image:
+        item.image_urls && item.image_urls.length > 0
+          ? item.image_urls[0]
+          : null,
+      title: item.item_name,
+      description: item.description,
+      price: new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+      }).format(item.price),
+      location:
+        item.state && item.local_government
+          ? `${item.local_government}, ${item.state}`
+          : item.state || "Location not specified",
+      category: item.condition || item.category || "Used",
+    }));
+  } catch (error) {
+    console.error(
+      "Error fetching similar items from API, falling back to mock data:",
+      error
+    );
+    return fetchSimilarItemsMock();
+  }
 };
 
 const ItemDetail = () => {
@@ -81,13 +193,16 @@ const ItemDetail = () => {
     queryKey: ["itemDetail", itemId],
     queryFn: () => fetchItemDetails(itemId),
     staleTime: 1000 * 60 * 5,
+    retry: 1,
   });
 
-  // Fetch similar items
+  // Fetch similar items based on current item's category
   const { data: similarItems = [] } = useQuery({
-    queryKey: ["similarItems", itemId],
-    queryFn: fetchSimilarItems,
+    queryKey: ["similarItems", itemId, item?.rawData?.category],
+    queryFn: () => fetchSimilarItems(itemId, item?.rawData?.category),
     staleTime: 1000 * 60 * 5,
+    enabled: !!item, // Only fetch when item is loaded
+    retry: 1,
   });
 
   const handleImageSelect = (index) => {
@@ -107,8 +222,7 @@ const ItemDetail = () => {
 
   const handleSellerProfile = () => {
     console.log("Open seller profile");
-    // navigate(`/seller/${item?.seller?.id}`);
-    navigate(`/seller/${item.sellerId}`, {
+    navigate(`/seller/${item?.seller?.id || item?.rawData?.user_id}`, {
       state: {
         fromItem: {
           id: item.id,
@@ -209,32 +323,44 @@ const ItemDetail = () => {
             <div className="mb-8">
               {/* Main Image */}
               <div className="mb-4">
-                <img
-                  src={item?.images?.[selectedImageIndex] || item?.images?.[0]}
-                  alt={item?.title}
-                  className="w-full h-96 object-cover rounded-lg"
-                />
+                {item?.images?.[selectedImageIndex] || item?.images?.[0] ? (
+                  <img
+                    src={
+                      item?.images?.[selectedImageIndex] || item?.images?.[0]
+                    }
+                    alt={item?.title}
+                    className="w-full h-96 object-cover rounded-lg"
+                  />
+                ) : (
+                  <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <span className="text-gray-400 text-lg">
+                      No image available
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Thumbnail Images */}
               <div className="flex space-x-2 w-full justify-between">
-                {item?.images?.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleImageSelect(index)}
-                    className={`w-60 h-24 rounded-md overflow-hidden border-2 transition-colors cursor-pointer duration-300 ${
-                      selectedImageIndex === index
-                        ? "border-purple-400"
-                        : "border-gray-200 hover:border-gray-300 opacity-75 hover:opacity-100 transition-opacity duration-300"
-                    }`}
-                  >
-                    <img
-                      src={image}
-                      alt={`${item?.title} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
+                {item?.images
+                  ?.filter((img) => img)
+                  .map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleImageSelect(index)}
+                      className={`w-60 h-24 rounded-md overflow-hidden border-2 transition-colors cursor-pointer duration-300 ${
+                        selectedImageIndex === index
+                          ? "border-purple-400"
+                          : "border-gray-200 hover:border-gray-300 opacity-75 hover:opacity-100 transition-opacity duration-300"
+                      }`}
+                    >
+                      <img
+                        src={image}
+                        alt={`${item?.title} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
               </div>
             </div>
 
@@ -289,8 +415,7 @@ const ItemDetail = () => {
             <div className="pt-6 bg-white rounded-lg p-6 border border-gray-200">
               <div className="flex items-center space-x-3 mb-4">
                 <img
-                  src={Avatar}
-                  // src={item?.seller?.avatar}
+                  src={item?.seller?.avatar || Avatar}
                   alt={item?.seller?.name}
                   className="w-12 h-12 rounded-full object-cover"
                 />

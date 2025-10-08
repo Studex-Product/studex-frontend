@@ -307,7 +307,7 @@ export const useAuth = () => {
       const updatedUser = {
         ...authContext.user,
         ...(data.data || data), // Handle both response formats
-        isProfileComplete: true,
+        is_profile_complete: true,
       };
 
       authContext.updateUser(updatedUser);

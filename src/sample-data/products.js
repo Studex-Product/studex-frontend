@@ -73,7 +73,7 @@ const products = [
     category: "New",
   },
     {
-    id: 8,
+    id: 18,
     image: MirrorImg,
     description: "Perfect condition, no cracks, hostel-friendly size.",
     title: "Standing Mirror (5ft)",

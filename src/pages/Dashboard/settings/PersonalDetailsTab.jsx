@@ -41,6 +41,8 @@ const PersonalDetailsTab = () => {
     }
   }, [user]);
 
+  console.log("User data in PersonalDetailsTab:", user);
+
   // Create schools list that includes user's current campus if not already present
   const availableSchools = React.useMemo(() => {
     const schoolsList = [...SCHOOLS];
