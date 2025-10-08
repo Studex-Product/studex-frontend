@@ -32,7 +32,7 @@ const VerificationForm = ({ onSubmit, onSkip, email, isSubmitting, error }) => {
       email,
       campus: selectedCampus,
       documentType,
-      selectedFile: selectedFile?.name,
+      selectedFile: selectedFile,
     });
   };
 
@@ -99,13 +99,13 @@ const VerificationForm = ({ onSubmit, onSkip, email, isSubmitting, error }) => {
             <option value="" disabled>
               Select document type
             </option>
-            <option value="student-id">Student ID Card</option>
-            <option value="admission-letter">Admission Letter</option>
-            <option value="school-id">School ID Card</option>
-            <option value="matriculation-cert">
+            <option value="student_id_card">Student ID Card</option>
+            <option value="admission_letter">Admission Letter</option>
+            <option value="school_id_card">School ID Card</option>
+            <option value="matriculation_certificate">
               Matriculation Certificate
             </option>
-            <option value="student-handbook">Student Handbook with ID</option>
+            <option value="student_handbook_with_id">Student Handbook with ID</option>
           </select>
         </div>
 

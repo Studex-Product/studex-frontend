@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { AuthContext } from "./AuthContext.js";
 import { getUserRole, isTokenExpired } from "@/utils/jwt";
 import { authService } from "@/api/authService";
+import { transformUserData } from "@/utils/userTransform";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState({ isProfileComplete: Boolean(false) });
@@ -37,7 +38,7 @@ export const AuthProvider = ({ children }) => {
           }
 
           setToken(storedToken);
-          setUser(JSON.parse(storedUser));
+          setUser(transformUserData(JSON.parse(storedUser)));
           setUserRole(role);
           setIsAuthenticated(true);
         }
@@ -76,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
     // Update state
     setToken(authToken);
-    setUser(userData);
+    setUser(transformUserData(userData));
     setUserRole(role);
     setIsAuthenticated(true);
   };
@@ -102,7 +103,7 @@ export const AuthProvider = ({ children }) => {
       ? localStorage
       : sessionStorage;
     storage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
+    setUser(transformUserData(userData));
   };
 
   // Refresh user data from /me endpoint

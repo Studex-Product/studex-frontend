@@ -40,7 +40,7 @@ export const listingService = {
 
   // Get user's listings
   getUserListings: async () => {
-    const response = await apiClient.get('/api/listings?user_only=true');
+    const response = await apiClient.get('/api/listings/my');
     return response.data;
   },
 
@@ -85,6 +85,43 @@ export const listingService = {
 
     const url = queryParams.toString() ? `/api/listings?${queryParams.toString()}` : '/api/listings';
     const response = await apiClient.get(url);
+    return response.data;
+  },
+
+  // Get campus listings
+  getCampusListings: async (campusId, params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.page) queryParams.append('page', params.page);
+    if (params.limit) queryParams.append('limit', params.limit);
+    if (params.search) queryParams.append('search', params.search);
+    if (params.status) queryParams.append('status', params.status);
+    if (params.category) queryParams.append('category', params.category);
+    if (params.type) queryParams.append('type', params.type);
+
+    const url = queryParams.toString()
+      ? `/api/listings/campus/${campusId}?${queryParams.toString()}`
+      : `/api/listings/campus/${campusId}`;
+    const response = await apiClient.get(url);
+    return response.data;
+  },
+
+  // Approve or reject listing
+  reviewListing: async (listingId, status, review_note = "") => {
+    const response = await apiClient.post(`/api/listings/${listingId}/approve`, {
+      action: status === "approved" ? "approve" : "reject",
+      reason: review_note || "",
+    });
+    return response.data;
+  },
+
+  // Bulk review listings
+  bulkReviewListings: async (listingIds, status, review_note = "") => {
+    const response = await apiClient.post("/api/listings/bulk-approve", {
+      listing_ids: listingIds,
+      action: status === "approved" ? "approve" : "reject",
+      reason: review_note || "",
+    });
     return response.data;
   }
 };

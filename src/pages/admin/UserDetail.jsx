@@ -34,29 +34,30 @@ const UserDetail = () => {
   const [activeTab, setActiveTab] = useState("overview");
 
   // Fetch user data
-  const {
-    data: user,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["user", userId],
+  const { data: user, isLoading, error } = useQuery({
+    queryKey: ["user", userId, userRole, currentUser?.campus_id],
     queryFn: async () => {
-      // Use different endpoints based on admin role
-      if (userRole === "super_admin") {
-        const response = await adminService.getUserById(userId);
-        return response;
-      } else {
-        // For campus admin, use campus-specific endpoint
-        if (!currentUser?.campus_id) {
-          throw new Error(
-            "Campus information not available. Please contact support."
-          );
+      try {
+        let response;
+
+        if (userRole === "super_admin") {
+          // Super admin can access any user
+          response = await adminService.getUserById(userId);
+        } else {
+          // For campus admin, use campus-specific endpoint
+          if (!currentUser?.campus_id) {
+            throw new Error(
+              "Campus information not available. Please contact support."
+            );
+          }
+          console.log("Campus admin user:", currentUser);
+          response = await adminService.getCampusUserById(currentUser.campus_id, userId);
         }
-        const response = await adminService.getCampusUserById(
-          currentUser.campus_id,
-          userId
-        );
+
         return response;
+      } catch (error) {
+        console.error("Error fetching user:", error);
+        throw error;
       }
     },
     enabled: userRole === "super_admin" || !!currentUser?.campus_id,

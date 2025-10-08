@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { adminService } from "@/api/adminService";
+import { listingService } from "@/api/listingService";
 import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
 import { toast } from "sonner";
 import Loader from "@/assets/Loader.svg";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Eye,
   Check,
@@ -26,38 +28,58 @@ import {
 const Market = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { userRole, user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState({
     status: "",
     search: "",
-    campus_id: "",
     category: "",
     type: "",
   });
   const [selectedListings, setSelectedListings] = useState([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
 
+  // Get campus ID from user object (no need for additional API call)
+  const campusId = user?.campus_id;
+
   // Fetch listings
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["admin-listings", currentPage, filters],
-    queryFn: () =>
-      adminService.getAllListings({
+    queryKey: ["admin-listings", currentPage, filters, campusId],
+    queryFn: () => {
+      return listingService.getCampusListings(campusId, {
         page: currentPage,
         limit: 10,
         ...filters,
-      }),
+      });
+    },
+    enabled: Boolean(campusId) && userRole === "admin", // Only run when campus ID is available
     retry: false,
     onError: (error) => {
       console.warn("Listings API not available:", error.message);
     },
-    // Provide fallback data when API fails
-    select: (data) => data || { items: [], total: 0, offset: 0, limit: 10 },
+    // Transform API response to expected format
+    select: (data) => {
+      // If data is an array, wrap it in the expected format
+      if (Array.isArray(data)) {
+        return {
+          items: data,
+          total: data.length,
+          offset: 0,
+          limit: 10
+        };
+      }
+      // If data already has items property, use as is
+      return data || { items: [], total: 0, offset: 0, limit: 10 };
+    },
   });
 
   // Fetch listing stats
   const { data: stats } = useQuery({
-    queryKey: ["listing-stats"],
-    queryFn: () => adminService.getListingStats(),
+    queryKey: ["listing-stats", campusId],
+    queryFn: () => adminService.getListingStats(
+      userRole === "admin" && campusId ? { campus_id: campusId } : {}
+    ),
+    enabled: userRole === "super_admin" || (userRole === "admin" && Boolean(campusId)), // Wait for campus data for campus admin
     retry: false,
     onError: (error) => {
       console.warn("Listing stats API not available:", error.message);
@@ -74,31 +96,11 @@ const Market = () => {
       },
   });
 
-  // Fetch campuses for filter
-  const { data: campusesData } = useQuery({
-    queryKey: ["campuses"],
-    queryFn: () => adminService.getCampuses(),
-    retry: false,
-    onError: (error) => {
-      console.warn("Campuses API error:", error.message);
-    },
-    // Provide fallback data when API fails
-    select: (data) => data || [],
-  });
-
-  // Ensure campuses is always an array
-  const campuses = Array.isArray(campusesData)
-    ? campusesData
-    : campusesData?.data && Array.isArray(campusesData.data)
-    ? campusesData.data
-    : campusesData?.items && Array.isArray(campusesData.items)
-    ? campusesData.items
-    : [];
 
   // Review listing mutation
   const reviewMutation = useMutation({
     mutationFn: ({ listingId, status, review_note }) =>
-      adminService.reviewListing(listingId, status, review_note),
+      listingService.reviewListing(listingId, status, review_note),
     onSuccess: (data, variables) => {
       const actionText =
         variables.status === "approved" ? "approved" : "rejected";
@@ -123,7 +125,7 @@ const Market = () => {
   // Bulk review mutation
   const bulkReviewMutation = useMutation({
     mutationFn: ({ listingIds, status, review_note }) =>
-      adminService.bulkReviewListings(listingIds, status, review_note),
+      listingService.bulkReviewListings(listingIds, status, review_note),
     onSuccess: (data, variables) => {
       const actionText =
         variables.status === "approved" ? "approved" : "rejected";
@@ -239,10 +241,16 @@ const Market = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Market Listings
+              {userRole === "admin" && user?.campus_name
+                ? `${user.campus_name} - Market Listings`
+                : "Market Listings"
+              }
             </h1>
             <p className="text-gray-600 mt-1">
-              Review and approve user listing submissions
+              {userRole === "admin"
+                ? "Review and approve marketplace listings from your campus"
+                : "Review and approve user listing submissions"
+              }
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -415,27 +423,12 @@ const Market = () => {
             <option value="other">Other</option>
           </select>
 
-          <select
-            value={filters.campus_id}
-            onChange={(e) =>
-              setFilters((prev) => ({ ...prev, campus_id: e.target.value }))
-            }
-            className="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-          >
-            <option value="">All Campuses</option>
-            {campuses.map((campus) => (
-              <option key={campus.id} value={campus.id}>
-                {campus.name}
-              </option>
-            ))}
-          </select>
 
           <button
             onClick={() =>
               setFilters({
                 status: "",
                 search: "",
-                campus_id: "",
                 category: "",
                 type: "",
               })
@@ -528,9 +521,9 @@ const Market = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-12 w-12">
-                          {listing.images?.[0] ? (
+                          {listing.image_urls?.[0] ? (
                             <img
-                              src={listing.images[0]}
+                              src={listing.image_urls[0]}
                               alt={listing.item_name || listing.title}
                               className="h-12 w-12 rounded-lg object-cover"
                             />

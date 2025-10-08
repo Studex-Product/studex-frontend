@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import { adminService } from "@/api/adminService";
+import { listingService } from "@/api/listingService";
 import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
 import { toast } from "sonner";
 import {
@@ -42,15 +43,15 @@ const MarketDetail = () => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["admin-listing", listingId],
-    queryFn: () => adminService.getListingById(listingId),
+    queryKey: ["listing-detail", listingId],
+    queryFn: () => listingService.getListingById(listingId),
     retry: false,
   });
 
   // Review listing mutation
   const reviewMutation = useMutation({
     mutationFn: ({ status, review_note }) =>
-      adminService.reviewListing(listingId, status, review_note),
+      listingService.reviewListing(listingId, status, review_note),
     onSuccess: (data, variables) => {
       const actionText =
         variables.status === "approved" ? "approved" : "rejected";

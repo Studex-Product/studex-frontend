@@ -1,15 +1,5 @@
 import apiClient from "./apiClient";
-
-// Helper function to transform user data from snake_case to camelCase
-const transformUserData = (userData) => {
-  if (!userData) return userData;
-
-  return {
-    ...userData,
-    isProfileComplete: userData.is_profile_complete,
-    // Add other transformations as needed
-  };
-};
+import { transformUserData } from "@/utils/userTransform";
 
 export const authService = {
   // User registration
@@ -20,9 +10,21 @@ export const authService = {
 
   // Account verification (after registration)
   verifyAccount: async (verificationData) => {
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('email', verificationData.email);
+    formData.append('campus_id', verificationData.campus_id);
+    formData.append('document_type', verificationData.document_type);
+    formData.append('file', verificationData.file);
+
     const response = await apiClient.post(
       "/api/auth/verify-student",
-      verificationData
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
     );
     return response.data;
   },
@@ -114,12 +116,19 @@ export const authService = {
 
     // Add all profile data to FormData
     Object.keys(profileData).forEach((key) => {
-      if (profileData[key] instanceof File) {
-        formData.append(key, profileData[key]);
-      } else if (typeof profileData[key] === "object") {
-        formData.append(key, JSON.stringify(profileData[key]));
+      const value = profileData[key];
+
+      // Skip null, undefined, or empty values
+      if (value === null || value === undefined || value === '') {
+        return;
+      }
+
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else if (typeof value === "object") {
+        formData.append(key, JSON.stringify(value));
       } else {
-        formData.append(key, profileData[key]);
+        formData.append(key, value);
       }
     });
 

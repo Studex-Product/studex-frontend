@@ -68,7 +68,7 @@ const Register = () => {
       email: verificationData.email, // Email from the verification form
       campus_id: verificationData.campus,
       document_type: verificationData.documentType,
-      verification_document: verificationData.selectedFile,
+      file: verificationData.selectedFile,
     });
   };
 

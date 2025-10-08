@@ -4,15 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { useQuery } from '@tanstack/react-query';
 import { adminService } from '@/api/adminService';
 import { ShieldCheck, Clock, UploadCloud, FileText, X } from 'lucide-react';
-
-// ID document types
-const idTypes = [
-  "Student ID Card",
-  "Admission Letter",
-  "School ID Card",
-  "Matriculation Certificate",
-  "Student Handbook with ID"
-];
+import { DOCUMENT_TYPES } from '@/utils/documentTypes';
 
 const VerificationStep = ({ school, idType, idFile, onNext }) => {
   const { user } = useAuth();
@@ -69,7 +61,7 @@ const VerificationStep = ({ school, idType, idFile, onNext }) => {
   };
   
   // If user has already submitted and is verified
-  if (user.verificationStatus === 'verified') {
+  if (user.verification_status === 'verified') {
     return (
       <div className="text-center">
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -87,7 +79,7 @@ const VerificationStep = ({ school, idType, idFile, onNext }) => {
   }
 
   // If user has submitted and is pending review
-  if (user.verificationStatus === 'pending') {
+  if (user.verification_status === 'pending') {
     return (
       <div className="text-center">
         <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -148,8 +140,8 @@ const VerificationStep = ({ school, idType, idFile, onNext }) => {
             className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
           >
             <option value="" disabled>Select ID document type</option>
-            {idTypes.map(type => (
-              <option key={type} value={type}>{type}</option>
+            {DOCUMENT_TYPES.map(type => (
+              <option key={type.value} value={type.value}>{type.label}</option>
             ))}
           </select>
         </div>

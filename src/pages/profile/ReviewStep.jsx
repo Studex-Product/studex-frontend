@@ -1,6 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { adminService } from "@/api/adminService";
+import { getDocumentTypeLabel } from "@/utils/documentTypes";
 
 const ReviewSection = ({ title, children }) => (
   <div className="py-4 border-b">
@@ -109,7 +110,7 @@ const ReviewStep = ({ profileData, onComplete, isSubmitting = false }) => {
             {profileData.idType && (
               <p>
                 <strong className="font-medium text-gray-800">ID Type:</strong>{" "}
-                {profileData.idType}
+                {getDocumentTypeLabel(profileData.idType)}
               </p>
             )}
             {profileData.idFile && (

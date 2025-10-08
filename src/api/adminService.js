@@ -26,13 +26,16 @@ export const adminService = {
     return response.data;
   },
 
-  // Get single user details for campus admin
+
+  // Get user by ID for campus admin (campus-scoped)
   getCampusUserById: async (campusId, userId) => {
     const response = await apiClient.get(
       `/api/admin/campus/${campusId}/users/${userId}`
     );
     return response.data;
   },
+
+ 
 
   // Update user status (activate/deactivate) - Super Admin
   updateUserStatus: async (userId, status) => {
@@ -565,5 +568,39 @@ export const adminService = {
   // Get pending listings for review
   getPendingListings: async (params = {}) => {
     return this.getAllListings({ ...params, status: "pending" });
+  },
+
+  // Campus Admin Marketplace Management
+  // Get listings for a specific campus (Campus Admin scoped)
+  getCampusListings: async (campusId, params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.search) queryParams.append("search", params.search);
+    if (params.status) queryParams.append("status", params.status); // 'pending', 'approved', 'rejected'
+    if (params.category) queryParams.append("category", params.category);
+    if (params.type) queryParams.append("type", params.type); // 'item', 'room'
+
+    try {
+      const response = await apiClient.get(
+        `/api/admin/campus/${campusId}/listings?${queryParams.toString()}`
+      );
+      return response.data;
+    } catch (error) {
+      // If API endpoints don't exist yet, return mock/empty data
+      if (error.response?.status === 404 || error.response?.status === 405) {
+        console.warn(
+          "Campus listings API endpoint not available, using fallback data"
+        );
+        return {
+          items: [],
+          total: 0,
+          offset: params.page ? (params.page - 1) * (params.limit || 10) : 0,
+          limit: params.limit || 10,
+        };
+      }
+      throw error;
+    }
   },
 };
