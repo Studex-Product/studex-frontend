@@ -10,6 +10,7 @@ const ProfilePictureStep = ({ profilePicture, onNext }) => {
   const [error, setError] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const onDrop = useCallback((acceptedFiles) => {
     setError("");
@@ -62,6 +63,18 @@ const ProfilePictureStep = ({ profilePicture, onNext }) => {
       return;
     }
 
+    if (!phoneNumber) {
+      setError("Please enter your phone number.");
+      return;
+    }
+
+    // Phone number validation (basic format check)
+    const phoneRegex = /^[+]?[\d\s()-]{10,}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+      setError("Please enter a valid phone number (at least 10 digits).");
+      return;
+    }
+
     if (!file) {
       setError("Please upload a profile picture to continue.");
       return;
@@ -86,6 +99,7 @@ const ProfilePictureStep = ({ profilePicture, onNext }) => {
       profilePicture: file,
       dateOfBirth,
       gender,
+      phoneNumber,
     });
   };
 
@@ -170,29 +184,49 @@ const ProfilePictureStep = ({ profilePicture, onNext }) => {
             Gender
           </label>
           <div className="space-y-2">
-            {["Male", "Female", "Non-binary"].map(
-              (option) => (
-                <label key={option} className="flex items-center">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value={option}
-                    checked={gender === option}
-                    onChange={(e) => setGender(e.target.value)}
-                    className="mr-2 text-purple-600 focus:ring-purple-500"
-                  />
-                  <span className="text-gray-700">{option}</span>
-                </label>
-              )
-            )}
+            {["Male", "Female", "Non-binary"].map((option) => (
+              <label key={option} className="flex items-center">
+                <input
+                  type="radio"
+                  name="gender"
+                  value={option}
+                  checked={gender === option}
+                  onChange={(e) => setGender(e.target.value)}
+                  className="mr-2 text-purple-600 focus:ring-purple-500"
+                />
+                <span className="text-gray-700">{option}</span>
+              </label>
+            ))}
           </div>
+        </div>
+
+        {/* Phone Number */}
+        <div>
+          <label
+            htmlFor="phoneNumber"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Phone Number
+          </label>
+          <input
+            type="tel"
+            id="phoneNumber"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="e.g +234 803 123 4567"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Include country code (e.g., +234 for Nigeria)
+          </p>
         </div>
       </div>
 
-
       {error && (
         <p className="w-full mt-3 flex justify-center">
-          <span className="text-red-500 border border-red-300 p-1 rounded-md text-xs text-center">{error}</span>
+          <span className="text-red-500 border border-red-300 p-1 rounded-md text-xs text-center">
+            {error}
+          </span>
         </p>
       )}
 
@@ -201,7 +235,7 @@ const ProfilePictureStep = ({ profilePicture, onNext }) => {
         <button
           onClick={handleContinue}
           className="px-8 py-2.5 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 disabled:bg-purple-300 disabled:cursor-not-allowed cursor-pointer"
-          disabled={!file || !dateOfBirth || !gender}
+          disabled={!file || !dateOfBirth || !gender || !phoneNumber}
         >
           Continue
         </button>

@@ -15,6 +15,9 @@ const ProfileSetupFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [profileData, setProfileData] = useState({
     profilePicture: null,
+    dateOfBirth: "",
+    gender: "",
+    phoneNumber: "",
     aboutMe: "",
     personalities: [],
     school: "",
@@ -76,7 +79,10 @@ const ProfileSetupFlow = () => {
           </div>
         ));
       } else {
-        console.log("Error details:", error.response || "Profile setup failed. Please try again." );
+        console.log(
+          "Error details:",
+          error.response || "Profile setup failed. Please try again."
+        );
       }
     }
   };

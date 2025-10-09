@@ -53,7 +53,9 @@ const ReviewStep = ({ profileData, onComplete, isSubmitting = false }) => {
         )}
 
         {/* Personal Information Review */}
-        {(profileData.dateOfBirth || profileData.gender) && (
+        {(profileData.dateOfBirth ||
+          profileData.gender ||
+          profileData.phoneNumber) && (
           <ReviewSection title="Personal Information">
             <div className="text-sm text-gray-600 space-y-1">
               {profileData.dateOfBirth && (
@@ -75,6 +77,14 @@ const ReviewStep = ({ profileData, onComplete, isSubmitting = false }) => {
                 <p>
                   <strong className="font-medium text-gray-800">Gender:</strong>{" "}
                   {profileData.gender}
+                </p>
+              )}
+              {profileData.phoneNumber && (
+                <p>
+                  <strong className="font-medium text-gray-800">
+                    Phone Number:
+                  </strong>{" "}
+                  {profileData.phoneNumber}
                 </p>
               )}
             </div>
