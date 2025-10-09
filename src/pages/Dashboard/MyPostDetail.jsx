@@ -45,7 +45,7 @@ const MyPostDetail = () => {
     onSuccess: () => {
       toast.success("Listing deleted successfully!");
       queryClient.invalidateQueries(["user-listings"]);
-      navigate("/dashboard/my-posts");
+      navigate("/my-posts");
     },
     onError: (error) => {
       toast.error(
@@ -57,7 +57,7 @@ const MyPostDetail = () => {
   });
 
   const handleBack = () => {
-    navigate("/dashboard/my-posts");
+    navigate("/my-posts");
   };
 
   const handleEdit = () => {

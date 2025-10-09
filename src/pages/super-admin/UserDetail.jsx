@@ -620,18 +620,109 @@ const UserDetail = () => {
             )}
 
             {activeTab === "listings" && (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-gray-900">User Listings</h3>
-                  <div className="text-sm text-gray-600">
-                    {user.activity_stats?.active_listings || 0} active, {user.activity_stats?.total_listings || 0} total
+                  <div className="text-sm text-gray-500">
+                    Total: {user.activity_stats?.total_listings || 0} |
+                    Active: {user.activity_stats?.active_listings || 0}
                   </div>
                 </div>
-                <div className="bg-gray-50 rounded-lg p-8 text-center">
-                  <ShoppingBag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">Listings details would be loaded here</p>
-                  <p className="text-sm text-gray-500">This would show all user listings with status</p>
-                </div>
+
+                {user.listings && user.listings.length > 0 ? (
+                  <div className="space-y-4">
+                    {user.listings.map((listing) => (
+                      <div
+                        key={listing.id}
+                        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                      >
+                        <div className="flex gap-4">
+                          {/* Listing Image */}
+                          <div className="flex-shrink-0">
+                            {listing.image_urls && listing.image_urls.length > 0 ? (
+                              <img
+                                src={listing.image_urls[0]}
+                                alt={listing.item_name}
+                                className="w-20 h-20 object-cover rounded-lg"
+                              />
+                            ) : (
+                              <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <ShoppingBag className="w-8 h-8 text-gray-400" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Listing Details */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h4 className="text-lg font-semibold text-gray-900 truncate">
+                                  {listing.item_name}
+                                </h4>
+                                <p className="text-sm text-gray-600 capitalize">
+                                  {listing.category}
+                                </p>
+                                <p className="text-lg font-bold text-purple-600 mt-1">
+                                  ₦{(listing.price / 100).toLocaleString()}
+                                </p>
+                              </div>
+
+                              <div className="flex flex-col items-end gap-2">
+                                <span
+                                  className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                    listing.status === "approved"
+                                      ? "bg-green-100 text-green-800"
+                                      : listing.status === "pending"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : listing.status === "rejected"
+                                      ? "bg-red-100 text-red-800"
+                                      : "bg-gray-100 text-gray-800"
+                                  }`}
+                                >
+                                  {listing.status}
+                                </span>
+                                <span className="text-xs text-gray-500 capitalize">
+                                  {listing.condition}
+                                </span>
+                              </div>
+                            </div>
+
+                            <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                              {listing.description}
+                            </p>
+
+                            <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
+                              <div className="flex items-center gap-4">
+                                <span>📍 {listing.state}, {listing.local_government}</span>
+                                <span>🎨 {listing.colour}</span>
+                                <span>📦 {listing.material}</span>
+                              </div>
+                              <span>
+                                {new Date(listing.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+
+                            {listing.review_note && (
+                              <div className="mt-2 p-2 bg-blue-50 rounded border-l-4 border-blue-200">
+                                <p className="text-xs text-blue-800">
+                                  <strong>Review Note:</strong> {listing.review_note}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-8 text-center">
+                    <ShoppingBag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600">No listings found</p>
+                    <p className="text-sm text-gray-500 mt-2">
+                      This user hasn't created any listings yet.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
