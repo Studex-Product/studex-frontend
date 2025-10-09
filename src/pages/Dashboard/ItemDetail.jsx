@@ -97,13 +97,20 @@ const fetchItemDetails = async (itemId) => {
         email: listing.seller_email,
         avatar: listing.seller_avatar_url || Avatar,
         responseTime: "Usually replies within 1 hour",
-        joinDate: listing.seller_join_date
-          ? `Joined ${new Date(listing.seller_join_date).toLocaleDateString(
-              "en-US",
-              { month: "short", year: "numeric" }
-            )}`
-          : "Joined StudEx",
+        joinDate: listing.seller_created_at
+          ? new Date(listing.seller_created_at).toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
+            })
+          : "Recently",
         isVerified: listing.seller_is_verified || false,
+        starRating: listing.seller_rating || 0,
+        location:
+          listing.state && listing.local_government
+            ? `${listing.local_government}, ${listing.state}`
+            : listing.state || "Location not specified",
+        about:
+          "This is a verified student seller on StudEx. Connect with them to explore their listings and make safe transactions on campus.",
       },
       // Keep original data
       rawData: listing,
@@ -228,6 +235,7 @@ const ItemDetail = () => {
           id: item.id,
           title: item.title,
         },
+        sellerData: item?.seller, // Pass complete seller data
       },
     });
   };
@@ -448,10 +456,10 @@ const ItemDetail = () => {
                   <p className="flex items-center text-xs font-light text-gray-600">
                     <img
                       src={UserPlus}
-                      alt="Response Time"
+                      alt="Join Date"
                       className="w-4 h-4 mr-2"
                     />
-                    {item?.seller?.joinDate}
+                    Joined StudEx {item?.seller?.joinDate}
                   </p>
                 </div>
               </div>

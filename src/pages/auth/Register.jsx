@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import RegisterImg from "@/assets/images/RegisterImg.jpg";
-import google from "@/assets/icons/icons8-google.svg";
+import googleIcon from "@/assets/icons/google-icon.svg";
 import Mail from "@/assets/icons/mail.svg";
 import Success from "@/assets/icons/success.svg";
 
@@ -257,14 +257,45 @@ const Register = () => {
         <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
 
         {currentStep === 1 && (
-          <PersonalInfoForm
-            formData={formData}
-            formErrors={{ ...formErrors, apiError: registerError?.message }}
-            updateField={updateField}
-            onSubmit={handlePersonalInfoSubmit}
-            isSubmitting={isRegistering}
-            isFormValid={isFormValid}
-          />
+          <>
+            <PersonalInfoForm
+              formData={formData}
+              formErrors={{ ...formErrors, apiError: registerError?.message }}
+              updateField={updateField}
+              onSubmit={handlePersonalInfoSubmit}
+              isSubmitting={isRegistering}
+              isFormValid={isFormValid}
+            />
+
+            {/* OR */}
+            <div className="flex items-center md:my-2">
+              <div className="flex-2 border-t border-gray-300" />
+              <span className="px-4 text-gray-500 text-sm">OR</span>
+              <div className="flex-2 border-t border-gray-300" />
+            </div>
+
+            {/* Sign up with google */}
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={handleGoogleSignup}
+                disabled={!formData.agreeToTerms}
+                className={`w-full border border-gray-300 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors ${
+                  !formData.agreeToTerms
+                    ? "opacity-50 cursor-not-allowed bg-gray-100"
+                    : "hover:bg-gray-50 cursor-pointer"
+                }`}
+              >
+                <img src={googleIcon} alt="Google" className="w-4 h-4" />
+                <span>Sign Up with Google</span>
+              </button>
+              {!formData.agreeToTerms && (
+                <p className="text-destructive text-xs text-center">
+                  Please agree to the Terms of Service and Privacy Policy to
+                  continue
+                </p>
+              )}
+            </div>
+          </>
         )}
 
         {currentStep === 2 && (
@@ -276,26 +307,6 @@ const Register = () => {
             error={verifyAccountError?.message}
           />
         )}
-
-        {/* OR */}
-        <div className="flex items-center md:my-2">
-          <div className="flex-2 border-t border-gray-300" />
-          <span className="px-4 text-gray-500 text-sm">OR</span>
-          <div className="flex-2 border-t border-gray-300" />
-        </div>
-
-        {/* Sign up with google */}
-        <div className="flex justify-center">
-          <button
-            onClick={handleGoogleSignup}
-            className="flex items-center justify-center gap-3 cursor-pointer hover:bg-gray-50 py-2 px-4 rounded-lg transition-colors"
-          >
-            <img src={google} alt="google" style={{ width: 30 }} />
-            <span className="font-semibold text-muted-foreground">
-              Sign up with Google
-            </span>
-          </button>
-        </div>
 
         {/* Log In */}
         <div className="flex justify-center gap-1 mt-4 text-base">

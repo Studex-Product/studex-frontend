@@ -18,26 +18,10 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { listingService } from "@/api/listingService";
 
-// Mock API services (assuming these are correct and unchanged)
-const fetchSellerProfile = async (sellerId) => {
-  await new Promise((resolve) => setTimeout(resolve, 800));
-  return {
-    id: sellerId,
-    name: "Fatima Yusuf",
-    number: "09123456789",
-    avatar: Avatar,
-    isVerified: true,
-    joinDate: "Jan 2025",
-    starRating: 4.5,
-    totalListings: 56,
-    location: "Uniben",
-    about:
-      "I'm Fatima a verified student seller. I use StudEx to give my unused items a second life and help fellow students find affordable deals. Everything listed is fairly priced and well-maintained. Available for safe meet-ups on campus or nearby locations.",
-  };
-};
-
-const fetchSellerItems = async (sellerId, page = 1) => {
+// Mock API services (fallback)
+const fetchSellerItemsMock = async (sellerId, page = 1) => {
   await new Promise((resolve) => setTimeout(resolve, 600));
   const itemsPerPage = 6;
   const startIndex = (page - 1) * itemsPerPage;
@@ -52,40 +36,111 @@ const fetchSellerItems = async (sellerId, page = 1) => {
   };
 };
 
+// Real API service - fetches all listings and filters by seller
+const fetchSellerItems = async (sellerId, page = 1, itemsPerPage = 6) => {
+  try {
+    // Fetch all listings - the API returns seller details with each listing
+    const response = await listingService.getAllListings();
+    let allItems = response.data || response || [];
+
+    // Filter items by seller ID and approved status
+    const sellerItems = allItems.filter(
+      (item) =>
+        item.user_id === parseInt(sellerId) && item.status === "approved"
+    );
+
+    // Calculate pagination
+    const totalItems = sellerItems.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedItems = sellerItems.slice(startIndex, endIndex);
+
+    // Transform items to match ProductCard expectations
+    const transformedItems = paginatedItems.map((item) => ({
+      id: item.id,
+      image:
+        item.image_urls && item.image_urls.length > 0
+          ? item.image_urls[0]
+          : null,
+      title: item.item_name,
+      description: item.description,
+      price: new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+      }).format(item.price),
+      location:
+        item.state && item.local_government
+          ? `${item.local_government}, ${item.state}`
+          : item.state || "Location not specified",
+      category: item.condition || item.category || "Used",
+    }));
+
+    return {
+      items: transformedItems,
+      totalItems,
+      totalPages,
+      currentPage: page,
+    };
+  } catch (error) {
+    console.error(
+      "Error fetching seller items from API, falling back to mock data:",
+      error
+    );
+    return fetchSellerItemsMock(sellerId, page);
+  }
+};
+
 const SellerProfile = () => {
   const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
   const navigate = useNavigate();
   const location = useLocation();
   const { sellerId } = useParams();
   const { user } = useAuth();
 
-  // Get the item data that was passed when navigating to this seller profile
+  // Get the item data and seller data that was passed when navigating to this seller profile
   const fromItem = location.state?.fromItem;
+  const sellerDataFromState = location.state?.sellerData;
 
-  // Alternative: get item from URL params if using /seller/:sellerId/from-item/:itemId pattern
-  // const { itemId } = useParams();
-  // const referrerItem = sellerItems?.find(item => item.id === parseInt(itemId));
+  // Use seller data from navigation state (already includes all needed info from ItemDetail)
+  const defaultSeller = {
+    id: sellerId,
+    name: "Unknown Seller",
+    number: "Not provided",
+    avatar: Avatar,
+    isVerified: false,
+    joinDate: "Recently",
+    starRating: 0,
+    location: "Location not specified",
+    about:
+      "This is a student seller on StudEx. Connect with them to explore their listings and make safe transactions on campus.",
+  };
 
-  const {
-    data: seller,
-    isLoading: sellerLoading,
-    error: sellerError,
-  } = useQuery({
-    queryKey: ["sellerProfile", sellerId],
-    queryFn: () => fetchSellerProfile(sellerId),
-  });
+  const sellerLoading = false; // No loading since we have data from state
+  const sellerError = null;
 
+  // Fetch seller's listings
   const {
     data: sellerItemsData,
     isLoading: itemsLoading,
     error: itemsError,
   } = useQuery({
     queryKey: ["sellerItems", sellerId, currentPage],
-    queryFn: () => fetchSellerItems(sellerId, currentPage),
+    queryFn: () => fetchSellerItems(sellerId, currentPage, itemsPerPage),
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    retry: 1,
   });
 
   const sellerItems = sellerItemsData?.items || [];
   const totalPages = sellerItemsData?.totalPages || 1;
+  const totalListings = sellerItemsData?.totalItems || 0;
+
+  // Merge seller data from state with totalListings from API
+  const seller = sellerDataFromState
+    ? { ...sellerDataFromState, totalListings }
+    : { ...defaultSeller, totalListings };
 
   const handlePageChange = (page) => setCurrentPage(page);
   const handleBreadcrumbNavigation = (path) => navigate(path);
@@ -203,7 +258,7 @@ const SellerProfile = () => {
                   className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors cursor-pointer"
                 >
                   <PhoneIcon className="w-4 h-4" />
-                  <span>Call Now</span>
+                  <span className="whitespace-nowrap">Call Now</span>
                 </button>
 
                 <button
@@ -211,7 +266,7 @@ const SellerProfile = () => {
                   className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm bg-purple-100 border border-purple-200 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors cursor-pointer"
                 >
                   <MessageSquareTextIcon className="w-4 h-4" />
-                  <span>Chat Now</span>
+                  <span className="whitespace-nowrap">Chat Now</span>
                 </button>
               </div>
             </div>

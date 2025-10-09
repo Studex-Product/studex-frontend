@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import Logo from "@/components/common/Logo";
+import LogoutConfirmationModal from "@/components/ui/LogoutConfirmationModal";
 import PlusIcon from "@/assets/icons/plus-icon.svg";
 import HomeIcon from "@/assets/icons/home-icon.svg";
 import ItemListingIcon from "@/assets/icons/shop-icon.svg";
@@ -17,6 +18,7 @@ const Sidebar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navigationItems = [
     { name: "Home", path: "/dashboard", icon: HomeIcon },
@@ -39,12 +41,12 @@ const Sidebar = () => {
     navigate(path);
   };
 
-    const handlePostItemClick = () => {
+  const handlePostItemClick = () => {
     // Check if the user's profile is incomplete
     if (!user?.is_profile_complete) {
       toast.error("Please complete your profile setup before posting an item.");
       // Optionally, navigate them to the settings page
-      // navigate('/settings'); 
+      // navigate('/settings');
       return; // Stop the function here
     }
     // If profile is complete, proceed with navigation
@@ -57,56 +59,30 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-64 bg-white h-screen border-r border-gray-200 flex flex-col">
-      {/* Logo Section */}
-      <div className="p-6 border-b border-gray-100">
-        <Logo />
-      </div>
-
-      {/* Post Item Button */}
-      <div className="p-4 border-gray-100">
-        <button
-          onClick={handlePostItemClick}
-          className="w-full text-purple-600 py-3 px-4 rounded-sm font-medium hover:bg-purple-100 transition-colors cursor-pointer flex items-center justify-between duration-300"
-        >
-          <span>Post Item</span>
-          <div className="w-6 h-6 bg-purple-600 bg-opacity-20 rounded-sm flex items-center justify-center">
-            <img src={PlusIcon} alt="Plus Icon" className="w-4 h-4" />
-          </div>
-        </button>
-      </div>
-
-      {/* Navigation Items */}
-      <nav className="flex-1 pt-4 pb-4 space-y-1">
-        <div className="px-3 space-y-3">
-          {navigationItems.map((item) => (
-            <button
-              key={item.name}
-              onClick={() => handleNavigation(item.path)}
-              className={`w-full group flex items-center px-3 py-2 text-sm font-medium rounded-sm transition-colors cursor-pointer ${
-                isActiveRoute(item.path)
-                  ? "bg-purple-700 text-white"
-                  : "text-gray-600 hover:bg-purple-100 hover:text-gray-900"
-              }`}
-            >
-              <img
-                src={item.icon}
-                alt={item.name}
-                className={`mr-3 w-5 h-5 ${
-                  isActiveRoute(item.path)
-                    ? "brightness-0 invert"
-                    : ""
-                }`}
-              />
-              {item.name}
-            </button>
-          ))}
+    <>
+      <div className="w-64 bg-white h-screen border-r border-gray-200 flex flex-col">
+        {/* Logo Section */}
+        <div className="p-6 border-b border-gray-100">
+          <Logo />
         </div>
 
-        {/* Support Section */}
-        <div className="pt-6 mt-6 border-t border-gray-100">
-          <div className="px-3 space-y-2">
-            {supportItems.map((item) => (
+        {/* Post Item Button */}
+        <div className="p-4 border-gray-100">
+          <button
+            onClick={handlePostItemClick}
+            className="w-full text-purple-600 py-3 px-4 rounded-sm font-medium hover:bg-purple-100 transition-colors cursor-pointer flex items-center justify-between duration-300"
+          >
+            <span>Post Item</span>
+            <div className="w-6 h-6 bg-purple-600 bg-opacity-20 rounded-sm flex items-center justify-center">
+              <img src={PlusIcon} alt="Plus Icon" className="w-4 h-4" />
+            </div>
+          </button>
+        </div>
+
+        {/* Navigation Items */}
+        <nav className="flex-1 pt-4 pb-4 space-y-1">
+          <div className="px-3 space-y-3">
+            {navigationItems.map((item) => (
               <button
                 key={item.name}
                 onClick={() => handleNavigation(item.path)}
@@ -116,25 +92,64 @@ const Sidebar = () => {
                     : "text-gray-600 hover:bg-purple-100 hover:text-gray-900"
                 }`}
               >
-                <img src={item.icon} alt={item.name} className="mr-3 w-5 h-5" />
+                <img
+                  src={item.icon}
+                  alt={item.name}
+                  className={`mr-3 w-5 h-5 ${
+                    isActiveRoute(item.path) ? "brightness-0 invert" : ""
+                  }`}
+                />
                 {item.name}
               </button>
             ))}
           </div>
-        </div>
-      </nav>
 
-      {/* Logout Section */}
-      <div className="p-4 border-t border-gray-100">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-sm transition-colors cursor-pointer"
-        >
-          <img src={LogoutIcon} alt="Logout" className="mr-3 w-5 h-5" />
-          Log Out
-        </button>
+          {/* Support Section */}
+          <div className="pt-6 mt-6 border-t border-gray-100">
+            <div className="px-3 space-y-2">
+              {supportItems.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => handleNavigation(item.path)}
+                  className={`w-full group flex items-center px-3 py-2 text-sm font-medium rounded-sm transition-colors cursor-pointer ${
+                    isActiveRoute(item.path)
+                      ? "bg-purple-700 text-white"
+                      : "text-gray-600 hover:bg-purple-100 hover:text-gray-900"
+                  }`}
+                >
+                  <img
+                    src={item.icon}
+                    alt={item.name}
+                    className="mr-3 w-5 h-5"
+                  />
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </nav>
+
+        {/* Logout Section */}
+        <div className="p-4 border-t border-gray-100">
+          <button
+            onClick={() => setShowLogoutModal(true)}
+            className="w-full flex items-center px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 rounded-sm transition-colors cursor-pointer"
+          >
+            <img src={LogoutIcon} alt="Logout" className="mr-3 w-5 h-5" />
+            Log Out
+          </button>
+        </div>
       </div>
-    </div>
+
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+        title="Confirm Logout"
+        message="Are you sure you want to logout?"
+      />
+    </>
   );
 };
 
