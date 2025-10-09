@@ -57,7 +57,7 @@ const MyPostDetail = () => {
   });
 
   const handleBack = () => {
-    navigate("/dashboard/my-posts");
+    navigate("/my-posts");
   };
 
   const handleEdit = () => {
