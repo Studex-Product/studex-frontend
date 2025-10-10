@@ -1,46 +1,61 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-    baseURL: import.meta.env.VITE_STUDEX_BASE_URL,
-    timeout: 10000,
-    headers: {
-        "Content-Type": "application/json",
-    },
+  baseURL: import.meta.env.VITE_STUDEX_BASE_URL,
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 apiClient.interceptors.request.use(
-    (config) => {
-        const token = sessionStorage.getItem("token") || localStorage.getItem("token");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
+  (config) => {
+    const token =
+      sessionStorage.getItem("token") || localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 apiClient.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        if (error.response?.status === 401) {
-            // Only redirect if we're not already on login/auth pages
-            const currentPath = window.location.pathname;
-            const isAuthPage = currentPath.includes('/login') ||
-                              currentPath.includes('/register') ||
-                              currentPath.includes('/forgot-password');
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      // Check if the error is due to email verification
+      const errorMessage =
+        error.response?.data?.detail || error.response?.data?.message || "";
+      const isEmailVerificationError =
+        errorMessage.toLowerCase().includes("email") &&
+        (errorMessage.toLowerCase().includes("verif") ||
+          errorMessage.toLowerCase().includes("unverified"));
 
-            if (!isAuthPage) {
-                sessionStorage.removeItem("token");
-                localStorage.removeItem("token");
-                window.location.href = "/login";
-            }
-        }
+      // Don't log out for email verification errors
+      if (isEmailVerificationError) {
         return Promise.reject(error);
+      }
+
+      // Only redirect if we're not already on login/auth pages
+      const currentPath = window.location.pathname;
+      const isAuthPage =
+        currentPath.includes("/login") ||
+        currentPath.includes("/register") ||
+        currentPath.includes("/forgot-password");
+
+      if (!isAuthPage) {
+        sessionStorage.removeItem("token");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
     }
+    return Promise.reject(error);
+  }
 );
 
 export default apiClient;

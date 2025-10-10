@@ -5,6 +5,7 @@ import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import PlusIcon from "@/assets/icons/plus-icon.svg";
 import { useListing } from "@/hooks/useListing";
 import { toast } from "sonner";
+import EmailVerificationBanner from "../profile/EmailVerificationBanner";
 
 const CreateItemListing = () => {
   const navigate = useNavigate();
@@ -145,9 +146,9 @@ const CreateItemListing = () => {
   const validateStep2 = () => {
     const newErrors = {};
 
-   if (!formData.interests || formData.interests.length === 0) {
-  newErrors.interests = "At least one interest is required";
-}
+    if (!formData.interests || formData.interests.length === 0) {
+      newErrors.interests = "At least one interest is required";
+    }
 
     if (!formData.roommatePreference.trim()) {
       newErrors.roommatePreference = "Roommate prefernce is required";
@@ -500,6 +501,7 @@ const CreateItemListing = () => {
   return (
     <DashboardLayout>
       <div className=" bg-purple-100 p-6">
+        <EmailVerificationBanner />
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <Link to="/my-posts">My posts</Link>

@@ -5,6 +5,7 @@ export const transformUserData = (userData) => {
   return {
     ...userData,
     isProfileComplete: userData.is_profile_complete,
+    email_verified: userData.email_verified ?? false,
     // Add other transformations as needed
   };
 };
