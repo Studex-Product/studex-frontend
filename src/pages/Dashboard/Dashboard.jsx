@@ -7,6 +7,7 @@ import products from "@/sample-data/products";
 import { listingService } from "@/api/listingService";
 import DashBannerImg from "@/assets/images/DashBannerImg.png";
 import ProfileCompletionBanner from "../profile/ProfileCompletionBanner";
+import EmailVerificationBanner from "../profile/EmailVerificationBanner";
 import ChevronRightPurple from "@/assets/icons/chevron-right-purple.svg";
 
 // Mock API service (fallback)
@@ -218,6 +219,7 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       <div className="px-6">
+        <EmailVerificationBanner />
         <ProfileCompletionBanner />
         {/* Hero Banner */}
         <div className="bg-[url('@/assets/images/DashBannerBg.png')] bg-cover bg-no-repeat rounded-2xl p-8 mb-8 relative overflow-hidden">

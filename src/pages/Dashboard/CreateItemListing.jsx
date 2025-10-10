@@ -5,6 +5,7 @@ import ChevronLeft from "@/assets/icons/chevron-left.svg";
 import PlusIcon from "@/assets/icons/plus-icon.svg";
 import { useListing } from "@/hooks/useListing";
 import { toast } from "sonner";
+import EmailVerificationBanner from "../profile/EmailVerificationBanner";
 
 const CreateItemListing = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const CreateItemListing = () => {
     createListingError,
     uploadImagesError,
     isCreateListingSuccess,
-    isUploadImagesSuccess
+    isUploadImagesSuccess,
   } = useListing();
   const [formData, setFormData] = useState({
     // Step 1: Basic Details
@@ -35,7 +36,7 @@ const CreateItemListing = () => {
     colour: "",
     material: "",
     state: "",
-    localGovernment: ""
+    localGovernment: "",
   });
 
   const [errors, setErrors] = useState({});
@@ -52,7 +53,7 @@ const CreateItemListing = () => {
         console.log("Uploading images for listing:", listingId);
         uploadListingImages.mutate({
           listingId: listingId,
-          files: formData.photos
+          files: formData.photos,
         });
       } else {
         // No images to upload, redirect to my posts
@@ -60,12 +61,22 @@ const CreateItemListing = () => {
         navigate("/my-posts");
       }
     }
-  }, [isCreateListingSuccess, createListing.data, formData.photos, navigate, createdListingId, uploadListingImages]);
+  }, [
+    isCreateListingSuccess,
+    createListing.data,
+    formData.photos,
+    navigate,
+    createdListingId,
+    uploadListingImages,
+  ]);
 
   // Handle successful image upload
   useEffect(() => {
     if (isUploadImagesSuccess && createdListingId) {
-      console.log("Images uploaded successfully for listing:", createdListingId);
+      console.log(
+        "Images uploaded successfully for listing:",
+        createdListingId
+      );
       setIsSubmitting(false);
       navigate("/my-posts");
     }
@@ -93,16 +104,16 @@ const CreateItemListing = () => {
   }, [uploadImagesError, navigate]);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
 
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ""
+        [field]: "",
       }));
     }
   };
@@ -197,7 +208,7 @@ const CreateItemListing = () => {
         colour: formData.colour,
         material: formData.material,
         state: formData.state,
-        localGovernment: formData.localGovernment
+        localGovernment: formData.localGovernment,
       };
 
       createListing.mutate(listingData);
@@ -218,22 +229,22 @@ const CreateItemListing = () => {
       return;
     }
 
-    const newPhotos = files.map(file => ({
+    const newPhotos = files.map((file) => ({
       file,
       url: URL.createObjectURL(file),
-      id: Date.now() + Math.random()
+      id: Date.now() + Math.random(),
     }));
 
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      photos: [...prev.photos, ...newPhotos]
+      photos: [...prev.photos, ...newPhotos],
     }));
   };
 
   const removePhoto = (photoId) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      photos: prev.photos.filter(photo => photo.id !== photoId)
+      photos: prev.photos.filter((photo) => photo.id !== photoId),
     }));
   };
 
@@ -336,7 +347,8 @@ const CreateItemListing = () => {
           Add Photo
         </label>
         <p className="text-sm text-gray-500 mb-4">
-          You can upload up to 4 images. Clear pictures help you sell faster. Supported formats are *.jpg and *.png
+          You can upload up to 4 images. Clear pictures help you sell faster.
+          Supported formats are *.jpg and *.png
         </p>
 
         <div className="flex gap-4 items-start">
@@ -528,6 +540,7 @@ const CreateItemListing = () => {
   return (
     <DashboardLayout>
       <div className=" bg-purple-100 p-6">
+        <EmailVerificationBanner />
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
           <Link to="/my-posts">My posts</Link>
@@ -538,75 +551,102 @@ const CreateItemListing = () => {
         {/* Container */}
         <div className="w-full mx-auto py-4 bg-white rounded-2xl">
           <div className="max-w-2xl mx-auto p-6">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-meduim text-gray-900 mb-2">
-            Post an Item for Sale
-          </h1>
-          <p className="text-gray-600">
-            Fill in the details below to list your item and connect with buyers easily
-          </p>
-        </div>
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-meduim text-gray-900 mb-2">
+                Post an Item for Sale
+              </h1>
+              <p className="text-gray-600">
+                Fill in the details below to list your item and connect with
+                buyers easily
+              </p>
+            </div>
 
-        {/* Back Button (only show on step 2) */}
-        {currentStep > 1 && (
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-6"
-          >
-            <img src={ChevronLeft} alt="Back" className="w-4 h-4" />
-            Back
-          </button>
-        )}
-
-        {/* Form Content */}
-        <div className="bg-white">
-          {currentStep === 1 && renderStep1()}
-          {currentStep === 2 && renderStep2()}
-        </div>
-
-        {/* API Error Display */}
-        {createListingError && (
-          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-700 text-sm">
-              {createListingError.response?.data?.message || "Failed to create listing. Please try again."}
-            </p>
-          </div>
-        )}
-
-        {uploadImagesError && (
-          <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-md">
-            <p className="text-orange-700 text-sm">
-              Listing created successfully, but image upload failed. You can add images later.
-            </p>
-          </div>
-        )}
-
-        {/* Action Button */}
-        <div className="mt-8">
-          <button
-            onClick={handleNext}
-            disabled={isSubmitting || isCreatingListing || isUploadingImages}
-            className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 ${
-              isSubmitting || isCreatingListing || isUploadingImages
-                ? "bg-purple-300 text-white cursor-not-allowed"
-                : "bg-purple-600 hover:bg-purple-700 text-white"
-            }`}
-          >
-            {isSubmitting || isCreatingListing || isUploadingImages ? (
-              <div className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {isCreatingListing ? "Creating listing..." : isUploadingImages ? "Uploading images..." : "Processing..."}
-              </div>
-            ) : (
-              currentStep === 2 ? "Post Item" : "Next"
+            {/* Back Button (only show on step 2) */}
+            {currentStep > 1 && (
+              <button
+                onClick={handleBack}
+                className="flex items-center gap-2 text-purple-600 hover:text-purple-700 mb-6"
+              >
+                <img src={ChevronLeft} alt="Back" className="w-4 h-4" />
+                Back
+              </button>
             )}
-          </button>
+
+            {/* Form Content */}
+            <div className="bg-white">
+              {currentStep === 1 && renderStep1()}
+              {currentStep === 2 && renderStep2()}
+            </div>
+
+            {/* API Error Display */}
+            {createListingError && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-red-700 text-sm">
+                  {createListingError.response?.data?.message ||
+                    "Failed to create listing. Please try again."}
+                </p>
+              </div>
+            )}
+
+            {uploadImagesError && (
+              <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-md">
+                <p className="text-orange-700 text-sm">
+                  Listing created successfully, but image upload failed. You can
+                  add images later.
+                </p>
+              </div>
+            )}
+
+            {/* Action Button */}
+            <div className="mt-8">
+              <button
+                onClick={handleNext}
+                disabled={
+                  isSubmitting || isCreatingListing || isUploadingImages
+                }
+                className={`w-full py-3 px-6 rounded-lg font-medium transition-colors duration-200 ${
+                  isSubmitting || isCreatingListing || isUploadingImages
+                    ? "bg-purple-300 text-white cursor-not-allowed"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                }`}
+              >
+                {isSubmitting || isCreatingListing || isUploadingImages ? (
+                  <div className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    {isCreatingListing
+                      ? "Creating listing..."
+                      : isUploadingImages
+                      ? "Uploading images..."
+                      : "Processing..."}
+                  </div>
+                ) : currentStep === 2 ? (
+                  "Post Item"
+                ) : (
+                  "Next"
+                )}
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-      </div>
       </div>
     </DashboardLayout>
   );
