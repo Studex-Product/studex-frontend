@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProductCard from "@/components/ui/ProductCard";
+import ImageLightbox from "@/components/ui/ImageLightbox";
 import products from "@/sample-data/products";
 import { listingService } from "@/api/listingService";
 import Avatar from "@/assets/images/AdminLoginImg.jpg";
@@ -187,6 +188,7 @@ const fetchSimilarItems = async (itemId, category) => {
 
 const ItemDetail = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const navigate = useNavigate();
   const { itemId } = useParams();
   const { user } = useAuth();
@@ -214,6 +216,29 @@ const ItemDetail = () => {
 
   const handleImageSelect = (index) => {
     setSelectedImageIndex(index);
+  };
+
+  const handleOpenLightbox = () => {
+    setIsLightboxOpen(true);
+  };
+
+  const handleCloseLightbox = () => {
+    setIsLightboxOpen(false);
+  };
+
+  const handleNavigateLightbox = (direction) => {
+    const validImages = item?.images?.filter((img) => img) || [];
+    if (validImages.length === 0) return;
+
+    if (direction === "prev") {
+      setSelectedImageIndex((prev) =>
+        prev === 0 ? validImages.length - 1 : prev - 1
+      );
+    } else if (direction === "next") {
+      setSelectedImageIndex((prev) =>
+        prev === validImages.length - 1 ? 0 : prev + 1
+      );
+    }
   };
 
   const handleContact = () => {
@@ -332,13 +357,24 @@ const ItemDetail = () => {
               {/* Main Image */}
               <div className="mb-4">
                 {item?.images?.[selectedImageIndex] || item?.images?.[0] ? (
-                  <img
-                    src={
-                      item?.images?.[selectedImageIndex] || item?.images?.[0]
-                    }
-                    alt={item?.title}
-                    className="w-full h-96 object-cover rounded-lg"
-                  />
+                  <div
+                    className="relative group cursor-pointer overflow-hidden rounded-lg"
+                    onClick={handleOpenLightbox}
+                  >
+                    <img
+                      src={
+                        item?.images?.[selectedImageIndex] || item?.images?.[0]
+                      }
+                      alt={item?.title}
+                      className="w-full h-96 object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 group-hover:bg-opacity-20 transition-all duration-300 rounded-lg pointer-events-none"></div>
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <span className="text-white text-sm font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 px-2 py- rounded-lg">
+                        Click to expand
+                      </span>
+                    </div>
+                  </div>
                 ) : (
                   <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
                     <span className="text-gray-400 text-lg">
@@ -563,6 +599,16 @@ const ItemDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Image Lightbox */}
+      {isLightboxOpen && (
+        <ImageLightbox
+          images={item?.images}
+          currentIndex={selectedImageIndex}
+          onClose={handleCloseLightbox}
+          onNavigate={handleNavigateLightbox}
+        />
+      )}
     </DashboardLayout>
   );
 };

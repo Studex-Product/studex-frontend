@@ -1,11 +1,39 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileSearch, Eye, MoreVertical, Edit, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  FileSearch,
+  Eye,
+  MoreVertical,
+  Edit,
+  Trash2,
+  CheckCircle,
+} from "lucide-react";
+import { listingService } from "@/api/listingService";
+import { toast } from "sonner";
 
 const ListingCard = ({ listing, onEdit, onDelete }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Mark as sold mutation
+  const markAsSoldMutation = useMutation({
+    mutationFn: (id) => listingService.markAsSold(id),
+    onSuccess: () => {
+      toast.success("Listing marked as sold!");
+      queryClient.invalidateQueries(["user-listings"]);
+      queryClient.invalidateQueries(["my-listing-detail", listing.id]);
+    },
+    onError: (error) => {
+      toast.error(
+        `Failed to mark as sold: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    },
+  });
 
   // Format price
   const formatPrice = (price) => {
@@ -75,6 +103,12 @@ const ListingCard = ({ listing, onEdit, onDelete }) => {
     if (onDelete) {
       onDelete(listing.id);
     }
+  };
+
+  const handleMarkAsSold = (e) => {
+    e.stopPropagation();
+    setShowDropdown(false);
+    markAsSoldMutation.mutate(listing.id);
   };
 
   const toggleDropdown = (e) => {
@@ -178,14 +212,31 @@ const ListingCard = ({ listing, onEdit, onDelete }) => {
                     <div className="py-1">
                       <button
                         onClick={handleEdit}
-                        className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                        className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
                       >
                         <Edit className="w-4 h-4" />
                         Edit
                       </button>
                       <button
+                        onClick={handleMarkAsSold}
+                        disabled={markAsSoldMutation.isPending}
+                        className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {markAsSoldMutation.isPending ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600"></div>
+                            Marking...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            Mark as Sold
+                          </>
+                        )}
+                      </button>
+                      <button
                         onClick={handleDelete}
-                        className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center gap-2"
+                        className="w-full px-4 py-2 text-sm text-left text-red-600 hover:bg-red-50 flex items-center gap-2 cursor-pointer"
                       >
                         <Trash2 className="w-4 h-4" />
                         Delete

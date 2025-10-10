@@ -33,8 +33,17 @@ const ProductCard = ({
           />
           <span
             className={`absolute top-2 left-2 px-3 py-1 text-xs font-semibold rounded-sm ${
-              category === "New"
-                ? "bg-[#1C7D22] text-white"
+              category?.toLowerCase() === "new"
+                ? "bg-green-500 text-white"
+                : category?.toLowerCase() === "like new" ||
+                  category?.toLowerCase() === "like-new"
+                ? "bg-green-700 text-white"
+                : category?.toLowerCase() === "good"
+                ? "bg-yellow-500 text-white"
+                : category?.toLowerCase() === "fair"
+                ? "bg-orange-500 text-white"
+                : category?.toLowerCase() === "poor"
+                ? "bg-red-800 text-white"
                 : "bg-[#3A3A3A] text-white"
             }`}
           >
@@ -56,7 +65,9 @@ const ProductCard = ({
             </div>
           </div>
           <div className="flex-shrink-0 md:text-right">
-            <div className="text-lg md:text-2xl px-2 font-semibold text-gray-900">{price}</div>
+            <div className="text-lg md:text-2xl px-2 font-semibold text-gray-900">
+              {price}
+            </div>
             {/* Example of conditional text */}
             {/* {category === "Apartment" && (
               <div className="text-sm text-gray-500">/ year</div>
@@ -80,10 +91,19 @@ const ProductCard = ({
           loading="lazy"
         />
         <span
-          className={`absolute top-2 left-2 px-3 py-1 text-xs font-semibold rounded-sm 
+          className={`absolute top-2 left-2 px-3 py-1 text-xs font-semibold rounded-sm capitalize
             ${
-              category === "New"
-                ? "bg-[#1C7D22] text-white"
+              category?.toLowerCase() === "new"
+                ? "bg-green-500 text-white"
+                : category?.toLowerCase() === "like new" ||
+                  category?.toLowerCase() === "like-new"
+                ? "bg-green-700 text-white"
+                : category?.toLowerCase() === "good"
+                ? "bg-yellow-500 text-white"
+                : category?.toLowerCase() === "fair"
+                ? "bg-orange-500 text-white"
+                : category?.toLowerCase() === "poor"
+                ? "bg-red-800 text-white"
                 : "bg-[#3A3A3A] text-white"
             }`}
         >
