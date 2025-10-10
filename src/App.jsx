@@ -16,6 +16,7 @@ import MyPosts from "@/pages/Dashboard/MyPosts";
 import MyPostDetail from "@/pages/Dashboard/MyPostDetail";
 import CreateItemListing from "@/pages/Dashboard/CreateItemListing";
 import CreateRoomateListing from "@/pages/Dashboard/CreateRoomateListing";
+import EditListing from "@/pages/Dashboard/EditListing";
 import AdminLogin from "@/pages/auth/AdminLogin";
 import AdminForgotPassword from "@/pages/auth/AdminForgotPassword";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -384,6 +385,16 @@ function App() {
                   <ProtectedRoute>
                     <RouteErrorBoundary>
                       <MyPostDetail />
+                    </RouteErrorBoundary>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/listings/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <RouteErrorBoundary>
+                      <EditListing />
                     </RouteErrorBoundary>
                   </ProtectedRoute>
                 }

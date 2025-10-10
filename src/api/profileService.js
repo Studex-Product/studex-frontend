@@ -18,17 +18,26 @@ export const profileService = {
       },
     };
 
-    const response = await apiClient.put(
-      "/api/profile/me",
+    const response = await apiClient.patch(
+      "/api/profile/edit",
       profileData,
       config
     );
     return response.data;
   },
 
+  // Update personal details
+  updatePersonalDetails: async (personalData) => {
+    const response = await apiClient.patch(
+      "/api/profile/personal-details",
+      personalData
+    );
+    return response.data;
+  },
+
   // Upload profile picture
   uploadProfilePicture: async (formData) => {
-    const response = await apiClient.post("/api/profile/me/avatar", formData, {
+    const response = await apiClient.post("/api/profile/avatar", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

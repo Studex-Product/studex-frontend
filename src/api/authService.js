@@ -70,9 +70,15 @@ export const authService = {
 
   // Change password (for authenticated users)
   changePassword: async (passwordData) => {
+    // Transform camelCase to snake_case for backend
+    const payload = {
+      current_password: passwordData.currentPassword,
+      new_password: passwordData.newPassword,
+    };
+
     const response = await apiClient.post(
       "/api/auth/change-password",
-      passwordData
+      payload
     );
     return response.data;
   },

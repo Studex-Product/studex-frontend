@@ -132,17 +132,14 @@ const EditProfileModal = ({ isOpen, onClose }) => {
       // Create FormData for the update
       const formDataForUpdate = new FormData();
 
-      // Only include fields that have values (to avoid overriding existing data with empty values)
-      if (formData.aboutMe.trim()) {
-        formDataForUpdate.append("bio", formData.aboutMe.trim());
-      }
+      // Always include bio (even if empty)
+      formDataForUpdate.append("bio", formData.aboutMe.trim());
 
-      if (formData.personalities && formData.personalities.length > 0) {
-        formDataForUpdate.append(
-          "personalities",
-          JSON.stringify(formData.personalities)
-        );
-      }
+      // Always include personalities (even if empty array)
+      formDataForUpdate.append(
+        "personalities",
+        JSON.stringify(formData.personalities || [])
+      );
 
       // If user uploaded a new profile picture, add it to the form data
       if (
@@ -152,30 +149,24 @@ const EditProfileModal = ({ isOpen, onClose }) => {
         formDataForUpdate.append("profilePicture", formData.profilePicture);
       }
 
-      // Only make API call if there's something to update
+      // Make API call to update profile
       let updateResponse = null;
-      if (
-        formDataForUpdate.has("bio") ||
-        formDataForUpdate.has("personalities") ||
-        formDataForUpdate.has("profilePicture")
-      ) {
-        try {
-          updateResponse = await profileService.updateProfile(
-            formDataForUpdate
-          );
-        } catch (apiError) {
-          // If API fails, we can still update locally for now
-          console.warn("API update failed, updating locally only:", apiError);
-          if (
-            apiError.response?.status === 500 ||
-            apiError.code === "ERR_NETWORK"
-          ) {
-            // API endpoint may not be implemented yet, continue with local update
-            updateResponse = null;
-          } else {
-            // For other errors, throw to be handled by outer catch
-            throw apiError;
-          }
+      try {
+        updateResponse = await profileService.updateProfile(
+          formDataForUpdate
+        );
+      } catch (apiError) {
+        // If API fails, we can still update locally for now
+        console.warn("API update failed, updating locally only:", apiError);
+        if (
+          apiError.response?.status === 500 ||
+          apiError.code === "ERR_NETWORK"
+        ) {
+          // API endpoint may not be implemented yet, continue with local update
+          updateResponse = null;
+        } else {
+          // For other errors, throw to be handled by outer catch
+          throw apiError;
         }
       }
 

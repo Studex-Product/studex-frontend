@@ -52,8 +52,8 @@ export const listingService = {
 
   // Update a listing
   updateListing: async (listingId, listingData) => {
-    const response = await apiClient.put(`/api/listings/${listingId}`, {
-      item_name: listingData.itemName,
+    const response = await apiClient.patch(`/api/listings/${listingId}`, {
+      item_name: listingData.item_name,
       category: listingData.category,
       price: parseFloat(listingData.price),
       description: listingData.description,
@@ -61,7 +61,7 @@ export const listingService = {
       colour: listingData.colour,
       material: listingData.material,
       state: listingData.state,
-      local_government: listingData.localGovernment
+      local_government: listingData.local_government
     });
     return response.data;
   },
@@ -69,6 +69,12 @@ export const listingService = {
   // Delete a listing
   deleteListing: async (listingId) => {
     const response = await apiClient.delete(`/api/listings/${listingId}`);
+    return response.data;
+  },
+
+  // Mark listing as sold
+  markAsSold: async (listingId) => {
+    const response = await apiClient.patch(`/api/listings/${listingId}/mark-sold`);
     return response.data;
   },
 

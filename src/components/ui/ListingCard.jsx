@@ -65,7 +65,7 @@ const ListingCard = ({ listing, onEdit, onDelete }) => {
     if (onEdit) {
       onEdit(listing.id);
     } else {
-      navigate(`/dashboard/edit-listing/${listing.id}`);
+      navigate(`/listings/edit/${listing.id}`);
     }
   };
 
@@ -128,6 +128,10 @@ const ListingCard = ({ listing, onEdit, onDelete }) => {
                     case "rejected":
                       badgeClasses = "bg-red-100 text-red-800";
                       statusText = "Rejected";
+                      break;
+                    case "sold":
+                      badgeClasses = "bg-blue-100 text-blue-800";
+                      statusText = "Sold";
                       break;
                     default:
                       badgeClasses = "bg-gray-100 text-gray-800";

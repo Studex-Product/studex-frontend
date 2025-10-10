@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { profileService } from "@/api/profileService";
+import { toast } from "sonner";
 // import { UploadCloud, UserRoundIcon } from 'lucide-react';
 
 const SCHOOLS = [
@@ -10,8 +12,18 @@ const SCHOOLS = [
   "Bayero University Kano (BUK)",
 ];
 
+const STATES = ["Lagos"];
+
+const LGA = [
+  "Agege", "Ajeromi-Ifelodun", "Alimosho", "Amuwo-Odofin", "Apapa", "Badagry",
+  "Epe", "Eti Osa", "Ibeju-Lekki", "Ifako-Ijaiye", "Ikeja", "Ikorodu",
+  "Kosofe", "Lagos Island", "Lagos Mainland", "Mushin", "Ojo", "Oshodi-Isolo",
+  "Shomolu", "Surulere"
+];
+
 const PersonalDetailsTab = () => {
   const { user, updateUser } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State for the form, initialized from the user context
   const [formData, setFormData] = useState({
@@ -22,7 +34,8 @@ const PersonalDetailsTab = () => {
     school: "",
     dob: "",
     gender: "",
-    address: "",
+    state: "",
+    lga: "",
   });
 
   // Effect to update form when user data is loaded
@@ -34,9 +47,10 @@ const PersonalDetailsTab = () => {
         dob: user.dob || "",
         gender: user.gender || "",
         email: user.email || "",
-        phone: user.phone || "",
+        phone: user.phone || user.phoneNumber || user.phone_number || "",
         school: user.campus_name || "",
-        address: user.address || "",
+        state: user.state || "",
+        lga: user.lga || "",
       });
     }
   }, [user]);
@@ -57,15 +71,50 @@ const PersonalDetailsTab = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const updatedUserData = {
-      ...user,
-      phone: formData.phone,
-      school: formData.school,
-    };
-    updateUser(updatedUserData);
-    alert("Changes saved!");
+
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      // Prepare data for API call (only editable fields)
+      const personalData = {
+        phone: formData.phone,
+        state: formData.state,
+        lga: formData.lga,
+      };
+
+      // Call the API
+      const response = await profileService.updatePersonalDetails(personalData);
+
+      // Update local user context with the response
+      const updatedUserData = {
+        ...user,
+        ...response,
+      };
+      updateUser(updatedUserData);
+
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+          Personal details updated successfully!
+        </div>
+      ));
+
+    } catch (error) {
+      console.error("Error updating personal details:", error);
+
+      const errorMessage = error.response?.data?.message || "Failed to update personal details. Please try again.";
+
+      toast.custom(() => (
+        <div className="bg-white rounded-lg p-3 text-sm border-2 border-red-500 shadow-lg max-w-sm w-full break-words">
+          {errorMessage}
+        </div>
+      ));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -188,32 +237,68 @@ const PersonalDetailsTab = () => {
                 ))}
               </select>
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Current Address
+            <div>
+              <label
+                htmlFor="state"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                State
               </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
+              <select
+                id="state"
+                name="state"
+                value={formData.state}
                 onChange={handleInputChange}
                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
-              />
+              >
+                <option value="">Select your state</option>
+                {STATES.map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="lga"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Local Government Area (LGA)
+              </label>
+              <select
+                id="lga"
+                name="lga"
+                value={formData.lga}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-1 focus:ring-purple-500 focus:border-purple-500"
+              >
+                <option value="">Select your LGA</option>
+                {LGA.map((lga) => (
+                  <option key={lga} value={lga}>
+                    {lga}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
           <div className="mt-8">
             <button
               type="submit"
-              className="w-full md:w-auto px-8 py-2.5 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 cursor-pointer"
+              disabled={isSubmitting}
+              className={`w-full md:w-auto px-8 py-2.5 text-white font-semibold rounded-lg transition-all duration-200 ${
+                isSubmitting
+                  ? "bg-purple-400 cursor-not-allowed"
+                  : "bg-purple-600 hover:bg-purple-700 cursor-pointer"
+              }`}
             >
-              Save Changes
+              {isSubmitting ? "Saving..." : "Save Changes"}
             </button>
           </div>
 
           <div className="mt-6 p-4 bg-gray-100 rounded-lg text-sm text-gray-600">
-            You can only update your phone number and address. For changes
+            You can only update your phone number, state, and LGA. For changes
             to other details, please contact{" "}
             <a
               href="mailto:support@studex.com"

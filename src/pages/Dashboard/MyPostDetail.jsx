@@ -18,6 +18,7 @@ import {
   Check,
   X,
   Info,
+  CheckCircle,
 } from "lucide-react";
 import Loader from "@/assets/Loader.svg";
 
@@ -56,12 +57,29 @@ const MyPostDetail = () => {
     },
   });
 
+  // Mark as sold mutation
+  const markAsSoldMutation = useMutation({
+    mutationFn: (id) => listingService.markAsSold(id),
+    onSuccess: () => {
+      toast.success("Listing marked as sold!");
+      queryClient.invalidateQueries(["my-listing-detail", listingId]);
+      queryClient.invalidateQueries(["user-listings"]);
+    },
+    onError: (error) => {
+      toast.error(
+        `Failed to mark as sold: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    },
+  });
+
   const handleBack = () => {
     navigate("/my-posts");
   };
 
   const handleEdit = () => {
-    navigate(`/dashboard/edit-listing/${listingId}`);
+    navigate(`/listings/edit/${listingId}`);
   };
 
   const handleDelete = () => {
@@ -72,10 +90,15 @@ const MyPostDetail = () => {
     deleteMutation.mutate(listingId);
   };
 
+  const handleMarkAsSold = () => {
+    markAsSoldMutation.mutate(listingId);
+  };
+
   const getStatusBadge = (status) => {
     const statusConfig = {
       pending: { color: "bg-yellow-100 text-yellow-800", icon: Clock },
       approved: { color: "bg-green-100 text-green-800", icon: Check },
+      sold: { color: "bg-blue-100 text-blue-800", icon: Check },
       rejected: { color: "bg-red-100 text-red-800", icon: X },
     };
 
@@ -176,6 +199,18 @@ const MyPostDetail = () => {
             >
               <Edit className="w-4 h-4" />
               Edit
+            </button>
+            <button
+              onClick={handleMarkAsSold}
+              disabled={markAsSoldMutation.isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50"
+            >
+              {markAsSoldMutation.isPending ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              ) : (
+                <CheckCircle className="w-4 h-4" />
+              )}
+              Mark as Sold
             </button>
             <button
               onClick={handleDelete}
