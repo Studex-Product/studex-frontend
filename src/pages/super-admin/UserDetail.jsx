@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import SuperAdminDashboardLayout from "@/components/layout/SuperAdminDashboardLayout";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { adminService } from "@/api/adminService";
 import { toast } from "sonner";
-import Loader from "@/assets/Loader.svg"
+import Loader from "@/assets/Loader.svg";
 import {
   ArrowLeft,
   User,
@@ -26,7 +27,7 @@ import {
   Activity,
   ShoppingBag,
   Home,
-  MessageSquare
+  MessageSquare,
 } from "lucide-react";
 import { Image } from "lucide-react";
 import { UserSearchIcon } from "lucide-react";
@@ -38,33 +39,46 @@ const UserDetail = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showCampusModal, setShowCampusModal] = useState(false);
   const [selectedCampus, setSelectedCampus] = useState("");
+  const [confirmationModal, setConfirmationModal] = useState({
+    isOpen: false,
+    action: null,
+    type: null,
+  });
 
   // Helper function to determine if user is admin
   const isAdminUser = (user) => {
     if (!user) return false;
     const roles = user.roles || [];
-    const legacyRole = user.legacy_role || '';
-    return roles.includes('ADMIN') || roles.includes('SUPER_ADMIN') ||
-           legacyRole === 'ADMIN' || legacyRole === 'SUPER_ADMIN';
+    const legacyRole = user.legacy_role || "";
+    return (
+      roles.includes("ADMIN") ||
+      roles.includes("SUPER_ADMIN") ||
+      legacyRole === "ADMIN" ||
+      legacyRole === "SUPER_ADMIN"
+    );
   };
 
   // Helper function to get user role display
   const getUserRoleDisplay = (user) => {
-    if (!user) return 'User';
+    if (!user) return "User";
     const roles = user.roles || [];
-    const legacyRole = user.legacy_role || '';
+    const legacyRole = user.legacy_role || "";
 
-    if (roles.includes('SUPER_ADMIN') || legacyRole === 'SUPER_ADMIN') {
-      return 'Super Admin';
-    } else if (roles.includes('ADMIN') || legacyRole === 'ADMIN') {
-      return 'Campus Admin';
+    if (roles.includes("SUPER_ADMIN") || legacyRole === "SUPER_ADMIN") {
+      return "Super Admin";
+    } else if (roles.includes("ADMIN") || legacyRole === "ADMIN") {
+      return "Campus Admin";
     } else {
-      return 'Student';
+      return "Student";
     }
   };
 
   // Fetch user data from API
-  const { data: user, isLoading, error } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["user", userId],
     queryFn: async () => {
       try {
@@ -103,48 +117,48 @@ const UserDetail = () => {
             department: "Computer Science",
             faculty: "Science",
             matric_number: "CSC/2021/001",
-            graduation_year: 2025
+            graduation_year: 2025,
           },
           activity_stats: {
             total_listings: 12,
             active_listings: 8,
             completed_transactions: 23,
             messages_sent: 145,
-            last_activity: "2024-01-20T15:30:00Z"
+            last_activity: "2024-01-20T15:30:00Z",
           },
           verification_history: [
             {
               type: "email",
               verified_at: "2021-09-15T11:00:00Z",
-              status: "verified"
+              status: "verified",
             },
             {
               type: "student_id",
               verified_at: "2021-09-16T14:30:00Z",
               status: "verified",
-              verified_by: "admin@university.edu"
-            }
+              verified_by: "admin@university.edu",
+            },
           ],
           recent_activity: [
             {
               action: "login",
               timestamp: "2024-01-20T09:15:00Z",
-              details: "Logged in from Chrome on Windows"
+              details: "Logged in from Chrome on Windows",
             },
             {
               action: "listing_created",
               timestamp: "2024-01-19T16:45:00Z",
-              details: "Created listing: MacBook Pro 2020"
+              details: "Created listing: MacBook Pro 2020",
             },
             {
               action: "message_sent",
               timestamp: "2024-01-19T14:20:00Z",
-              details: "Sent message to buyer"
-            }
-          ]
+              details: "Sent message to buyer",
+            },
+          ],
         };
       }
-    }
+    },
   });
 
   // Fetch active campuses for assignment
@@ -157,17 +171,20 @@ const UserDetail = () => {
         return data;
       }
       return data.items || data.campuses || data.data || [];
-    }
+    },
   });
 
   // Mutation for assigning campus admin
   const assignCampusAdminMutation = useMutation({
-    mutationFn: ({ campusId, userId }) => adminService.assignCampusAdmin(campusId, userId),
+    mutationFn: ({ campusId, userId }) =>
+      adminService.assignCampusAdmin(campusId, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
       queryClient.invalidateQueries({ queryKey: ["allUsers"] });
       // Invalidate campus admins for the campus they were assigned to
-      queryClient.invalidateQueries({ queryKey: ["campusAdmins", selectedCampus] });
+      queryClient.invalidateQueries({
+        queryKey: ["campusAdmins", selectedCampus],
+      });
       // Also invalidate campus data to update admin counts
       queryClient.invalidateQueries({ queryKey: ["campus", selectedCampus] });
       queryClient.invalidateQueries({ queryKey: ["allCampuses"] });
@@ -176,8 +193,12 @@ const UserDetail = () => {
       toast.success("User successfully assigned as campus admin");
     },
     onError: (error) => {
-      toast.error(`Failed to assign campus admin: ${error.response?.data?.message || error.message}`);
-    }
+      toast.error(
+        `Failed to assign campus admin: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    },
   });
 
   // Mutation for updating user status
@@ -186,24 +207,39 @@ const UserDetail = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
       queryClient.invalidateQueries({ queryKey: ["allUsers"] });
-      toast.success(`User ${data.is_active ? 'activated' : 'deactivated'} successfully`);
+      toast.success(
+        `User ${data.is_active ? "activated" : "deactivated"} successfully`
+      );
     },
     onError: (error) => {
-      toast.error(`Failed to update user status: ${error.response?.data?.message || error.message}`);
-    }
+      toast.error(
+        `Failed to update user status: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    },
   });
 
   // Mutation for updating student verification
   const updateStudentVerificationMutation = useMutation({
-    mutationFn: (verified) => adminService.updateStudentVerification(userId, verified),
+    mutationFn: (verified) =>
+      adminService.updateStudentVerification(userId, verified),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["user", userId] });
       queryClient.invalidateQueries({ queryKey: ["allUsers"] });
-      toast.success(`Student ${data.student_verified ? 'verified' : 'unverified'} successfully`);
+      toast.success(
+        `Student ${
+          data.student_verified ? "verified" : "unverified"
+        } successfully`
+      );
     },
     onError: (error) => {
-      toast.error(`Failed to update verification: ${error.response?.data?.message || error.message}`);
-    }
+      toast.error(
+        `Failed to update verification: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    },
   });
 
   const handleBackToUsers = () => {
@@ -214,22 +250,31 @@ const UserDetail = () => {
     if (!user) return;
 
     const newStatus = !user.is_active;
-    const action = newStatus ? 'activate' : 'deactivate';
+    const action = newStatus ? "activate" : "deactivate";
 
-    if (window.confirm(`Are you sure you want to ${action} this user?`)) {
-      updateUserStatusMutation.mutate(newStatus);
-    }
+    setConfirmationModal({
+      isOpen: true,
+      action: () => updateUserStatusMutation.mutate(newStatus),
+      type: "status",
+      message: `Are you sure you want to ${action} this user?`,
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
+    });
   };
 
   const handleVerifyStudent = () => {
     if (!user) return;
 
     const newVerificationStatus = !user.student_verified;
-    const action = newVerificationStatus ? 'verify' : 'unverify';
+    const action = newVerificationStatus ? "verify" : "unverify";
 
-    if (window.confirm(`Are you sure you want to ${action} this student?`)) {
-      updateStudentVerificationMutation.mutate(newVerificationStatus);
-    }
+    setConfirmationModal({
+      isOpen: true,
+      action: () =>
+        updateStudentVerificationMutation.mutate(newVerificationStatus),
+      type: "verification",
+      message: `Are you sure you want to ${action} this student?`,
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} Student`,
+    });
   };
 
   const handleAssignCampusAdmin = () => {
@@ -242,15 +287,27 @@ const UserDetail = () => {
       return;
     }
 
-    const campus = campuses.find(c => c.id.toString() === selectedCampus);
-    const campusName = campus?.name || 'the selected campus';
+    const campus = campuses.find((c) => c.id.toString() === selectedCampus);
+    const campusName = campus?.name || "the selected campus";
 
-    if (window.confirm(`Are you sure you want to assign ${user.first_name} ${user.last_name} as admin for ${campusName}?`)) {
-      assignCampusAdminMutation.mutate({
-        campusId: parseInt(selectedCampus),
-        userId: parseInt(userId)
-      });
+    setConfirmationModal({
+      isOpen: true,
+      action: () =>
+        assignCampusAdminMutation.mutate({
+          campusId: parseInt(selectedCampus),
+          userId: parseInt(userId),
+        }),
+      type: "assignAdmin",
+      message: `Are you sure you want to assign ${user.first_name} ${user.last_name} as admin for ${campusName}?`,
+      title: "Assign Campus Admin",
+    });
+  };
+
+  const handleConfirmAction = () => {
+    if (confirmationModal.action) {
+      confirmationModal.action();
     }
+    setConfirmationModal({ isOpen: false, action: null, type: null });
   };
 
   if (isLoading) {
@@ -259,7 +316,11 @@ const UserDetail = () => {
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <img src={Loader} alt="Loading..." className="w-12 h-12 mx-auto mb-4" />
+              <img
+                src={Loader}
+                alt="Loading..."
+                className="w-12 h-12 mx-auto mb-4"
+              />
               <p className="mt-2 text-gray-600">Loading user details...</p>
             </div>
           </div>
@@ -285,9 +346,8 @@ const UserDetail = () => {
     { id: "activity", label: "Activity", icon: Activity },
     ...(isAdminUser(user)
       ? [{ id: "admin", label: "Admin", icon: Shield }]
-      : [{ id: "listings", label: "Listings", icon: ShoppingBag }]
-    ),
-    { id: "verification", label: "Verification", icon: Shield }
+      : [{ id: "listings", label: "Listings", icon: ShoppingBag }]),
+    { id: "verification", label: "Verification", icon: Shield },
   ];
 
   return (
@@ -316,8 +376,8 @@ const UserDetail = () => {
                 disabled={updateStudentVerificationMutation.isPending}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                   user.student_verified
-                    ? 'bg-yellow-600 text-white hover:bg-yellow-700'
-                    : 'bg-green-600 text-white hover:bg-green-700'
+                    ? "bg-yellow-600 text-white hover:bg-yellow-700"
+                    : "bg-green-600 text-white hover:bg-green-700"
                 } disabled:opacity-50`}
               >
                 {updateStudentVerificationMutation.isPending ? (
@@ -327,7 +387,7 @@ const UserDetail = () => {
                 ) : (
                   <UserCheck className="w-4 h-4" />
                 )}
-                {user.student_verified ? 'Unverify Student' : 'Verify Student'}
+                {user.student_verified ? "Unverify Student" : "Verify Student"}
               </button>
             )}
 
@@ -349,7 +409,9 @@ const UserDetail = () => {
             {isAdminUser(user) && (
               <button
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                onClick={() => {/* Handle admin permissions */}}
+                onClick={() => {
+                  /* Handle admin permissions */
+                }}
               >
                 <Shield className="w-4 h-4" />
                 Manage Permissions
@@ -361,8 +423,8 @@ const UserDetail = () => {
               disabled={updateUserStatusMutation.isPending}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                 user.is_active
-                  ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-green-600 text-white hover:bg-green-700'
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-green-600 text-white hover:bg-green-700"
               } disabled:opacity-50`}
             >
               {updateUserStatusMutation.isPending ? (
@@ -370,12 +432,12 @@ const UserDetail = () => {
               ) : user.is_active ? (
                 <>
                   <Ban className="w-4 h-4" />
-                  {isAdminUser(user) ? 'Deactivate Admin' : 'Deactivate'}
+                  {isAdminUser(user) ? "Deactivate Admin" : "Deactivate"}
                 </>
               ) : (
                 <>
                   <Unlock className="w-4 h-4" />
-                  {isAdminUser(user) ? 'Activate Admin' : 'Activate'}
+                  {isAdminUser(user) ? "Activate Admin" : "Activate"}
                 </>
               )}
             </button>
@@ -386,7 +448,11 @@ const UserDetail = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${user.is_active ? 'bg-green-100' : 'bg-red-100'}`}>
+              <div
+                className={`p-2 rounded-lg ${
+                  user.is_active ? "bg-green-100" : "bg-red-100"
+                }`}
+              >
                 {user.is_active ? (
                   <CheckCircle className="w-5 h-5 text-green-600" />
                 ) : (
@@ -395,8 +461,12 @@ const UserDetail = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Account Status</p>
-                <p className={`font-semibold ${user.is_active ? 'text-green-600' : 'text-red-600'}`}>
-                  {user.is_active ? 'Active' : 'Inactive'}
+                <p
+                  className={`font-semibold ${
+                    user.is_active ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {user.is_active ? "Active" : "Inactive"}
                 </p>
               </div>
             </div>
@@ -419,7 +489,11 @@ const UserDetail = () => {
           {!isAdminUser(user) ? (
             <div className="bg-white rounded-lg border border-gray-200 p-4">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${user.student_verified ? 'bg-purple-100' : 'bg-yellow-100'}`}>
+                <div
+                  className={`p-2 rounded-lg ${
+                    user.student_verified ? "bg-purple-100" : "bg-yellow-100"
+                  }`}
+                >
                   {user.student_verified ? (
                     <Shield className="w-5 h-5 text-purple-600" />
                   ) : (
@@ -428,8 +502,14 @@ const UserDetail = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Student Status</p>
-                  <p className={`font-semibold ${user.student_verified ? 'text-purple-600' : 'text-yellow-600'}`}>
-                    {user.student_verified ? 'Verified' : 'Pending'}
+                  <p
+                    className={`font-semibold ${
+                      user.student_verified
+                        ? "text-purple-600"
+                        : "text-yellow-600"
+                    }`}
+                  >
+                    {user.student_verified ? "Verified" : "Pending"}
                   </p>
                 </div>
               </div>
@@ -455,7 +535,9 @@ const UserDetail = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Login Count</p>
-                <p className="font-semibold text-blue-600">{user.login_count || 0}</p>
+                <p className="font-semibold text-blue-600">
+                  {user.login_count || 0}
+                </p>
               </div>
             </div>
           </div>
@@ -473,8 +555,8 @@ const UserDetail = () => {
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                       activeTab === tab.id
-                        ? 'border-purple-500 text-purple-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? "border-purple-500 text-purple-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -490,14 +572,20 @@ const UserDetail = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Personal Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Personal Information</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Personal Information
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex gap-3">
                       <Image className="w-4 h-4 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-600">Profile Image</p>
                         {user.profile_image ? (
-                          <img src={user.profile_image} alt={`${user.first_name} ${user.last_name}`} className="w-32 h-32 rounded object-cover" />
+                          <img
+                            src={user.profile_image}
+                            alt={`${user.first_name} ${user.last_name}`}
+                            className="w-32 h-32 rounded object-cover"
+                          />
                         ) : (
                           <div className="w-32 h-32 bg-gray-200 rounded flex items-center justify-center text-gray-400">
                             No Image
@@ -510,7 +598,9 @@ const UserDetail = () => {
                       <User className="w-4 h-4 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-600">Full Name</p>
-                        <p className="font-medium">{user.first_name} {user.last_name}</p>
+                        <p className="font-medium">
+                          {user.first_name} {user.last_name}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -524,7 +614,9 @@ const UserDetail = () => {
                       <Phone className="w-4 h-4 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-600">Phone</p>
-                        <p className="font-medium">{user.phone || 'Not provided'}</p>
+                        <p className="font-medium">
+                          {user.phone || "Not provided"}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -532,7 +624,9 @@ const UserDetail = () => {
                       <div>
                         <p className="text-sm text-gray-600">Date of Birth</p>
                         <p className="font-medium">
-                          {user.date_of_birth ? new Date(user.date_of_birth).toLocaleDateString() : 'Not provided'}
+                          {user.date_of_birth
+                            ? new Date(user.date_of_birth).toLocaleDateString()
+                            : "Not provided"}
                         </p>
                       </div>
                     </div>
@@ -541,7 +635,7 @@ const UserDetail = () => {
                       <div>
                         <p className="text-sm text-gray-600">Gender</p>
                         <p className="font-medium">
-                          {user.gender || 'Not provided'}
+                          {user.gender || "Not provided"}
                         </p>
                       </div>
                     </div>
@@ -549,7 +643,9 @@ const UserDetail = () => {
                       <MapPin className="w-4 h-4 text-gray-400" />
                       <div>
                         <p className="text-sm text-gray-600">Address</p>
-                        <p className="font-medium">{user.address || 'Not provided'}</p>
+                        <p className="font-medium">
+                          {user.address || "Not provided"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -557,7 +653,9 @@ const UserDetail = () => {
 
                 {/* Academic Information */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Academic Information</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Academic Information
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
                       <School className="w-4 h-4 text-gray-400" />
@@ -571,19 +669,27 @@ const UserDetail = () => {
 
                 {/* Account Information */}
                 <div className="space-y-4 lg:col-span-2">
-                  <h3 className="text-lg font-semibold text-gray-900">Account Information</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Account Information
+                  </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <p className="text-sm text-gray-600">Joined</p>
-                      <p className="font-medium">{new Date(user.created_at).toLocaleDateString()}</p>
+                      <p className="font-medium">
+                        {new Date(user.created_at).toLocaleDateString()}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Last Updated</p>
-                      <p className="font-medium">{new Date(user.updated_at).toLocaleDateString()}</p>
+                      <p className="font-medium">
+                        {new Date(user.updated_at).toLocaleDateString()}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-600">Last Login</p>
-                      <p className="font-medium">{new Date(user.last_login).toLocaleDateString()}</p>
+                      <p className="font-medium">
+                        {new Date(user.last_login).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -592,27 +698,38 @@ const UserDetail = () => {
 
             {activeTab === "activity" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Recent Activity
+                </h3>
                 <div className="space-y-4">
-                  {user.recent_activity && user.recent_activity.length > 0 ? user.recent_activity.map((activity, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Clock className="w-4 h-4 text-blue-600" />
+                  {user.recent_activity && user.recent_activity.length > 0 ? (
+                    user.recent_activity.map((activity, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                      >
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <Clock className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 capitalize">
+                            {activity.action.replace("_", " ")}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {activity.details}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(activity.timestamp).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900 capitalize">
-                          {activity.action.replace('_', ' ')}
-                        </p>
-                        <p className="text-sm text-gray-600">{activity.details}</p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(activity.timestamp).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  )) : (
+                    ))
+                  ) : (
                     <div className="bg-gray-50 rounded-lg p-8 text-center">
                       <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">No recent activity available</p>
+                      <p className="text-gray-600">
+                        No recent activity available
+                      </p>
                     </div>
                   )}
                 </div>
@@ -622,10 +739,12 @@ const UserDetail = () => {
             {activeTab === "listings" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">User Listings</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    User Listings
+                  </h3>
                   <div className="text-sm text-gray-500">
-                    Total: {user.activity_stats?.total_listings || 0} |
-                    Active: {user.activity_stats?.active_listings || 0}
+                    Total: {user.activity_stats?.total_listings || 0} | Active:{" "}
+                    {user.activity_stats?.active_listings || 0}
                   </div>
                 </div>
 
@@ -639,7 +758,8 @@ const UserDetail = () => {
                         <div className="flex gap-4">
                           {/* Listing Image */}
                           <div className="flex-shrink-0">
-                            {listing.image_urls && listing.image_urls.length > 0 ? (
+                            {listing.image_urls &&
+                            listing.image_urls.length > 0 ? (
                               <img
                                 src={listing.image_urls[0]}
                                 alt={listing.item_name}
@@ -693,19 +813,24 @@ const UserDetail = () => {
 
                             <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
                               <div className="flex items-center gap-4">
-                                <span>📍 {listing.state}, {listing.local_government}</span>
+                                <span>
+                                  📍 {listing.state}, {listing.local_government}
+                                </span>
                                 <span>🎨 {listing.colour}</span>
                                 <span>📦 {listing.material}</span>
                               </div>
                               <span>
-                                {new Date(listing.created_at).toLocaleDateString()}
+                                {new Date(
+                                  listing.created_at
+                                ).toLocaleDateString()}
                               </span>
                             </div>
 
                             {listing.review_note && (
                               <div className="mt-2 p-2 bg-blue-50 rounded border-l-4 border-blue-200">
                                 <p className="text-xs text-blue-800">
-                                  <strong>Review Note:</strong> {listing.review_note}
+                                  <strong>Review Note:</strong>{" "}
+                                  {listing.review_note}
                                 </p>
                               </div>
                             )}
@@ -728,34 +853,47 @@ const UserDetail = () => {
 
             {activeTab === "verification" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">Verification History</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Verification History
+                </h3>
                 <div className="space-y-4">
-                  {user.verification_history && user.verification_history.length > 0 ? user.verification_history.map((verification, index) => (
-                    <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        <CheckCircle className="w-4 h-4 text-green-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900 capitalize">
-                          {verification.type.replace('_', ' ')} Verification
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Verified on {new Date(verification.verified_at).toLocaleDateString()}
-                        </p>
-                        {verification.verified_by && (
-                          <p className="text-xs text-gray-500">
-                            Verified by: {verification.verified_by}
+                  {user.verification_history &&
+                  user.verification_history.length > 0 ? (
+                    user.verification_history.map((verification, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg"
+                      >
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 capitalize">
+                            {verification.type.replace("_", " ")} Verification
                           </p>
-                        )}
+                          <p className="text-sm text-gray-600">
+                            Verified on{" "}
+                            {new Date(
+                              verification.verified_at
+                            ).toLocaleDateString()}
+                          </p>
+                          {verification.verified_by && (
+                            <p className="text-xs text-gray-500">
+                              Verified by: {verification.verified_by}
+                            </p>
+                          )}
+                        </div>
+                        <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
+                          Verified
+                        </span>
                       </div>
-                      <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-800 rounded-full">
-                        Verified
-                      </span>
-                    </div>
-                  )) : (
+                    ))
+                  ) : (
                     <div className="bg-gray-50 rounded-lg p-8 text-center">
                       <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">No verification history available</p>
+                      <p className="text-gray-600">
+                        No verification history available
+                      </p>
                     </div>
                   )}
                 </div>
@@ -776,8 +914,9 @@ const UserDetail = () => {
                   Assign Campus Admin
                 </h2>
                 <p className="text-gray-600">
-                  Select a campus to assign {user?.first_name} {user?.last_name} as campus admin.
-                  This will promote them to admin role and assign them to the selected campus.
+                  Select a campus to assign {user?.first_name} {user?.last_name}{" "}
+                  as campus admin. This will promote them to admin role and
+                  assign them to the selected campus.
                 </p>
               </div>
 
@@ -812,7 +951,9 @@ const UserDetail = () => {
                 </button>
                 <button
                   onClick={handleCampusAssignment}
-                  disabled={!selectedCampus || assignCampusAdminMutation.isPending}
+                  disabled={
+                    !selectedCampus || assignCampusAdminMutation.isPending
+                  }
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {assignCampusAdminMutation.isPending ? (
@@ -821,13 +962,34 @@ const UserDetail = () => {
                       Assigning...
                     </div>
                   ) : (
-                    'Assign Admin'
+                    "Assign Admin"
                   )}
                 </button>
               </div>
             </div>
           </div>
         )}
+
+        {/* Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={confirmationModal.isOpen}
+          onClose={() =>
+            setConfirmationModal({ isOpen: false, action: null, type: null })
+          }
+          onConfirm={handleConfirmAction}
+          title={confirmationModal.title}
+          message={confirmationModal.message}
+          confirmText="Confirm"
+          confirmButtonClass="bg-purple-600 hover:bg-purple-700"
+          icon={AlertTriangle}
+          iconBgClass="bg-yellow-100"
+          iconColorClass="text-yellow-600"
+          isLoading={
+            updateUserStatusMutation.isPending ||
+            updateStudentVerificationMutation.isPending ||
+            assignCampusAdminMutation.isPending
+          }
+        />
       </div>
     </SuperAdminDashboardLayout>
   );

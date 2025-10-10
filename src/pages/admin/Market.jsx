@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { adminService } from "@/api/adminService";
 import { listingService } from "@/api/listingService";
 import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 import Loader from "@/assets/Loader.svg";
 import { useAuth } from "@/hooks/useAuth";
@@ -38,6 +39,11 @@ const Market = () => {
   });
   const [selectedListings, setSelectedListings] = useState([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [currentListingId, setCurrentListingId] = useState(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [isBulkAction, setIsBulkAction] = useState(false);
 
   // Get campus ID from user object (no need for additional API call)
   const campusId = user?.campus_id;
@@ -65,7 +71,7 @@ const Market = () => {
           items: data,
           total: data.length,
           offset: 0,
-          limit: 10
+          limit: 10,
         };
       }
       // If data already has items property, use as is
@@ -76,10 +82,12 @@ const Market = () => {
   // Fetch listing stats
   const { data: stats } = useQuery({
     queryKey: ["listing-stats", campusId],
-    queryFn: () => adminService.getListingStats(
-      userRole === "admin" && campusId ? { campus_id: campusId } : {}
-    ),
-    enabled: userRole === "super_admin" || (userRole === "admin" && Boolean(campusId)), // Wait for campus data for campus admin
+    queryFn: () =>
+      adminService.getListingStats(
+        userRole === "admin" && campusId ? { campus_id: campusId } : {}
+      ),
+    enabled:
+      userRole === "super_admin" || (userRole === "admin" && Boolean(campusId)), // Wait for campus data for campus admin
     retry: false,
     onError: (error) => {
       console.warn("Listing stats API not available:", error.message);
@@ -95,7 +103,6 @@ const Market = () => {
         total: 0,
       },
   });
-
 
   // Review listing mutation
   const reviewMutation = useMutation({
@@ -142,29 +149,66 @@ const Market = () => {
   });
 
   const handleSingleReview = (listingId, action) => {
-    const review_note =
-      action === "reject"
-        ? prompt("Please provide a reason for rejection:")
-        : "";
-    if (action === "reject" && !review_note) return;
-
-    const status = action === "approve" ? "approved" : "rejected";
-    reviewMutation.mutate({ listingId, status, review_note });
+    setCurrentListingId(listingId);
+    setIsBulkAction(false);
+    if (action === "approve") {
+      setShowApproveModal(true);
+    } else {
+      setShowRejectModal(true);
+    }
   };
 
   const handleBulkReview = (action) => {
-    const review_note =
-      action === "reject"
-        ? prompt("Please provide a reason for rejection:")
-        : "";
-    if (action === "reject" && !review_note) return;
+    setIsBulkAction(true);
+    if (action === "approve") {
+      setShowApproveModal(true);
+    } else {
+      setShowRejectModal(true);
+    }
+  };
 
-    const status = action === "approve" ? "approved" : "rejected";
-    bulkReviewMutation.mutate({
-      listingIds: selectedListings,
-      status,
-      review_note,
-    });
+  const handleApproveConfirm = () => {
+    if (isBulkAction) {
+      bulkReviewMutation.mutate({
+        listingIds: selectedListings,
+        status: "approved",
+        review_note: "",
+      });
+    } else {
+      reviewMutation.mutate({
+        listingId: currentListingId,
+        status: "approved",
+        review_note: "",
+      });
+    }
+    setShowApproveModal(false);
+    setCurrentListingId(null);
+    setIsBulkAction(false);
+  };
+
+  const handleRejectConfirm = () => {
+    if (!rejectReason.trim()) {
+      toast.error("Please provide a reason for rejection");
+      return;
+    }
+
+    if (isBulkAction) {
+      bulkReviewMutation.mutate({
+        listingIds: selectedListings,
+        status: "rejected",
+        review_note: rejectReason,
+      });
+    } else {
+      reviewMutation.mutate({
+        listingId: currentListingId,
+        status: "rejected",
+        review_note: rejectReason,
+      });
+    }
+    setShowRejectModal(false);
+    setRejectReason("");
+    setCurrentListingId(null);
+    setIsBulkAction(false);
   };
 
   const handleViewDetails = (listingId) => {
@@ -243,14 +287,12 @@ const Market = () => {
             <h1 className="text-2xl font-bold text-gray-900">
               {userRole === "admin" && user?.campus_name
                 ? `${user.campus_name} - Market Listings`
-                : "Market Listings"
-              }
+                : "Market Listings"}
             </h1>
             <p className="text-gray-600 mt-1">
               {userRole === "admin"
                 ? "Review and approve marketplace listings from your campus"
-                : "Review and approve user listing submissions"
-              }
+                : "Review and approve user listing submissions"}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -423,7 +465,6 @@ const Market = () => {
             <option value="other">Other</option>
           </select>
 
-
           <button
             onClick={() =>
               setFilters({
@@ -561,7 +602,8 @@ const Market = () => {
                         </div> */}
                         <div className="ml-3">
                           <div className="text-sm font-medium text-gray-900">
-                            {listing.seller_first_name} {listing.seller_last_name}
+                            {listing.seller_first_name}{" "}
+                            {listing.seller_last_name}
                           </div>
                           <div className="text-sm text-gray-500">
                             {listing.seller_email}
@@ -679,6 +721,98 @@ const Market = () => {
           </div>
         )}
       </div>
+
+      {/* Approve Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showApproveModal}
+        onClose={() => {
+          setShowApproveModal(false);
+          setCurrentListingId(null);
+          setIsBulkAction(false);
+        }}
+        onConfirm={handleApproveConfirm}
+        title={isBulkAction ? "Approve Selected Listings" : "Approve Listing"}
+        message={
+          isBulkAction
+            ? `Are you sure you want to approve ${selectedListings.length} listing(s)?`
+            : "Are you sure you want to approve this listing?"
+        }
+        confirmText="Approve"
+        confirmButtonClass="bg-green-600 hover:bg-green-700"
+        icon={Check}
+        iconBgClass="bg-green-100"
+        iconColorClass="text-green-600"
+        isLoading={reviewMutation.isPending || bulkReviewMutation.isPending}
+      />
+
+      {/* Reject Modal with Reason */}
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                <X className="w-8 h-8 text-red-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {isBulkAction ? "Reject Selected Listings" : "Reject Listing"}
+              </h2>
+              <p className="text-gray-600">
+                {isBulkAction
+                  ? `Please provide a reason for rejecting ${selectedListings.length} listing(s).`
+                  : "Please provide a reason for rejecting this listing."}
+              </p>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rejection Reason
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Enter the reason for rejection..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectReason("");
+                  setCurrentListingId(null);
+                  setIsBulkAction(false);
+                }}
+                className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                disabled={
+                  reviewMutation.isPending || bulkReviewMutation.isPending
+                }
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRejectConfirm}
+                disabled={
+                  !rejectReason.trim() ||
+                  reviewMutation.isPending ||
+                  bulkReviewMutation.isPending
+                }
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {reviewMutation.isPending || bulkReviewMutation.isPending ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Rejecting...
+                  </div>
+                ) : (
+                  "Reject"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminDashboardLayout>
   );
 };

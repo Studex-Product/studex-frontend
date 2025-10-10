@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams, useNavigate } from 'react-router-dom';
-import { adminService } from '@/api/adminService';
-import AdminDashboardLayout from '@/components/layout/AdminDashboardLayout';
-import { toast } from 'sonner';
-import Loader from '@/assets/Loader.svg';
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams, useNavigate } from "react-router-dom";
+import { adminService } from "@/api/adminService";
+import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import { toast } from "sonner";
+import Loader from "@/assets/Loader.svg";
 import {
   ArrowLeft,
   Check,
@@ -19,21 +20,26 @@ import {
   FileText,
   Clock,
   AlertTriangle,
-  Shield
-} from 'lucide-react';
+  Shield,
+} from "lucide-react";
 
 const VerificationDetail = () => {
   const { verificationId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showRejectModal, setShowRejectModal] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState("");
 
   // Fetch verification details
-  const { data: verification, isLoading, error } = useQuery({
-    queryKey: ['verification', verificationId],
+  const {
+    data: verification,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["verification", verificationId],
     queryFn: () => adminService.getVerificationById(verificationId),
-    retry: false
+    retry: false,
   });
 
   // Review verification mutation
@@ -41,34 +47,42 @@ const VerificationDetail = () => {
     mutationFn: ({ status, review_note }) =>
       adminService.reviewVerification(verificationId, status, review_note),
     onSuccess: (data, variables) => {
-      const actionText = variables.status === 'approved' ? 'approved' : 'rejected';
+      const actionText =
+        variables.status === "approved" ? "approved" : "rejected";
       toast.success(`Verification ${actionText} successfully!`);
-      queryClient.invalidateQueries(['verification', verificationId]);
-      queryClient.invalidateQueries(['admin-verifications']);
-      queryClient.invalidateQueries(['verification-stats']);
+      queryClient.invalidateQueries(["verification", verificationId]);
+      queryClient.invalidateQueries(["admin-verifications"]);
+      queryClient.invalidateQueries(["verification-stats"]);
 
-      if (variables.status === 'rejected') {
+      if (variables.status === "rejected") {
         setShowRejectModal(false);
-        setRejectReason('');
+        setRejectReason("");
       }
 
       // Navigate back to verifications list after a delay
       setTimeout(() => {
-        navigate('/admin/verifications');
+        navigate("/admin/verifications");
       }, 2000);
     },
     onError: (error) => {
-      toast.error(`Failed to process verification: ${error.response?.data?.message || error.message}`);
-    }
+      toast.error(
+        `Failed to process verification: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    },
   });
 
   const handleApprove = () => {
-    if (window.confirm('Are you sure you want to approve this verification?')) {
-      reviewMutation.mutate({
-        status: 'approved',
-        review_note: '' // Optional for approved status
-      });
-    }
+    setShowApproveModal(true);
+  };
+
+  const handleApproveConfirm = () => {
+    reviewMutation.mutate({
+      status: "approved",
+      review_note: "", // Optional for approved status
+    });
+    setShowApproveModal(false);
   };
 
   const handleReject = () => {
@@ -77,31 +91,33 @@ const VerificationDetail = () => {
 
   const handleRejectSubmit = () => {
     if (!rejectReason.trim()) {
-      toast.error('Please provide a reason for rejection');
+      toast.error("Please provide a reason for rejection");
       return;
     }
     reviewMutation.mutate({
-      status: 'rejected',
-      review_note: rejectReason // Required for rejected status
+      status: "rejected",
+      review_note: rejectReason, // Required for rejected status
     });
   };
 
   const handleBackToVerifications = () => {
-    navigate('/admin/verifications');
+    navigate("/admin/verifications");
   };
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { color: 'bg-yellow-100 text-yellow-800', icon: Clock },
-      approved: { color: 'bg-green-100 text-green-800', icon: Check },
-      rejected: { color: 'bg-red-100 text-red-800', icon: X }
+      pending: { color: "bg-yellow-100 text-yellow-800", icon: Clock },
+      approved: { color: "bg-green-100 text-green-800", icon: Check },
+      rejected: { color: "bg-red-100 text-red-800", icon: X },
     };
 
     const config = statusConfig[status] || statusConfig.pending;
     const Icon = config.icon;
 
     return (
-      <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${config.color}`}>
+      <span
+        className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${config.color}`}
+      >
         <Icon size={16} className="mr-2" />
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
@@ -109,13 +125,13 @@ const VerificationDetail = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -126,11 +142,13 @@ const VerificationDetail = () => {
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <img
-                              src={Loader}
-                              alt="Loading..."
-                              className="w-12 h-12 mx-auto mb-4"
+                src={Loader}
+                alt="Loading..."
+                className="w-12 h-12 mx-auto mb-4"
               />
-              <p className="mt-2 text-gray-600">Loading verification details...</p>
+              <p className="mt-2 text-gray-600">
+                Loading verification details...
+              </p>
             </div>
           </div>
         </div>
@@ -144,7 +162,9 @@ const VerificationDetail = () => {
         <div className="p-6">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-red-700 mb-2">Error Loading Verification</h3>
+            <h3 className="text-lg font-semibold text-red-700 mb-2">
+              Error Loading Verification
+            </h3>
             <p className="text-red-600 mb-4">{error.message}</p>
             <button
               onClick={handleBackToVerifications}
@@ -171,12 +191,16 @@ const VerificationDetail = () => {
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Verification Details</h1>
-              <p className="text-gray-600">Review student verification request</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Verification Details
+              </h1>
+              <p className="text-gray-600">
+                Review student verification request
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {verification?.status === 'pending' && (
+            {verification?.status === "pending" && (
               <>
                 <button
                   onClick={handleReject}
@@ -215,8 +239,12 @@ const VerificationDetail = () => {
                 <Shield className="w-6 h-6 text-gray-600" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Verification Status</h2>
-                <p className="text-gray-600">Current status of this verification request</p>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Verification Status
+                </h2>
+                <p className="text-gray-600">
+                  Current status of this verification request
+                </p>
               </div>
             </div>
             {getStatusBadge(verification?.status)}
@@ -224,7 +252,9 @@ const VerificationDetail = () => {
           {verification?.review_note && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg">
               <p className="text-sm font-medium text-gray-700">Review Note:</p>
-              <p className="text-sm text-gray-600 mt-1">{verification.review_note}</p>
+              <p className="text-sm text-gray-600 mt-1">
+                {verification.review_note}
+              </p>
             </div>
           )}
         </div>
@@ -234,19 +264,26 @@ const VerificationDetail = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-6">
               <User className="w-5 h-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Student Information</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Student Information
+              </h3>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                   <span className="text-purple-600 font-medium">
-                    {verification?.user_name?.split(' ')[0]?.[0]}{verification?.user_name?.split(' ')[1]?.[0]}
+                    {verification?.user_name?.split(" ")[0]?.[0]}
+                    {verification?.user_name?.split(" ")[1]?.[0]}
                   </span>
                 </div>
                 <div>
-                  <p className="font-medium text-gray-900">{verification?.user_name}</p>
-                  <p className="text-sm text-gray-600">Student ID: {verification?.user_id}</p>
+                  <p className="font-medium text-gray-900">
+                    {verification?.user_name}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Student ID: {verification?.user_id}
+                  </p>
                 </div>
               </div>
 
@@ -284,35 +321,47 @@ const VerificationDetail = () => {
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="flex items-center gap-3 mb-6">
               <FileText className="w-5 h-5 text-purple-600" />
-              <h3 className="text-lg font-semibold text-gray-900">Verification Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Verification Details
+              </h3>
             </div>
 
             <div className="space-y-4">
               <div>
                 <p className="text-sm text-gray-600">Document Type</p>
-                <p className="font-medium text-gray-900">{verification?.document_type}</p>
+                <p className="font-medium text-gray-900">
+                  {verification?.document_type}
+                </p>
               </div>
 
               <div>
                 <p className="text-sm text-gray-600">Submitted Date</p>
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-gray-400" />
-                  <p className="font-medium">{formatDate(verification?.submitted_at)}</p>
+                  <p className="font-medium">
+                    {formatDate(verification?.submitted_at)}
+                  </p>
                 </div>
               </div>
 
               {verification?.file_url && (
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">Submitted Document</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Submitted Document
+                  </p>
                   <div className="flex items-center gap-3">
                     <button
-                      onClick={() => window.open(verification.file_url, '_blank')}
+                      onClick={() =>
+                        window.open(verification.file_url, "_blank")
+                      }
                       className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
                     >
                       <Download className="w-4 h-4" />
                       View Document
                     </button>
-                    <span className="text-sm text-gray-500">Click to open in new tab</span>
+                    <span className="text-sm text-gray-500">
+                      Click to open in new tab
+                    </span>
                   </div>
                 </div>
               )}
@@ -323,7 +372,9 @@ const VerificationDetail = () => {
         {/* Document Preview */}
         {verification?.file_url && (
           <div className="bg-white rounded-lg border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Document Preview</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Document Preview
+            </h3>
             <div className="border border-gray-200 rounded-lg overflow-hidden">
               <iframe
                 src={verification.file_url}
@@ -333,6 +384,21 @@ const VerificationDetail = () => {
             </div>
           </div>
         )}
+
+        {/* Approve Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={showApproveModal}
+          onClose={() => setShowApproveModal(false)}
+          onConfirm={handleApproveConfirm}
+          title="Approve Verification"
+          message="Are you sure you want to approve this verification?"
+          confirmText="Approve"
+          confirmButtonClass="bg-green-600 hover:bg-green-700"
+          icon={Check}
+          iconBgClass="bg-green-100"
+          iconColorClass="text-green-600"
+          isLoading={reviewMutation.isPending}
+        />
 
         {/* Reject Modal */}
         {showRejectModal && (
@@ -346,7 +412,8 @@ const VerificationDetail = () => {
                   Reject Verification
                 </h2>
                 <p className="text-gray-600">
-                  Please provide a reason for rejecting this verification request.
+                  Please provide a reason for rejecting this verification
+                  request.
                 </p>
               </div>
 
@@ -367,7 +434,7 @@ const VerificationDetail = () => {
                 <button
                   onClick={() => {
                     setShowRejectModal(false);
-                    setRejectReason('');
+                    setRejectReason("");
                   }}
                   className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
                   disabled={reviewMutation.isPending}
@@ -385,7 +452,7 @@ const VerificationDetail = () => {
                       Rejecting...
                     </div>
                   ) : (
-                    'Reject Verification'
+                    "Reject Verification"
                   )}
                 </button>
               </div>

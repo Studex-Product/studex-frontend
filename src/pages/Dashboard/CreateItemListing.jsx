@@ -424,7 +424,7 @@ const CreateItemListing = () => {
                 : "border-gray-300"
             }`}
           >
-            <option value="">Select item condition</option>
+            <option value="">Select item colour</option>
             <option value="black">Black</option>
             <option value="white">White</option>
             <option value="silver">Silver</option>
@@ -452,7 +452,7 @@ const CreateItemListing = () => {
                 : "border-gray-300"
             }`}
           >
-            <option value="">Select item condition</option>
+            <option value="">Select item material</option>
             <option value="wood">Wood</option>
             <option value="metal">Metal</option>
             <option value="plastic">Plastic</option>
@@ -481,7 +481,7 @@ const CreateItemListing = () => {
               : "border-gray-300"
           }`}
         >
-          <option value="">Select location</option>
+          <option value="">Select state</option>
           <option value="lagos">Lagos</option>
           <option value="abuja">Abuja</option>
           <option value="rivers">Rivers</option>
@@ -509,7 +509,7 @@ const CreateItemListing = () => {
               : "border-gray-300"
           }`}
         >
-          <option value="">Select location</option>
+          <option value="">Select LGA</option>
           <option value="ikeja">Ikeja</option>
           <option value="lekki">Lekki</option>
           <option value="victoria-island">Victoria Island</option>

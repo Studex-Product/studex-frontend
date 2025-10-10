@@ -5,17 +5,20 @@ import { useAuthContext } from "@/hooks/useAuthContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useListing } from "@/hooks/useListing";
 import { listingService } from "@/api/listingService";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ListingCard from "@/components/ui/ListingCard";
 import Loader from "@/assets/Loader.svg";
-import { Plus, FileSearch, Users, List } from "lucide-react";
+import { Plus, FileSearch, Users, List, Trash2 } from "lucide-react";
 
 const MyPosts = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [listingToDelete, setListingToDelete] = useState(null);
   const [activeTab, setActiveTab] = useState("listings");
 
   const { user } = useAuthContext();
@@ -76,9 +79,16 @@ const MyPosts = () => {
   };
 
   const handleDeleteListing = (listingId) => {
-    if (window.confirm("Are you sure you want to delete this listing?")) {
-      deleteMutation.mutate(listingId);
+    setListingToDelete(listingId);
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (listingToDelete) {
+      deleteMutation.mutate(listingToDelete);
     }
+    setShowDeleteModal(false);
+    setListingToDelete(null);
   };
 
   return (
@@ -365,6 +375,24 @@ const MyPosts = () => {
             </div>
           </div>
         )}
+
+        {/* Delete Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={showDeleteModal}
+          onClose={() => {
+            setShowDeleteModal(false);
+            setListingToDelete(null);
+          }}
+          onConfirm={handleDeleteConfirm}
+          title="Delete Listing"
+          message="Are you sure you want to delete this listing? This action cannot be undone."
+          confirmText="Delete"
+          confirmButtonClass="bg-red-600 hover:bg-red-700"
+          icon={Trash2}
+          iconBgClass="bg-red-100"
+          iconColorClass="text-red-600"
+          isLoading={deleteMutation.isPending}
+        />
       </div>
     </DashboardLayout>
   );

@@ -104,13 +104,13 @@ const fetchItemDetails = async (itemId) => {
               year: "numeric",
             })
           : "Recently",
-        isVerified: listing.seller_is_verified || false,
+        isVerified: listing.seller_student_verified || false,
         starRating: listing.seller_rating || 0,
         location:
           listing.state && listing.local_government
             ? `${listing.local_government}, ${listing.state}`
             : listing.state || "Location not specified",
-        about:
+        about: listing.seller_bio ||
           "This is a verified student seller on StudEx. Connect with them to explore their listings and make safe transactions on campus.",
       },
       // Keep original data
