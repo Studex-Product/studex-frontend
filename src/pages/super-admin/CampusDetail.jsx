@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import SuperAdminDashboardLayout from "@/components/layout/SuperAdminDashboardLayout";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { adminService } from "@/api/adminService";
 import { toast } from "sonner";
 import {
@@ -22,7 +23,8 @@ import {
   UserPlus,
   Eye,
   CheckCircle,
-  XCircle
+  XCircle,
+  AlertTriangle,
 } from "lucide-react";
 
 const CampusDetail = () => {
@@ -30,9 +32,14 @@ const CampusDetail = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showStatusModal, setShowStatusModal] = useState(false);
 
   // Fetch campus data
-  const { data: campus, isLoading, error } = useQuery({
+  const {
+    data: campus,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["campus", campusId],
     queryFn: async () => {
       try {
@@ -47,7 +54,8 @@ const CampusDetail = () => {
           name: "University of Lagos",
           location: "Lagos, Nigeria",
           address: "University Road, Akoka, Yaba, Lagos State, Nigeria",
-          description: "The University of Lagos (UNILAG) is a federal government research university located in Lagos, Nigeria. It is one of the first generation universities in Nigeria and is ranked among the top universities in the country.",
+          description:
+            "The University of Lagos (UNILAG) is a federal government research university located in Lagos, Nigeria. It is one of the first generation universities in Nigeria and is ranked among the top universities in the country.",
           website: "https://www.unilag.edu.ng",
           phone: "+234 1 271 1617",
           email: "info@unilag.edu.ng",
@@ -63,17 +71,17 @@ const CampusDetail = () => {
             {
               action: "admin_assigned",
               details: "New admin assigned: John Doe",
-              timestamp: "2024-01-20T09:15:00Z"
+              timestamp: "2024-01-20T09:15:00Z",
             },
             {
               action: "user_registered",
               details: "New student registered",
-              timestamp: "2024-01-19T16:45:00Z"
-            }
-          ]
+              timestamp: "2024-01-19T16:45:00Z",
+            },
+          ],
         };
       }
-    }
+    },
   });
 
   // Fetch campus admins separately
@@ -88,15 +96,20 @@ const CampusDetail = () => {
         } else if (response.items) {
           return response.items;
         } else if (response.data) {
-          return Array.isArray(response.data) ? response.data : response.data.items || [];
+          return Array.isArray(response.data)
+            ? response.data
+            : response.data.items || [];
         }
         return [];
       } catch (error) {
-        console.warn("Failed to fetch campus admins, using empty array:", error);
+        console.warn(
+          "Failed to fetch campus admins, using empty array:",
+          error
+        );
         return [];
       }
     },
-    enabled: !!campusId
+    enabled: !!campusId,
   });
 
   // Mutation for toggling campus status
@@ -106,11 +119,17 @@ const CampusDetail = () => {
       queryClient.invalidateQueries({ queryKey: ["campus", campusId] });
       queryClient.invalidateQueries({ queryKey: ["campusAdmins", campusId] });
       queryClient.invalidateQueries({ queryKey: ["allCampuses"] });
-      toast.success(`Campus ${data.is_active ? 'activated' : 'deactivated'} successfully`);
+      toast.success(
+        `Campus ${data.is_active ? "activated" : "deactivated"} successfully`
+      );
     },
     onError: (error) => {
-      toast.error(`Failed to update campus status: ${error.response?.data?.message || error.message}`);
-    }
+      toast.error(
+        `Failed to update campus status: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    },
   });
 
   const handleBack = () => {
@@ -123,13 +142,14 @@ const CampusDetail = () => {
 
   const handleToggleStatus = () => {
     if (!campus) return;
+    setShowStatusModal(true);
+  };
 
+  const handleStatusConfirm = () => {
+    if (!campus) return;
     const newStatus = !campus.is_active;
-    const action = newStatus ? 'activate' : 'deactivate';
-
-    if (window.confirm(`Are you sure you want to ${action} this campus?`)) {
-      toggleStatusMutation.mutate(newStatus);
-    }
+    toggleStatusMutation.mutate(newStatus);
+    setShowStatusModal(false);
   };
 
   const handleAssignAdmin = () => {
@@ -160,7 +180,9 @@ const CampusDetail = () => {
       <SuperAdminDashboardLayout>
         <div className="p-6">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-600">Error loading campus: {error.message}</p>
+            <p className="text-red-600">
+              Error loading campus: {error.message}
+            </p>
           </div>
         </div>
       </SuperAdminDashboardLayout>
@@ -171,7 +193,7 @@ const CampusDetail = () => {
     { id: "overview", label: "Overview", icon: School },
     { id: "admins", label: "Admins", icon: Shield },
     { id: "users", label: "Users", icon: Users },
-    { id: "activity", label: "Activity", icon: Activity }
+    { id: "activity", label: "Activity", icon: Activity },
   ];
 
   return (
@@ -187,7 +209,9 @@ const CampusDetail = () => {
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{campus.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {campus.name}
+              </h1>
               <div className="flex items-center gap-2 text-gray-600">
                 <MapPin className="w-4 h-4" />
                 <span>{campus.location}</span>
@@ -207,8 +231,8 @@ const CampusDetail = () => {
               disabled={toggleStatusMutation.isPending}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                 campus.is_active
-                  ? 'bg-red-600 text-white hover:bg-red-700'
-                  : 'bg-green-600 text-white hover:bg-green-700'
+                  ? "bg-red-600 text-white hover:bg-red-700"
+                  : "bg-green-600 text-white hover:bg-green-700"
               } disabled:opacity-50`}
             >
               {toggleStatusMutation.isPending ? (
@@ -218,7 +242,7 @@ const CampusDetail = () => {
               ) : (
                 <ToggleRight className="w-4 h-4" />
               )}
-              {campus.is_active ? 'Deactivate' : 'Activate'}
+              {campus.is_active ? "Deactivate" : "Activate"}
             </button>
           </div>
         </div>
@@ -227,7 +251,11 @@ const CampusDetail = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${campus.is_active ? 'bg-green-100' : 'bg-red-100'}`}>
+              <div
+                className={`p-2 rounded-lg ${
+                  campus.is_active ? "bg-green-100" : "bg-red-100"
+                }`}
+              >
                 {campus.is_active ? (
                   <CheckCircle className="w-5 h-5 text-green-600" />
                 ) : (
@@ -236,8 +264,12 @@ const CampusDetail = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Status</p>
-                <p className={`font-semibold ${campus.is_active ? 'text-green-600' : 'text-red-600'}`}>
-                  {campus.is_active ? 'Active' : 'Inactive'}
+                <p
+                  className={`font-semibold ${
+                    campus.is_active ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {campus.is_active ? "Active" : "Inactive"}
                 </p>
               </div>
             </div>
@@ -250,7 +282,9 @@ const CampusDetail = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Students</p>
-                <p className="font-semibold text-blue-600">{campus.total_users?.toLocaleString() || 0}</p>
+                <p className="font-semibold text-blue-600">
+                  {campus.total_users?.toLocaleString() || 0}
+                </p>
               </div>
             </div>
           </div>
@@ -262,7 +296,9 @@ const CampusDetail = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Campus Admins</p>
-                <p className="font-semibold text-purple-600">{campusAdmins?.length || campus.total_admins || 0}</p>
+                <p className="font-semibold text-purple-600">
+                  {campusAdmins?.length || campus.total_admins || 0}
+                </p>
               </div>
             </div>
           </div>
@@ -274,7 +310,9 @@ const CampusDetail = () => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Listings</p>
-                <p className="font-semibold text-orange-600">{campus.total_listings?.toLocaleString() || 0}</p>
+                <p className="font-semibold text-orange-600">
+                  {campus.total_listings?.toLocaleString() || 0}
+                </p>
               </div>
             </div>
           </div>
@@ -292,8 +330,8 @@ const CampusDetail = () => {
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                       activeTab === tab.id
-                        ? 'border-purple-500 text-purple-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        ? "border-purple-500 text-purple-600"
+                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                     }`}
                   >
                     <Icon className="w-4 h-4" />
@@ -310,7 +348,9 @@ const CampusDetail = () => {
                 {/* Basic Information */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Campus Information</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Campus Information
+                    </h3>
                     <div className="space-y-3">
                       <div>
                         <p className="text-sm text-gray-600">Full Name</p>
@@ -318,11 +358,15 @@ const CampusDetail = () => {
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Type</p>
-                        <p className="font-medium capitalize">{campus.campus_type?.replace('_', ' ')}</p>
+                        <p className="font-medium capitalize">
+                          {campus.campus_type?.replace("_", " ")}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Established</p>
-                        <p className="font-medium">{campus.established_year || 'Not specified'}</p>
+                        <p className="font-medium">
+                          {campus.established_year || "Not specified"}
+                        </p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600">Location</p>
@@ -332,14 +376,19 @@ const CampusDetail = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Contact Information</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Contact Information
+                    </h3>
                     <div className="space-y-3">
                       {campus.email && (
                         <div className="flex items-center gap-3">
                           <Mail className="w-4 h-4 text-gray-400" />
                           <div>
                             <p className="text-sm text-gray-600">Email</p>
-                            <a href={`mailto:${campus.email}`} className="font-medium text-blue-600 hover:underline">
+                            <a
+                              href={`mailto:${campus.email}`}
+                              className="font-medium text-blue-600 hover:underline"
+                            >
                               {campus.email}
                             </a>
                           </div>
@@ -350,7 +399,10 @@ const CampusDetail = () => {
                           <Phone className="w-4 h-4 text-gray-400" />
                           <div>
                             <p className="text-sm text-gray-600">Phone</p>
-                            <a href={`tel:${campus.phone}`} className="font-medium text-blue-600 hover:underline">
+                            <a
+                              href={`tel:${campus.phone}`}
+                              className="font-medium text-blue-600 hover:underline"
+                            >
                               {campus.phone}
                             </a>
                           </div>
@@ -361,7 +413,12 @@ const CampusDetail = () => {
                           <Globe className="w-4 h-4 text-gray-400" />
                           <div>
                             <p className="text-sm text-gray-600">Website</p>
-                            <a href={campus.website} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline">
+                            <a
+                              href={campus.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-blue-600 hover:underline"
+                            >
                               {campus.website}
                             </a>
                           </div>
@@ -373,25 +430,37 @@ const CampusDetail = () => {
 
                 {/* Address */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Address</h3>
-                  <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">{campus.address}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Address
+                  </h3>
+                  <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">
+                    {campus.address}
+                  </p>
                 </div>
 
                 {/* Description */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
-                  <p className="text-gray-700 leading-relaxed">{campus.description}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    Description
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    {campus.description}
+                  </p>
                 </div>
 
                 {/* Timestamps */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
                   <div>
                     <p className="text-sm text-gray-600">Created</p>
-                    <p className="font-medium">{new Date(campus.created_at).toLocaleDateString()}</p>
+                    <p className="font-medium">
+                      {new Date(campus.created_at).toLocaleDateString()}
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Last Updated</p>
-                    <p className="font-medium">{new Date(campus.updated_at).toLocaleDateString()}</p>
+                    <p className="font-medium">
+                      {new Date(campus.updated_at).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -400,7 +469,9 @@ const CampusDetail = () => {
             {activeTab === "admins" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Campus Administrators</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Campus Administrators
+                  </h3>
                   <button
                     onClick={handleAssignAdmin}
                     className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
@@ -413,42 +484,66 @@ const CampusDetail = () => {
                 {adminsLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600"></div>
-                    <span className="ml-2 text-gray-600">Loading administrators...</span>
+                    <span className="ml-2 text-gray-600">
+                      Loading administrators...
+                    </span>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {campusAdmins && campusAdmins.length > 0 ? (
                       campusAdmins.map((admin) => (
-                        <div key={admin.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div
+                          key={admin.id}
+                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                        >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
                               <span className="text-purple-600 font-medium text-sm">
-                                {(admin.first_name || admin.name || 'A').charAt(0)}
-                                {(admin.last_name || admin.name || 'A').charAt(1) || (admin.first_name || admin.name || 'A').charAt(1) || 'A'}
+                                {(admin.first_name || admin.name || "A").charAt(
+                                  0
+                                )}
+                                {(admin.last_name || admin.name || "A").charAt(
+                                  1
+                                ) ||
+                                  (
+                                    admin.first_name ||
+                                    admin.name ||
+                                    "A"
+                                  ).charAt(1) ||
+                                  "A"}
                               </span>
                             </div>
                             <div>
                               <p className="font-medium text-gray-900">
                                 {admin.first_name && admin.last_name
                                   ? `${admin.first_name} ${admin.last_name}`
-                                  : admin.name || 'Unknown Admin'
-                                }
+                                  : admin.name || "Unknown Admin"}
                               </p>
-                              <p className="text-sm text-gray-600">{admin.email}</p>
+                              <p className="text-sm text-gray-600">
+                                {admin.email}
+                              </p>
                               {admin.assigned_at && (
                                 <p className="text-xs text-gray-500">
-                                  Assigned on {new Date(admin.assigned_at).toLocaleDateString()}
+                                  Assigned on{" "}
+                                  {new Date(
+                                    admin.assigned_at
+                                  ).toLocaleDateString()}
                                 </p>
                               )}
                               {admin.created_at && !admin.assigned_at && (
                                 <p className="text-xs text-gray-500">
-                                  Joined on {new Date(admin.created_at).toLocaleDateString()}
+                                  Joined on{" "}
+                                  {new Date(
+                                    admin.created_at
+                                  ).toLocaleDateString()}
                                 </p>
                               )}
                             </div>
                           </div>
                           <button
-                            onClick={() => navigate(`/super-admin/users/${admin.id}`)}
+                            onClick={() =>
+                              navigate(`/super-admin/users/${admin.id}`)
+                            }
                             className="flex items-center gap-1 px-3 py-1 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
                           >
                             <Eye className="w-3 h-3" />
@@ -459,7 +554,9 @@ const CampusDetail = () => {
                     ) : (
                       <div className="text-center py-8">
                         <Shield className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-600">No administrators assigned to this campus yet.</p>
+                        <p className="text-gray-600">
+                          No administrators assigned to this campus yet.
+                        </p>
                       </div>
                     )}
                   </div>
@@ -470,7 +567,9 @@ const CampusDetail = () => {
             {activeTab === "users" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Campus Users</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Campus Users
+                  </h3>
                   <button
                     onClick={handleViewUsers}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
@@ -481,26 +580,37 @@ const CampusDetail = () => {
                 </div>
                 <div className="bg-gray-50 rounded-lg p-8 text-center">
                   <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">Click "View All Users" to see detailed user management for this campus.</p>
+                  <p className="text-gray-600">
+                    Click "View All Users" to see detailed user management for
+                    this campus.
+                  </p>
                 </div>
               </div>
             )}
 
             {activeTab === "activity" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Recent Activity
+                </h3>
                 <div className="space-y-4">
-                  {campus.recent_activity && campus.recent_activity.length > 0 ? (
+                  {campus.recent_activity &&
+                  campus.recent_activity.length > 0 ? (
                     campus.recent_activity.map((activity, index) => (
-                      <div key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                      <div
+                        key={index}
+                        className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg"
+                      >
                         <div className="p-2 bg-blue-100 rounded-lg">
                           <Activity className="w-4 h-4 text-blue-600" />
                         </div>
                         <div className="flex-1">
                           <p className="font-medium text-gray-900 capitalize">
-                            {activity.action.replace('_', ' ')}
+                            {activity.action.replace("_", " ")}
                           </p>
-                          <p className="text-sm text-gray-600">{activity.details}</p>
+                          <p className="text-sm text-gray-600">
+                            {activity.details}
+                          </p>
                           <p className="text-xs text-gray-500">
                             {new Date(activity.timestamp).toLocaleString()}
                           </p>
@@ -510,7 +620,9 @@ const CampusDetail = () => {
                   ) : (
                     <div className="bg-gray-50 rounded-lg p-8 text-center">
                       <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-600">No recent activity available</p>
+                      <p className="text-gray-600">
+                        No recent activity available
+                      </p>
                     </div>
                   )}
                 </div>
@@ -519,6 +631,23 @@ const CampusDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Status Toggle Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showStatusModal}
+        onClose={() => setShowStatusModal(false)}
+        onConfirm={handleStatusConfirm}
+        title={`${campus?.is_active ? "Deactivate" : "Activate"} Campus`}
+        message={`Are you sure you want to ${
+          campus?.is_active ? "deactivate" : "activate"
+        } this campus?`}
+        confirmText="Confirm"
+        confirmButtonClass="bg-purple-600 hover:bg-purple-700"
+        icon={AlertTriangle}
+        iconBgClass="bg-yellow-100"
+        iconColorClass="text-yellow-600"
+        isLoading={toggleStatusMutation.isPending}
+      />
     </SuperAdminDashboardLayout>
   );
 };

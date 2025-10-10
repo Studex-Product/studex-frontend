@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import SuperAdminDashboardLayout from "@/components/layout/SuperAdminDashboardLayout";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { adminService } from "@/api/adminService";
 import { toast } from "sonner";
 import {
@@ -14,7 +15,8 @@ import {
   Calendar,
   Settings,
   Edit,
-  Trash2
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 
 const AllCampuses = () => {
@@ -23,16 +25,24 @@ const AllCampuses = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const campusesPerPage = 20;
+  const [deleteModal, setDeleteModal] = useState({
+    isOpen: false,
+    campus: null,
+  });
 
   // Fetch campuses data from API
-  const { data: campusesData, isLoading, error } = useQuery({
+  const {
+    data: campusesData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["allCampuses", currentPage, searchTerm],
     queryFn: async () => {
       try {
         const params = {
           page: currentPage,
           limit: campusesPerPage,
-          search: searchTerm || undefined
+          search: searchTerm || undefined,
         };
 
         const response = await adminService.getAllCampuses(params);
@@ -45,28 +55,34 @@ const AllCampuses = () => {
           return {
             campuses: response,
             total: response.length,
-            totalPages: 1 // API handles ordering, no pagination needed for alphabetical list
+            totalPages: 1, // API handles ordering, no pagination needed for alphabetical list
           };
         } else if (response.items) {
           // Paginated response
           return {
             campuses: response.items,
             total: response.total,
-            totalPages: Math.ceil(response.total / (response.limit || campusesPerPage))
+            totalPages: Math.ceil(
+              response.total / (response.limit || campusesPerPage)
+            ),
           };
         } else if (response.data) {
           // Data wrapper response
           return {
-            campuses: Array.isArray(response.data) ? response.data : response.data.items || [],
-            total: Array.isArray(response.data) ? response.data.length : response.data.total || 0,
-            totalPages: 1
+            campuses: Array.isArray(response.data)
+              ? response.data
+              : response.data.items || [],
+            total: Array.isArray(response.data)
+              ? response.data.length
+              : response.data.total || 0,
+            totalPages: 1,
           };
         }
 
         return {
           campuses: [],
           total: 0,
-          totalPages: 1
+          totalPages: 1,
         };
       } catch (error) {
         // Fallback to mock data if API fails
@@ -85,7 +101,7 @@ const AllCampuses = () => {
             "Covenant University",
             "Babcock University",
             "University of Ilorin",
-            "Federal University Oye-Ekiti"
+            "Federal University Oye-Ekiti",
           ][i],
           location: [
             "Lagos, Nigeria",
@@ -97,21 +113,26 @@ const AllCampuses = () => {
             "Ota, Nigeria",
             "Ilishan-Remo, Nigeria",
             "Ilorin, Nigeria",
-            "Oye-Ekiti, Nigeria"
+            "Oye-Ekiti, Nigeria",
           ][i],
           total_users: Math.floor(Math.random() * 5000) + 500,
           total_admins: Math.floor(Math.random() * 10) + 1,
           is_active: Math.random() > 0.1,
-          created_at: new Date(2020 + i, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28)).toISOString(),
-          description: `Leading educational institution providing quality education and research opportunities.`
+          created_at: new Date(
+            2020 + i,
+            Math.floor(Math.random() * 12),
+            Math.floor(Math.random() * 28)
+          ).toISOString(),
+          description: `Leading educational institution providing quality education and research opportunities.`,
         }));
 
         // Apply search filter
         let filteredCampuses = mockCampuses;
         if (searchTerm) {
-          filteredCampuses = filteredCampuses.filter(campus =>
-            campus.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            campus.location.toLowerCase().includes(searchTerm.toLowerCase())
+          filteredCampuses = filteredCampuses.filter(
+            (campus) =>
+              campus.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              campus.location.toLowerCase().includes(searchTerm.toLowerCase())
           );
         }
 
@@ -123,10 +144,10 @@ const AllCampuses = () => {
         return {
           campuses: paginatedCampuses,
           total: filteredCampuses.length,
-          totalPages: Math.ceil(filteredCampuses.length / campusesPerPage)
+          totalPages: Math.ceil(filteredCampuses.length / campusesPerPage),
         };
       }
-    }
+    },
   });
 
   // Mutation for deleting campus
@@ -137,8 +158,12 @@ const AllCampuses = () => {
       toast.success("Campus deleted successfully");
     },
     onError: (error) => {
-      toast.error(`Failed to delete campus: ${error.response?.data?.message || error.message}`);
-    }
+      toast.error(
+        `Failed to delete campus: ${
+          error.response?.data?.message || error.message
+        }`
+      );
+    },
   });
 
   const handleViewCampus = (campusId) => {
@@ -154,9 +179,14 @@ const AllCampuses = () => {
   };
 
   const handleDeleteCampus = (campus) => {
-    if (window.confirm(`Are you sure you want to delete ${campus.name}? This action cannot be undone.`)) {
-      deleteCampusMutation.mutate(campus.id);
+    setDeleteModal({ isOpen: true, campus });
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deleteModal.campus) {
+      deleteCampusMutation.mutate(deleteModal.campus.id);
     }
+    setDeleteModal({ isOpen: false, campus: null });
   };
 
   if (isLoading) {
@@ -179,7 +209,9 @@ const AllCampuses = () => {
       <SuperAdminDashboardLayout>
         <div className="p-6">
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-600">Error loading campuses: {error.message}</p>
+            <p className="text-red-600">
+              Error loading campuses: {error.message}
+            </p>
           </div>
         </div>
       </SuperAdminDashboardLayout>
@@ -192,7 +224,9 @@ const AllCampuses = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Campus Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Campus Management
+            </h1>
             <p className="text-gray-600">Manage campuses across the platform</p>
           </div>
           <button
@@ -212,7 +246,9 @@ const AllCampuses = () => {
                 <School className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{campusesData?.total || 0}</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {campusesData?.total || 0}
+                </p>
                 <p className="text-sm text-gray-600">Total Campuses</p>
               </div>
             </div>
@@ -224,7 +260,10 @@ const AllCampuses = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">
-                  {campusesData?.campuses?.reduce((sum, campus) => sum + (campus.total_users || 0), 0) || 0}
+                  {campusesData?.campuses?.reduce(
+                    (sum, campus) => sum + (campus.total_users || 0),
+                    0
+                  ) || 0}
                 </p>
                 <p className="text-sm text-gray-600">Total Students</p>
               </div>
@@ -237,7 +276,10 @@ const AllCampuses = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">
-                  {campusesData?.campuses?.reduce((sum, campus) => sum + (campus.total_admins || 0), 0) || 0}
+                  {campusesData?.campuses?.reduce(
+                    (sum, campus) => sum + (campus.total_admins || 0),
+                    0
+                  ) || 0}
                 </p>
                 <p className="text-sm text-gray-600">Campus Admins</p>
               </div>
@@ -250,7 +292,8 @@ const AllCampuses = () => {
               </div>
               <div>
                 <p className="text-2xl font-bold text-gray-900">
-                  {campusesData?.campuses?.filter(c => c.is_active).length || 0}
+                  {campusesData?.campuses?.filter((c) => c.is_active).length ||
+                    0}
                 </p>
                 <p className="text-sm text-gray-600">Active Campuses</p>
               </div>
@@ -276,7 +319,10 @@ const AllCampuses = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {campusesData?.campuses && campusesData.campuses.length > 0 ? (
             campusesData.campuses.map((campus) => (
-              <div key={campus.id} className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
+              <div
+                key={campus.id}
+                className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200"
+              >
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -288,12 +334,14 @@ const AllCampuses = () => {
                         {campus.location}
                       </div>
                     </div>
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                      campus.is_active
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {campus.is_active ? 'Active' : 'Inactive'}
+                    <span
+                      className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        campus.is_active
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {campus.is_active ? "Active" : "Inactive"}
                     </span>
                   </div>
 
@@ -303,11 +351,15 @@ const AllCampuses = () => {
 
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-600">{campus.total_users || 0}</p>
+                      <p className="text-2xl font-bold text-blue-600">
+                        {campus.total_users || 0}
+                      </p>
                       <p className="text-xs text-gray-600">Students</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-purple-600">{campus.total_admins || 0}</p>
+                      <p className="text-2xl font-bold text-purple-600">
+                        {campus.total_admins || 0}
+                      </p>
                       <p className="text-xs text-gray-600">Admins</p>
                     </div>
                   </div>
@@ -345,8 +397,12 @@ const AllCampuses = () => {
           ) : (
             <div className="col-span-full bg-white rounded-lg border border-gray-200 p-12 text-center">
               <School className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No campuses found</h3>
-              <p className="text-gray-600 mb-4">Get started by creating your first campus.</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No campuses found
+              </h3>
+              <p className="text-gray-600 mb-4">
+                Get started by creating your first campus.
+              </p>
               <button
                 onClick={handleCreateCampus}
                 className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200"
@@ -364,14 +420,20 @@ const AllCampuses = () => {
             <div className="flex items-center justify-between">
               <div className="flex-1 flex justify-between sm:hidden">
                 <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                 >
                   Previous
                 </button>
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, campusesData.totalPages))}
+                  onClick={() =>
+                    setCurrentPage((prev) =>
+                      Math.min(prev + 1, campusesData.totalPages)
+                    )
+                  }
                   disabled={currentPage === campusesData.totalPages}
                   className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                 >
@@ -381,21 +443,27 @@ const AllCampuses = () => {
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700">
-                    Showing{' '}
-                    <span className="font-medium">{((currentPage - 1) * campusesPerPage) + 1}</span>
-                    {' '}to{' '}
+                    Showing{" "}
                     <span className="font-medium">
-                      {Math.min(currentPage * campusesPerPage, campusesData.total)}
-                    </span>
-                    {' '}of{' '}
-                    <span className="font-medium">{campusesData.total}</span>
-                    {' '}results
+                      {(currentPage - 1) * campusesPerPage + 1}
+                    </span>{" "}
+                    to{" "}
+                    <span className="font-medium">
+                      {Math.min(
+                        currentPage * campusesPerPage,
+                        campusesData.total
+                      )}
+                    </span>{" "}
+                    of <span className="font-medium">{campusesData.total}</span>{" "}
+                    results
                   </p>
                 </div>
                 <div>
                   <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                     <button
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
                       disabled={currentPage === 1}
                       className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                     >
@@ -403,27 +471,35 @@ const AllCampuses = () => {
                     </button>
 
                     {/* Page numbers */}
-                    {Array.from({ length: Math.min(5, campusesData.totalPages) }, (_, i) => {
-                      const pageNum = currentPage > 3 ? currentPage - 2 + i : i + 1;
-                      if (pageNum > campusesData.totalPages) return null;
+                    {Array.from(
+                      { length: Math.min(5, campusesData.totalPages) },
+                      (_, i) => {
+                        const pageNum =
+                          currentPage > 3 ? currentPage - 2 + i : i + 1;
+                        if (pageNum > campusesData.totalPages) return null;
 
-                      return (
-                        <button
-                          key={pageNum}
-                          onClick={() => setCurrentPage(pageNum)}
-                          className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                            currentPage === pageNum
-                              ? 'z-10 bg-purple-50 border-purple-500 text-purple-600'
-                              : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
-                          }`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                              currentPage === pageNum
+                                ? "z-10 bg-purple-50 border-purple-500 text-purple-600"
+                                : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      }
+                    )}
 
                     <button
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, campusesData.totalPages))}
+                      onClick={() =>
+                        setCurrentPage((prev) =>
+                          Math.min(prev + 1, campusesData.totalPages)
+                        )
+                      }
                       disabled={currentPage === campusesData.totalPages}
                       className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
                     >
@@ -435,6 +511,21 @@ const AllCampuses = () => {
             </div>
           </div>
         )}
+
+        {/* Delete Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={deleteModal.isOpen}
+          onClose={() => setDeleteModal({ isOpen: false, campus: null })}
+          onConfirm={handleDeleteConfirm}
+          title="Delete Campus"
+          message={`Are you sure you want to delete ${deleteModal.campus?.name}? This action cannot be undone.`}
+          confirmText="Delete"
+          confirmButtonClass="bg-red-600 hover:bg-red-700"
+          icon={Trash2}
+          iconBgClass="bg-red-100"
+          iconColorClass="text-red-600"
+          isLoading={deleteCampusMutation.isPending}
+        />
       </div>
     </SuperAdminDashboardLayout>
   );

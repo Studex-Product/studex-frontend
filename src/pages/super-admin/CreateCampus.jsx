@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import SuperAdminDashboardLayout from "@/components/layout/SuperAdminDashboardLayout";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { adminService } from "@/api/adminService";
 import { toast } from "sonner";
 import {
@@ -13,7 +14,8 @@ import {
   Mail,
   FileText,
   Save,
-  X
+  X,
+  AlertTriangle,
 } from "lucide-react";
 
 const CreateCampus = () => {
@@ -23,15 +25,16 @@ const CreateCampus = () => {
   const [formData, setFormData] = useState({
     name: "",
     code: "",
-    location: ""
+    location: "",
   });
 
   const [errors, setErrors] = useState({});
+  const [showCancelModal, setShowCancelModal] = useState(false);
 
   // Mutation for creating campus
   const createCampusMutation = useMutation({
     mutationFn: (campusData) => adminService.createCampus(campusData),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["allCampuses"] });
       toast.success("Campus created successfully!");
       navigate("/super-admin/campuses");
@@ -44,21 +47,21 @@ const CreateCampus = () => {
       if (error.response?.data?.errors) {
         setErrors(error.response.data.errors);
       }
-    }
+    },
   });
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
 
     // Clear error for this field
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: undefined
+        [name]: undefined,
       }));
     }
   };
@@ -94,16 +97,18 @@ const CreateCampus = () => {
     const requestData = {
       name: formData.name.trim(),
       code: formData.code.trim().toUpperCase(),
-      location: formData.location.trim()
+      location: formData.location.trim(),
     };
 
     createCampusMutation.mutate(requestData);
   };
 
   const handleCancel = () => {
-    if (window.confirm("Are you sure you want to cancel? All unsaved changes will be lost.")) {
-      navigate("/super-admin/campuses");
-    }
+    setShowCancelModal(true);
+  };
+
+  const handleCancelConfirm = () => {
+    navigate("/super-admin/campuses");
   };
 
   return (
@@ -118,8 +123,12 @@ const CreateCampus = () => {
             <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Create New Campus</h1>
-            <p className="text-gray-600">Add a new educational institution to the platform</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Create New Campus
+            </h1>
+            <p className="text-gray-600">
+              Add a new educational institution to the platform
+            </p>
           </div>
         </div>
 
@@ -143,7 +152,7 @@ const CreateCampus = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                      errors.name ? 'border-red-300' : 'border-gray-300'
+                      errors.name ? "border-red-300" : "border-gray-300"
                     }`}
                     placeholder="e.g., University of Lagos"
                   />
@@ -162,16 +171,17 @@ const CreateCampus = () => {
                     value={formData.code}
                     onChange={handleInputChange}
                     className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                      errors.code ? 'border-red-300' : 'border-gray-300'
+                      errors.code ? "border-red-300" : "border-gray-300"
                     }`}
                     placeholder="e.g., UNILAG"
-                    style={{ textTransform: 'uppercase' }}
+                    style={{ textTransform: "uppercase" }}
                   />
                   {errors.code && (
                     <p className="mt-1 text-sm text-red-600">{errors.code}</p>
                   )}
                   <p className="mt-1 text-xs text-gray-500">
-                    A short code or acronym for the campus (will be converted to uppercase)
+                    A short code or acronym for the campus (will be converted to
+                    uppercase)
                   </p>
                 </div>
 
@@ -187,18 +197,19 @@ const CreateCampus = () => {
                       value={formData.location}
                       onChange={handleInputChange}
                       className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent ${
-                        errors.location ? 'border-red-300' : 'border-gray-300'
+                        errors.location ? "border-red-300" : "border-gray-300"
                       }`}
                       placeholder="e.g., Akoka, Lagos"
                     />
                   </div>
                   {errors.location && (
-                    <p className="mt-1 text-sm text-red-600">{errors.location}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {errors.location}
+                    </p>
                   )}
                 </div>
               </div>
             </div>
-
 
             {/* Form Actions */}
             <div className="flex items-center justify-end gap-3 pt-6 border-t border-gray-200">
@@ -231,6 +242,20 @@ const CreateCampus = () => {
           </form>
         </div>
       </div>
+
+      {/* Cancel Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={handleCancelConfirm}
+        title="Cancel Campus Creation"
+        message="Are you sure you want to cancel? All unsaved changes will be lost."
+        confirmText="Yes, Cancel"
+        confirmButtonClass="bg-red-600 hover:bg-red-700"
+        icon={AlertTriangle}
+        iconBgClass="bg-yellow-100"
+        iconColorClass="text-yellow-600"
+      />
     </SuperAdminDashboardLayout>
   );
 };

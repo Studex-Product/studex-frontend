@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useNavigate } from "react-router-dom";
 import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { adminService } from "@/api/adminService";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ import {
   ToggleRight,
   UserCheck,
   UserX,
+  AlertTriangle,
 } from "lucide-react";
 
 const UserDetail = () => {
@@ -32,9 +34,18 @@ const UserDetail = () => {
   const queryClient = useQueryClient();
   const { userRole, user: currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [confirmationModal, setConfirmationModal] = useState({
+    isOpen: false,
+    action: null,
+    type: null,
+  });
 
   // Fetch user data
-  const { data: user, isLoading, error } = useQuery({
+  const {
+    data: user,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["user", userId, userRole, currentUser?.campus_id],
     queryFn: async () => {
       try {
@@ -51,7 +62,10 @@ const UserDetail = () => {
             );
           }
           console.log("Campus admin user:", currentUser);
-          response = await adminService.getCampusUserById(currentUser.campus_id, userId);
+          response = await adminService.getCampusUserById(
+            currentUser.campus_id,
+            userId
+          );
         }
 
         return response;
@@ -139,9 +153,13 @@ const UserDetail = () => {
     const newStatus = !user.is_active;
     const action = newStatus ? "activate" : "deactivate";
 
-    if (window.confirm(`Are you sure you want to ${action} this user?`)) {
-      updateUserStatusMutation.mutate(newStatus);
-    }
+    setConfirmationModal({
+      isOpen: true,
+      action: () => updateUserStatusMutation.mutate(newStatus),
+      type: "status",
+      message: `Are you sure you want to ${action} this user?`,
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} User`,
+    });
   };
 
   const handleToggleVerification = () => {
@@ -150,9 +168,20 @@ const UserDetail = () => {
     const newVerification = !user.student_verified;
     const action = newVerification ? "verify" : "unverify";
 
-    if (window.confirm(`Are you sure you want to ${action} this student?`)) {
-      updateStudentVerificationMutation.mutate(newVerification);
+    setConfirmationModal({
+      isOpen: true,
+      action: () => updateStudentVerificationMutation.mutate(newVerification),
+      type: "verification",
+      message: `Are you sure you want to ${action} this student?`,
+      title: `${action.charAt(0).toUpperCase() + action.slice(1)} Student`,
+    });
+  };
+
+  const handleConfirmAction = () => {
+    if (confirmationModal.action) {
+      confirmationModal.action();
     }
+    setConfirmationModal({ isOpen: false, action: null, type: null });
   };
 
   if (isLoading) {
@@ -590,8 +619,8 @@ const UserDetail = () => {
                     User Listings
                   </h3>
                   <div className="text-sm text-gray-500">
-                    Total: {user.activity_stats?.total_listings || 0} |
-                    Active: {user.activity_stats?.active_listings || 0}
+                    Total: {user.activity_stats?.total_listings || 0} | Active:{" "}
+                    {user.activity_stats?.active_listings || 0}
                   </div>
                 </div>
 
@@ -605,7 +634,8 @@ const UserDetail = () => {
                         <div className="flex gap-4">
                           {/* Listing Image */}
                           <div className="flex-shrink-0">
-                            {listing.image_urls && listing.image_urls.length > 0 ? (
+                            {listing.image_urls &&
+                            listing.image_urls.length > 0 ? (
                               <img
                                 src={listing.image_urls[0]}
                                 alt={listing.item_name}
@@ -659,19 +689,24 @@ const UserDetail = () => {
 
                             <div className="flex items-center justify-between mt-3 text-xs text-gray-500">
                               <div className="flex items-center gap-4">
-                                <span>📍 {listing.state}, {listing.local_government}</span>
+                                <span>
+                                  📍 {listing.state}, {listing.local_government}
+                                </span>
                                 <span>🎨 {listing.colour}</span>
                                 <span>📦 {listing.material}</span>
                               </div>
                               <span>
-                                {new Date(listing.created_at).toLocaleDateString()}
+                                {new Date(
+                                  listing.created_at
+                                ).toLocaleDateString()}
                               </span>
                             </div>
 
                             {listing.review_note && (
                               <div className="mt-2 p-2 bg-blue-50 rounded border-l-4 border-blue-200">
                                 <p className="text-xs text-blue-800">
-                                  <strong>Review Note:</strong> {listing.review_note}
+                                  <strong>Review Note:</strong>{" "}
+                                  {listing.review_note}
                                 </p>
                               </div>
                             )}
@@ -694,6 +729,26 @@ const UserDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmationModal.isOpen}
+        onClose={() =>
+          setConfirmationModal({ isOpen: false, action: null, type: null })
+        }
+        onConfirm={handleConfirmAction}
+        title={confirmationModal.title}
+        message={confirmationModal.message}
+        confirmText="Confirm"
+        confirmButtonClass="bg-purple-600 hover:bg-purple-700"
+        icon={AlertTriangle}
+        iconBgClass="bg-yellow-100"
+        iconColorClass="text-yellow-600"
+        isLoading={
+          updateUserStatusMutation.isPending ||
+          updateStudentVerificationMutation.isPending
+        }
+      />
     </AdminDashboardLayout>
   );
 };

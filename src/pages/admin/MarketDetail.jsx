@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 // import { adminService } from "@/api/adminService";
 import { listingService } from "@/api/listingService";
 import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -34,6 +35,7 @@ const MarketDetail = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
@@ -80,12 +82,15 @@ const MarketDetail = () => {
   });
 
   const handleApprove = () => {
-    if (window.confirm("Are you sure you want to approve this listing?")) {
-      reviewMutation.mutate({
-        status: "approved",
-        review_note: "", // Optional for approved status
-      });
-    }
+    setShowApproveModal(true);
+  };
+
+  const handleApproveConfirm = () => {
+    reviewMutation.mutate({
+      status: "approved",
+      review_note: "", // Optional for approved status
+    });
+    setShowApproveModal(false);
   };
 
   const handleReject = () => {
@@ -625,6 +630,21 @@ const MarketDetail = () => {
             </div>
           </div>
         )}
+
+        {/* Approve Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={showApproveModal}
+          onClose={() => setShowApproveModal(false)}
+          onConfirm={handleApproveConfirm}
+          title="Approve Listing"
+          message="Are you sure you want to approve this listing?"
+          confirmText="Approve"
+          confirmButtonClass="bg-green-600 hover:bg-green-700"
+          icon={Check}
+          iconBgClass="bg-green-100"
+          iconColorClass="text-green-600"
+          isLoading={reviewMutation.isPending}
+        />
       </div>
     </AdminDashboardLayout>
   );

@@ -95,10 +95,10 @@ export const useAuth = () => {
     onSuccess: (data) => {
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
-          Account verified successfully!
+          Verification details submitted successfully!
         </div>
       ));
-      console.log("Account verification successful:", data);
+      console.log("Verification details submitted successfully!:", data);
     },
     onError: (error) => {
       let message = error.response?.data?.message;

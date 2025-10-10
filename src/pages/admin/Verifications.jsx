@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { adminService } from "@/api/adminService";
 import AdminDashboardLayout from "@/components/layout/AdminDashboardLayout";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 import Loader from "@/assets/Loader.svg";
 import {
@@ -30,6 +31,11 @@ const Verifications = () => {
   });
   const [selectedVerifications, setSelectedVerifications] = useState([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [currentVerificationId, setCurrentVerificationId] = useState(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [isBulkAction, setIsBulkAction] = useState(false);
 
   // Fetch verifications
   const { data: verifications, isLoading } = useQuery({
@@ -113,29 +119,66 @@ const Verifications = () => {
   });
 
   const handleSingleReview = (verificationId, action) => {
-    const review_note =
-      action === "reject"
-        ? prompt("Please provide a reason for rejection:")
-        : "";
-    if (action === "reject" && !review_note) return;
-
-    const status = action === "approve" ? "approved" : "rejected";
-    reviewMutation.mutate({ verificationId, status, review_note });
+    setCurrentVerificationId(verificationId);
+    setIsBulkAction(false);
+    if (action === "approve") {
+      setShowApproveModal(true);
+    } else {
+      setShowRejectModal(true);
+    }
   };
 
   const handleBulkReview = (action) => {
-    const review_note =
-      action === "reject"
-        ? prompt("Please provide a reason for rejection:")
-        : "";
-    if (action === "reject" && !review_note) return;
+    setIsBulkAction(true);
+    if (action === "approve") {
+      setShowApproveModal(true);
+    } else {
+      setShowRejectModal(true);
+    }
+  };
 
-    const status = action === "approve" ? "approved" : "rejected";
-    bulkReviewMutation.mutate({
-      verificationIds: selectedVerifications,
-      status,
-      review_note,
-    });
+  const handleApproveConfirm = () => {
+    if (isBulkAction) {
+      bulkReviewMutation.mutate({
+        verificationIds: selectedVerifications,
+        status: "approved",
+        review_note: "",
+      });
+    } else {
+      reviewMutation.mutate({
+        verificationId: currentVerificationId,
+        status: "approved",
+        review_note: "",
+      });
+    }
+    setShowApproveModal(false);
+    setCurrentVerificationId(null);
+    setIsBulkAction(false);
+  };
+
+  const handleRejectConfirm = () => {
+    if (!rejectReason.trim()) {
+      toast.error("Please provide a reason for rejection");
+      return;
+    }
+
+    if (isBulkAction) {
+      bulkReviewMutation.mutate({
+        verificationIds: selectedVerifications,
+        status: "rejected",
+        review_note: rejectReason,
+      });
+    } else {
+      reviewMutation.mutate({
+        verificationId: currentVerificationId,
+        status: "rejected",
+        review_note: rejectReason,
+      });
+    }
+    setShowRejectModal(false);
+    setRejectReason("");
+    setCurrentVerificationId(null);
+    setIsBulkAction(false);
   };
 
   const handleViewDetails = (verificationId) => {
@@ -571,6 +614,104 @@ const Verifications = () => {
           </div>
         )}
       </div>
+
+      {/* Approve Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showApproveModal}
+        onClose={() => {
+          setShowApproveModal(false);
+          setCurrentVerificationId(null);
+          setIsBulkAction(false);
+        }}
+        onConfirm={handleApproveConfirm}
+        title={
+          isBulkAction
+            ? "Approve Selected Verifications"
+            : "Approve Verification"
+        }
+        message={
+          isBulkAction
+            ? `Are you sure you want to approve ${selectedVerifications.length} verification(s)?`
+            : "Are you sure you want to approve this verification?"
+        }
+        confirmText="Approve"
+        confirmButtonClass="bg-green-600 hover:bg-green-700"
+        icon={Check}
+        iconBgClass="bg-green-100"
+        iconColorClass="text-green-600"
+        isLoading={reviewMutation.isPending || bulkReviewMutation.isPending}
+      />
+
+      {/* Reject Modal with Reason */}
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+                <X className="w-8 h-8 text-red-600" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                {isBulkAction
+                  ? "Reject Selected Verifications"
+                  : "Reject Verification"}
+              </h2>
+              <p className="text-gray-600">
+                {isBulkAction
+                  ? `Please provide a reason for rejecting ${selectedVerifications.length} verification(s).`
+                  : "Please provide a reason for rejecting this verification."}
+              </p>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Rejection Reason
+              </label>
+              <textarea
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                placeholder="Enter the reason for rejection..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setRejectReason("");
+                  setCurrentVerificationId(null);
+                  setIsBulkAction(false);
+                }}
+                className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                disabled={
+                  reviewMutation.isPending || bulkReviewMutation.isPending
+                }
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRejectConfirm}
+                disabled={
+                  !rejectReason.trim() ||
+                  reviewMutation.isPending ||
+                  bulkReviewMutation.isPending
+                }
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {reviewMutation.isPending || bulkReviewMutation.isPending ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    Rejecting...
+                  </div>
+                ) : (
+                  "Reject"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminDashboardLayout>
   );
 };
