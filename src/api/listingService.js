@@ -3,21 +3,25 @@ import apiClient from "./apiClient";
 export const listingService = {
   // Create a new listing
   createListing: async (listingData) => {
-    const response = await apiClient.post('/api/listings', {
-      item_name: listingData.itemName,
-      category: listingData.category,
-      price: parseFloat(listingData.price),
-      description: listingData.description,
-      condition: listingData.condition,
-      colour: listingData.colour,
-      material: listingData.material,
-      state: listingData.state,
-      local_government: listingData.localGovernment
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await apiClient.post(
+      "/api/listings",
+      {
+        item_name: listingData.itemName,
+        category: listingData.category,
+        price: parseFloat(listingData.price),
+        description: listingData.description,
+        condition: listingData.condition,
+        colour: listingData.colour,
+        material: listingData.material,
+        state: listingData.state,
+        local_government: listingData.localGovernment,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    });
+    );
     return response.data;
   },
 
@@ -27,20 +31,24 @@ export const listingService = {
 
     // Add all files to the FormData
     files.forEach((file) => {
-      formData.append('files', file.file || file);
+      formData.append("files", file.file || file);
     });
 
-    const response = await apiClient.post(`/api/listings/${listingId}/images`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    const response = await apiClient.post(
+      `/api/listings/${listingId}/images`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       }
-    });
+    );
     return response.data;
   },
 
   // Get user's listings
   getUserListings: async () => {
-    const response = await apiClient.get('/api/listings/my');
+    const response = await apiClient.get("/api/listings/my");
     return response.data;
   },
 
@@ -61,7 +69,7 @@ export const listingService = {
       colour: listingData.colour,
       material: listingData.material,
       state: listingData.state,
-      local_government: listingData.local_government
+      local_government: listingData.local_government,
     });
     return response.data;
   },
@@ -74,7 +82,9 @@ export const listingService = {
 
   // Mark listing as sold
   markAsSold: async (listingId) => {
-    const response = await apiClient.patch(`/api/listings/${listingId}/mark-sold`);
+    const response = await apiClient.patch(
+      `/api/listings/${listingId}/mark-sold`
+    );
     return response.data;
   },
 
@@ -82,14 +92,21 @@ export const listingService = {
   getAllListings: async (params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.category) queryParams.append('category', params.category);
-    if (params.state) queryParams.append('state', params.state);
-    if (params.minPrice) queryParams.append('min_price', params.minPrice);
-    if (params.maxPrice) queryParams.append('max_price', params.maxPrice);
-    if (params.condition) queryParams.append('condition', params.condition);
-    if (params.search) queryParams.append('search', params.search);
+    if (params.category) queryParams.append("category", params.category);
+    if (params.state) queryParams.append("state", params.state);
+    if (params.minPrice !== undefined && params.minPrice !== null) {
+      queryParams.append("min_price", params.minPrice);
+    }
+    if (params.maxPrice !== undefined && params.maxPrice !== null) {
+      queryParams.append("max_price", params.maxPrice);
+    }
+    if (params.condition) queryParams.append("condition", params.condition);
+    if (params.search) queryParams.append("search", params.search);
 
-    const url = queryParams.toString() ? `/api/listings?${queryParams.toString()}` : '/api/listings';
+    const url = queryParams.toString()
+      ? `/api/listings?${queryParams.toString()}`
+      : "/api/listings";
+    console.log("API Request URL:", url);
     const response = await apiClient.get(url);
     return response.data;
   },
@@ -98,12 +115,12 @@ export const listingService = {
   getCampusListings: async (campusId, params = {}) => {
     const queryParams = new URLSearchParams();
 
-    if (params.page) queryParams.append('page', params.page);
-    if (params.limit) queryParams.append('limit', params.limit);
-    if (params.search) queryParams.append('search', params.search);
-    if (params.status) queryParams.append('status', params.status);
-    if (params.category) queryParams.append('category', params.category);
-    if (params.type) queryParams.append('type', params.type);
+    if (params.page) queryParams.append("page", params.page);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.search) queryParams.append("search", params.search);
+    if (params.status) queryParams.append("status", params.status);
+    if (params.category) queryParams.append("category", params.category);
+    if (params.type) queryParams.append("type", params.type);
 
     const url = queryParams.toString()
       ? `/api/listings/campus/${campusId}?${queryParams.toString()}`
@@ -114,10 +131,13 @@ export const listingService = {
 
   // Approve or reject listing
   reviewListing: async (listingId, status, review_note = "") => {
-    const response = await apiClient.post(`/api/listings/${listingId}/approve`, {
-      action: status === "approved" ? "approve" : "reject",
-      reason: review_note || "",
-    });
+    const response = await apiClient.post(
+      `/api/listings/${listingId}/approve`,
+      {
+        action: status === "approved" ? "approve" : "reject",
+        reason: review_note || "",
+      }
+    );
     return response.data;
   },
 
@@ -129,5 +149,5 @@ export const listingService = {
       reason: review_note || "",
     });
     return response.data;
-  }
+  },
 };

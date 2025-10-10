@@ -292,6 +292,7 @@ const CreateItemListing = () => {
           <option value="appliances">Appliances</option>
           <option value="clothing">Clothing</option>
           <option value="sports">Sports & Recreation</option>
+          <option value="beauty-personal-care">Beauty & Personal Care</option>
           <option value="other">Other</option>
         </select>
         {errors.category && (
@@ -500,7 +501,6 @@ const CreateItemListing = () => {
           <option value="kano">Kano</option>
           <option value="oyo">Oyo</option>
           <option value="kaduna">Kaduna</option>
-          <option value="other">Other</option>
         </select>
         {errors.state && (
           <p className="text-red-500 text-sm mt-1">{errors.state}</p>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import ProductCard from "@/components/ui/ProductCard";
@@ -46,11 +46,11 @@ const fetchItemsMock = async ({
     allProducts = allProducts.filter((p) => p.category === filters.category);
   }
   if (filters.condition && filters.condition !== "All") {
-    allProducts = allProducts.filter((p) => p.category === filters.condition);
+    allProducts = allProducts.filter((p) => p.condition === filters.condition);
   }
   if (filters.location && filters.location !== "All") {
     allProducts = allProducts.filter((p) =>
-      p.location.includes(filters.location.split(" ")[0])
+      p.location.toLowerCase().includes(filters.location.toLowerCase())
     );
   }
   if (filters.priceRange) {
@@ -109,23 +109,66 @@ const fetchItems = async ({
     }
 
     if (filters.location && filters.location !== "All") {
-      params.state = filters.location.split(" ")[0]; // Extract state name
+      params.state = filters.location; // Use the state name directly
     }
 
     if (filters.priceRange) {
       const { from, to } = filters.priceRange;
-      if (from) params.minPrice = Number(from);
-      if (to) params.maxPrice = Number(to);
+      if (from !== "" && from !== undefined && from !== null) {
+        params.minPrice = Number(from);
+      }
+      if (to !== "" && to !== undefined && to !== null) {
+        params.maxPrice = Number(to);
+      }
     }
 
     // Fetch from API
+    console.log("Fetching listings with params:", params);
     const response = await listingService.getAllListings(params);
+    console.log("API response:", response);
 
     // Transform API response to match expected format
     let items = response.data || response || [];
 
     // Filter to only show approved items
     items = items.filter((item) => item.status === "approved");
+
+    // Client-side filtering (backup since backend doesn't filter properly)
+    if (params.category) {
+      items = items.filter((item) => item.category === params.category);
+      console.log("After category filter:", items.length);
+    }
+
+    if (params.condition) {
+      items = items.filter((item) => item.condition === params.condition);
+      console.log("After condition filter:", items.length);
+    }
+
+    if (params.minPrice !== undefined && params.minPrice !== null) {
+      items = items.filter((item) => item.price >= params.minPrice);
+      console.log("After minPrice filter:", items.length);
+    }
+
+    if (params.maxPrice !== undefined && params.maxPrice !== null) {
+      items = items.filter((item) => item.price <= params.maxPrice);
+      console.log("After maxPrice filter:", items.length);
+    }
+
+    if (params.state) {
+      items = items.filter((item) => item.state === params.state);
+      console.log("After state filter:", items.length);
+    }
+
+    if (params.search) {
+      const searchLower = params.search.toLowerCase();
+      items = items.filter(
+        (item) =>
+          item.item_name?.toLowerCase().includes(searchLower) ||
+          item.description?.toLowerCase().includes(searchLower) ||
+          item.category?.toLowerCase().includes(searchLower)
+      );
+      console.log("After search filter:", items.length);
+    }
 
     // Client-side sorting (before transformation, using raw price values)
     items.sort((a, b) => {
@@ -192,6 +235,17 @@ const ItemListing = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchQuery(searchInput);
+      setCurrentPage(1); // Reset to first page on search
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
 
   // Updated useQuery to be aware of filters and search
   const { data, isLoading, error } = useQuery({
@@ -231,8 +285,7 @@ const ItemListing = () => {
 
   // Handler for search input
   const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1); // Go back to page 1 when search changes
+    setSearchInput(e.target.value);
   };
 
   const getPageNumbers = () => {
@@ -297,11 +350,31 @@ const ItemListing = () => {
               </div>
               <input
                 type="text"
-                value={searchQuery}
+                value={searchInput}
                 onChange={handleSearchChange}
-                placeholder="Search by name, description, category, location..."
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition duration-300"
+                placeholder="Search by name, description, category..."
+                className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 transition duration-300"
               />
+              {searchInput && (
+                <button
+                  onClick={() => setSearchInput("")}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-400 hover:text-gray-600"
+                >
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              )}
             </div>
           </div>
 
