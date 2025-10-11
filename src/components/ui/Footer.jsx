@@ -1,10 +1,10 @@
 import { memo } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../common/Logo";
-import Facebook from "@/assets/icons/facebook.svg";
 import Twitter from "@/assets/icons/twitter.svg";
 import LinkedIn from "@/assets/icons/LinkedIn.svg";
 import TikTok from "@/assets/icons/tiktok.svg";
+import Instagram from "@/assets/icons/instagram.png";
 
 const NAVIGATION_SECTIONS = {
   platform: [
@@ -28,10 +28,10 @@ const NAVIGATION_SECTIONS = {
 };
 
 const SOCIAL_LINKS = [
-  { icon: Facebook, alt: "Facebook", href: "#" },
-  { icon: Twitter, alt: "Twitter", href: "#" },
-  { icon: LinkedIn, alt: "LinkedIn", href: "#" },
-  { icon: TikTok, alt: "TikTok", href: "#" },
+  { icon: Instagram, alt: "Instagram", href: "https://www.instagram.com/studexng" },
+  { icon: Twitter, alt: "Twitter", href: "https://x.com/StudexNG" },
+  { icon: LinkedIn, alt: "LinkedIn", href: "https://www.linkedin.com/company/studex-ng/" },
+  { icon: TikTok, alt: "TikTok", href: "https://www.tiktok.com/@studex.ng" },
 ];
 
 const CONTACT_EMAILS = ["StudEx@hotmail.com", "StudEx@gmail.com"];
@@ -81,6 +81,8 @@ const SocialLinks = () => (
       <a
         key={alt}
         href={href}
+        target="_blank"
+        rel="noopener noreferrer"
         className="text-gray-300 hover:text-white hover:-translate-y-1 transition-all duration-300 inline-block"
       >
         <img src={icon} alt={alt} className="w-6 h-6" />
@@ -129,7 +131,7 @@ const Footer = memo(() => {
 
         {/* Bottom section with copyright and social links */}
       </div>
-      <div className="flex relative z-10 justify-between px-4 lg:px-8 py-6 lg:py-14 items-center border-t border-gray-600 backdrop-blur bg-accent-foreground/20">
+      <div className="flex relative z-10 justify-between px-4 lg:px-20 py-6 lg:py-10 items-center border-t border-gray-600 backdrop-blur bg-accent-foreground/20">
         <div className="flex  items-center">
           <span className="text-white">© 2025 StudEx.ng</span>
         </div>
