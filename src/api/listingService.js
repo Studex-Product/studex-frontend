@@ -150,4 +150,25 @@ export const listingService = {
     });
     return response.data;
   },
+
+  // Get roommate listings
+  getRoommates: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.state) queryParams.append("state", params.state);
+    if (params.minPrice !== undefined && params.minPrice !== null) {
+      queryParams.append("min_price", params.minPrice);
+    }
+    if (params.maxPrice !== undefined && params.maxPrice !== null) {
+      queryParams.append("max_price", params.maxPrice);
+    }
+    if (params.search) queryParams.append("search", params.search);
+
+    const url = queryParams.toString()
+      ? `/api/roommates?${queryParams.toString()}`
+      : "/api/roommates";
+    console.log("Roommates API Request URL:", url);
+    const response = await apiClient.get(url);
+    return response.data;
+  },
 };

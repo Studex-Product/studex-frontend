@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { listingService } from "@/api/listingService";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import {
@@ -19,6 +20,7 @@ import {
   X,
   Info,
   CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
 import Loader from "@/assets/Loader.svg";
 
@@ -28,6 +30,7 @@ const MyPostDetail = () => {
   const queryClient = useQueryClient();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showMarkAsSoldModal, setShowMarkAsSoldModal] = useState(false);
 
   // Fetch listing details
   const {
@@ -88,10 +91,16 @@ const MyPostDetail = () => {
 
   const confirmDelete = () => {
     deleteMutation.mutate(listingId);
+    setShowDeleteModal(false);
   };
 
   const handleMarkAsSold = () => {
+    setShowMarkAsSoldModal(true);
+  };
+
+  const confirmMarkAsSold = () => {
     markAsSoldMutation.mutate(listingId);
+    setShowMarkAsSoldModal(false);
   };
 
   const getStatusBadge = (status) => {
@@ -177,52 +186,64 @@ const MyPostDetail = () => {
     <DashboardLayout>
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={handleBack}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex-shrink-0"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Listing Details
               </h1>
-              <p className="text-gray-600">View your listing information</p>
+              <p className="text-sm sm:text-base text-gray-600 hidden sm:block">
+                View your listing information
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button
               onClick={handleEdit}
-              className="flex items-center gap-2 px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-200"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 border border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors duration-200 text-sm sm:text-base cursor-pointer"
             >
               <Edit className="w-4 h-4" />
-              Edit
+              <span className="hidden xs:inline">Edit</span>
             </button>
             <button
               onClick={handleMarkAsSold}
-              disabled={markAsSoldMutation.isPending}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50"
+              disabled={
+                markAsSoldMutation.isPending ||
+                listing?.status?.toLowerCase() !== "approved"
+              }
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base cursor-pointer flex-1 sm:flex-initial justify-center"
+              title={
+                listing?.status?.toLowerCase() !== "approved"
+                  ? "Only active listings can be marked as sold"
+                  : ""
+              }
             >
               {markAsSoldMutation.isPending ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
               ) : (
                 <CheckCircle className="w-4 h-4" />
               )}
-              Mark as Sold
+              <span className="whitespace-nowrap">Mark as Sold</span>
             </button>
             <button
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 text-sm sm:text-base cursor-pointer"
             >
               {deleteMutation.isPending ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
               ) : (
                 <Trash2 className="w-4 h-4" />
               )}
-              Delete
+              <span className="hidden xs:inline">Delete</span>
             </button>
           </div>
         </div>
@@ -466,48 +487,35 @@ const MyPostDetail = () => {
           </div>
         )}
 
+        {/* Mark as Sold Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={showMarkAsSoldModal}
+          onClose={() => setShowMarkAsSoldModal(false)}
+          onConfirm={confirmMarkAsSold}
+          title="Mark as Sold"
+          message="Are you sure you want to mark this listing as sold? This will remove it from active listings."
+          confirmText="Mark as Sold"
+          confirmButtonClass="bg-green-600 hover:bg-green-700"
+          icon={CheckCircle}
+          iconBgClass="bg-green-100"
+          iconColorClass="text-green-600"
+          isLoading={markAsSoldMutation.isPending}
+        />
+
         {/* Delete Confirmation Modal */}
-        {showDeleteModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-              <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-                  <Trash2 className="w-8 h-8 text-red-600" />
-                </div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                  Delete Listing
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  Are you sure you want to delete this listing? This action
-                  cannot be undone.
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowDeleteModal(false)}
-                    className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                    disabled={deleteMutation.isPending}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={confirmDelete}
-                    disabled={deleteMutation.isPending}
-                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {deleteMutation.isPending ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Deleting...
-                      </div>
-                    ) : (
-                      "Delete"
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmationModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={confirmDelete}
+          title="Delete Listing"
+          message="Are you sure you want to delete this listing? This action cannot be undone."
+          confirmText="Delete"
+          confirmButtonClass="bg-red-600 hover:bg-red-700"
+          icon={Trash2}
+          iconBgClass="bg-red-100"
+          iconColorClass="text-red-600"
+          isLoading={deleteMutation.isPending}
+        />
       </div>
     </DashboardLayout>
   );

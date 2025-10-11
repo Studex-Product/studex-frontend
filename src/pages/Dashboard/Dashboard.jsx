@@ -132,12 +132,10 @@ const fetchRoommateMatchesMock = async () => {
 };
 
 // Real API service - fetches roommate matches
-// TODO: Update when roommate API endpoint is available
 const fetchRoommateMatches = async () => {
   try {
-    // For now, fetch listings with type 'room' or 'roommate' filter
-    // This assumes the API supports filtering by type
-    const response = await listingService.getAllListings({ type: "room" });
+    // Fetch from dedicated roommates endpoint
+    const response = await listingService.getRoommates();
     let items = response.data || response || [];
 
     // Filter to only show approved roommate/room listings
@@ -186,6 +184,16 @@ const fetchRoommateMatches = async () => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [showAdBanner, setShowAdBanner] = React.useState(true);
+
+  // Auto-hide ad banner after 3 seconds
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowAdBanner(false);
+    }, 3000); // 3 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Fetch recent items
   const {
@@ -221,48 +229,69 @@ const Dashboard = () => {
       <div className="px-6">
         <EmailVerificationBanner />
         <ProfileCompletionBanner />
-        {/* Hero Banner */}
-        <div className="bg-[url('@/assets/images/DashBannerBg.png')] bg-cover bg-no-repeat rounded-2xl p-8 mb-8 relative overflow-hidden">
-          <div className="relative z-10 flex items-center justify-between">
-            <div className="text-white max-w-lg">
-              <p className="text-sm font-medium text-purple-100 mb-2">
-                BEST CHOICE FOR STUDENTS
-              </p>
-              <h1 className="text-3xl font-semibold mb-4">
-                ONE PLATFORM, EVERY NEED
-              </h1>
-              <p className="text-purple-100 mb-6 leading-relaxed">
-                Buy, sell, and find roommates around you in one place, built to
-                make campus life easier, and affordable.
-              </p>
-              <button
-                onClick={() => handleViewAll("items")}
-                className="bg-white text-purple-800 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors cursor-pointer"
-              >
-                View Listing
-              </button>
-            </div>
 
-            {/* Hero Image */}
-            <div className="hidden md:block">
-              <img
-                src={DashBannerImg}
-                alt="Students studying together"
-                className="w-80 h-48 object-cover rounded-lg"
-              />
+        {/* Ad Banner or Hero Banner */}
+        {showAdBanner ? (
+          /* Ad Banner - Shows for 3 seconds */
+          <div className="bg-gradient-to-r from-green-500 via-pink-400 to-purple-600 rounded-2xl p-8 mb-8 relative overflow-hidden animate-pulse">
+            <div className="relative z-10 flex items-center justify-center min-h-[200px]">
+              <div className="text-center text-white">
+                <h2 className="text-3xl md:text-5xl font-bold mb-4">
+                  Place Your Ad Here!
+                </h2>
+                <p className="text-lg md:text-xl font-medium opacity-90">
+                  Reach thousands of students on campus
+                </p>
+                <p className="text-sm md:text-base mt-2 opacity-75">
+                  Contact us for advertising opportunities
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          /* Hero Banner */
+          <div className="bg-[url('@/assets/images/DashBannerBg.png')] bg-cover bg-no-repeat rounded-2xl p-8 mb-8 relative overflow-hidden">
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="text-white max-w-lg">
+                <p className="text-sm font-medium text-purple-100 mb-2">
+                  BEST CHOICE FOR STUDENTS
+                </p>
+                <h1 className="text-xl md:text-3xl font-semibold mb-4">
+                  ONE PLATFORM, EVERY NEED
+                </h1>
+                <p className="text-purple-100 max-sm:text-sm mb-6 leading-relaxed">
+                  Buy, sell, and find roommates around you in one place, built
+                  to make campus life easier, and affordable.
+                </p>
+                <button
+                  onClick={() => handleViewAll("items")}
+                  className="bg-white text-purple-800 max-sm:text-sm px-3 py-1 md:px-6 md:py-3 rounded-md font-medium hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  View Listings
+                </button>
+              </div>
+
+              {/* Hero Image */}
+              <div className="hidden md:block">
+                <img
+                  src={DashBannerImg}
+                  alt="Students studying together"
+                  className="w-80 h-48 object-cover rounded-lg"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Recently Listed Items Section */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
+            <h2 className="text-lg md:text-2xl font-semibold text-gray-900">
               Recently listed items
             </h2>
             <button
               onClick={() => handleViewAll("items")}
-              className="text-purple-600 hover:text-purple-700 font-medium flex items-center gap-3 cursor-pointer"
+              className="max-sm:text-xs text-purple-600 hover:text-purple-700 font-medium flex items-center gap-3 cursor-pointer"
             >
               View all
               <img src={ChevronRightPurple} alt="icon" />
@@ -271,7 +300,7 @@ const Dashboard = () => {
 
           {/* Items Grid */}
           {itemsLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, index) => (
                 <div
                   key={index}
@@ -291,7 +320,7 @@ const Dashboard = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recentItems.map((item) => (
                 <ProductCard
                   key={item.id}
@@ -311,12 +340,12 @@ const Dashboard = () => {
         {/* Roommate & Apartment Matches Section */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-semibold text-gray-900">
+            <h2 className="md:text-2xl font-semibold text-gray-900">
               Roommate & Apartment Matches
             </h2>
             <button
               onClick={() => handleViewAll("roommates")}
-              className="text-purple-600 hover:text-purple-700 font-medium flex items-center gap-3 cursor-pointer"
+              className="max-sm:text-xs text-purple-600 hover:text-purple-700 font-medium flex items-center gap-3 cursor-pointer"
             >
               View all
               <img src={ChevronRightPurple} alt="icon" />

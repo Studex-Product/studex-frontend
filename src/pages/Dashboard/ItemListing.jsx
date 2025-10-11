@@ -409,7 +409,7 @@ const ItemListing = () => {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {[...Array(9)].map((_, index) => (
               <div
                 key={index}
@@ -447,7 +447,7 @@ const ItemListing = () => {
                 <div
                   className={
                     viewMode === "grid"
-                      ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                      ? "grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
                       : "space-y-4 mb-8"
                   }
                 >
