@@ -1,3 +1,4 @@
+import {useNavigate} from "react-router-dom";
 import Header from "@/components/common/Header";
 import Hero from "@/components/ui/HeroSection";
 import FeatureCard from "@/components/ui/FeatureCard";
@@ -14,6 +15,11 @@ import FAQ from "@/components/ui/FAQitem";
 import ScrollToTopButton from "@/components/common/ScrollToTopButton";
 
 const Home = () => {
+  const navigate = useNavigate();
+
+  const handleNavigation = (path) => {
+    navigate(path);
+  }
   return (
     <>
       <main className="w-full bg-accent">
@@ -116,7 +122,10 @@ const Home = () => {
           </div>
 
           <div className="flex justify-center">
-            <button className="bg-[#9046CF] text-white font-semibold py-3  rounded-lg hover:bg-purple-700 w-full md:w-[30%] transition">
+            <button
+              onClick={() => handleNavigation("/items")}
+              className="bg-[#9046CF] text-white font-semibold py-3  rounded-lg hover:bg-purple-700 w-full md:w-[30%] transition-all duration-200 cursor-pointer"
+            >
               Browse Listings
             </button>
           </div>

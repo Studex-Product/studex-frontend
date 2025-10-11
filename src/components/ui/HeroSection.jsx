@@ -26,7 +26,7 @@ const HeroSection = () => {
           {/* CTA Buttons */}
           <div className="flex gap-5 sm:gap-8 justify-center">
             <button
-              onClick={() => handleNavigation("/listing")}
+              onClick={() => handleNavigation("/items")}
               className="bg-[#9046CF] text-white max-sm:w-full px-4 sm:px-8 py-2 sm:py-3 rounded-lg font-medium text-lg hover:bg-purple-700 transition-colors cursor-pointer"
             >
               Browse Listing

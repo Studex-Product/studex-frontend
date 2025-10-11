@@ -47,32 +47,32 @@ function FAQ() {
         {
             id: 'q1',
             question: 'Who can use StudEx?',
-            answer: 'Only verified students from recognized Nigerian universities can use StudEx. Verification keeps our community safe and ensures you are only dealing with genuine students'
+            answer: 'Any student from recognized Nigerian universities can fully use all the features StudEx offers. e.g listing items, finding roommates, and accessing student services.'
         },
         {
             id: 'q2',
             question: 'Is verification compulsory?',
-            answer: 'Only verified students from recognized Nigerian universities can use StudEx. Verification keeps our community safe and ensures you are only dealing with genuine students'
+            answer: 'Yes, verification is compulsory. Only verified students from recognized Nigerian universities can use fully StudEx. Verification keeps our community safe and ensures you are only dealing with genuine students'
         },
         {
             id: 'q3',
             question: 'How safe is buying and selling on StudEx?',
-            answer: 'Only verified students from recognized Nigerian universities can use StudEx. Verification keeps our community safe and ensures you are only dealing with genuine students'
+            answer: 'Buying and selling on StudEx is safe. We prioritize user safety through our verification process, in-app warnings, a reporting system, and a review system that promotes trust within our community.'
         },
         {
             id: 'q4',
             question: 'What kind of items can I sell on StudEx?',
-            answer: 'Only verified students from recognized Nigerian universities can use StudEx. Verification keeps our community safe and ensures you are only dealing with genuine students'
+            answer: 'You can sell a wide range of items on StudEx, including textbooks, electronics, furniture, clothing, and more. Just ensure that your items comply with our community guidelines and are appropriate for a student marketplace.'
         },
         {
             id: 'q5',
             question: 'Is it free to list an item?',
-            answer: 'Only verified students from recognized Nigerian universities can use StudEx. Verification keeps our community safe and ensures you are only dealing with genuine students'
+            answer: 'Yes, it is totally free to list an item on StudEx. However, only verified students can list items for sale.'
         },
         {
             id: 'q6',
             question: 'Can I sell to students from other universities?',
-            answer: 'Only verified students from recognized Nigerian universities can use StudEx. Verification keeps our community safe and ensures you are only dealing with genuine students'
+            answer: 'Yes, you can sell to students from other universities. But we recommend selling within your university for easier meetups and transactions.'
         }
     ];
 
