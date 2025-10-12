@@ -116,7 +116,7 @@ const ProductCard = ({
           {description}
         </p>
         <p className="text-[#3A3A3A] text-xl my-2 font-semibold">{price}</p>
-        <div className="flex items-center gap-1 text-[#595959] text-xs mt-auto">
+        <div className="flex items-center gap-1 text-[#595959] text-xs mt-auto capitalize">
           <img src={locationIcon} alt="location" className="w-4 h-4" />
           <span>{location}</span>
         </div>

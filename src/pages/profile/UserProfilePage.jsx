@@ -5,10 +5,10 @@ import { profileService } from "@/api/profileService";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import EditProfileModal from "@/pages/profile/modals/EditProfileModal";
 import Loader from "@/assets/Loader.svg";
+import Verified from "@/assets/icons/check-verified.svg";
 import {
   User,
   Edit,
-  ShieldCheck,
   Clock,
   Mail,
   Phone,
@@ -126,9 +126,10 @@ const UserProfilePage = () => {
       verificationStatus === "approved"
     ) {
       return (
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">
-          <ShieldCheck size={16} /> Verified
-        </span>
+        <div className="flex items-center max-sm:mx-auto gap-1 w-fit bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-md mt-1">
+          <img src={Verified} alt="Verified" className="w-4 h-4" />
+          <span>Verified</span>
+        </div>
       );
     }
     if (verificationStatus === "pending") {
@@ -167,7 +168,7 @@ const UserProfilePage = () => {
     lastName: profileData?.last_name || user?.last_name || "",
     email: profileData?.email || user?.email || "",
     phone: profileData?.phone || user?.phone || "",
-    dateOfBirth: profileData?.date_of_birth || user?.date_of_birth || "",
+    dateOfBirth: profileData?.dob || user?.dob || "",
     address: profileData?.address || user?.address || "",
     bio: profileData?.bio || profileData?.about_me || user?.aboutMe || "",
     school:
@@ -380,27 +381,29 @@ const UserProfilePage = () => {
               </div>
 
               {/* Right Column */}
-              <div className="space-y-6">
-                {/* Contact Information */}
-                <div className="bg-white rounded-lg shadow p-4">
+              <div className="">
+                {/* Account Information */}
+                <div className="bg-white rounded-lg shadow p-4 space-y-6">
                   <h2 className="text-lg font-medium text-gray-900 mb-4">
-                    Contact Information
+                    Account Information
                   </h2>
                   <div className="space-y-4">
-                    <div className="flex gap-3 items-center">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      <div>
-                        <p className="text-sm text-gray-600">Email</p>
-                        <p className="font-medium text-xs">{displayData.email}</p>
-                      </div>
+                    <div className="min-w-0">
+                      <p className="flex gap-1 items-center text-sm text-gray-600">
+                        <Mail className="w-4 h-4 text-gray-400" />
+                        Email
+                      </p>
+                      <p className="font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+                        {displayData.email}
+                      </p>
                     </div>
                     {displayData.phone && (
-                      <div className="flex items-center gap-3">
-                        <Phone className="w-4 h-4 text-gray-400" />
-                        <div>
-                          <p className="text-sm text-gray-600">Phone</p>
+                      <div className="">
+                          <p className="flex items-center gap-1 text-sm text-gray-600">
+                            <Phone className="w-4 h-4 text-gray-400" />
+                            Phone
+                          </p>
                           <p className="font-medium">{displayData.phone}</p>
-                        </div>
                       </div>
                     )}
                     {displayData.address && (
@@ -413,23 +416,17 @@ const UserProfilePage = () => {
                       </div>
                     )}
                   </div>
-                </div>
 
-                {/* Account Information */}
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h2 className="text-lg font-medium text-gray-900 mb-4">
-                    Account Information
-                  </h2>
                   <div className="space-y-4">
                     {displayData.dateOfBirth && (
-                      <div className="flex items-center gap-3">
-                        <Calendar className="w-4 h-4 text-gray-400" />
-                        <div>
-                          <p className="text-sm text-gray-600">Date of Birth</p>
-                          <p className="font-medium">
-                            {formatDate(displayData.dateOfBirth)}
-                          </p>
-                        </div>
+                      <div className="">
+                        <p className="flex gap-1 items-center text-sm text-gray-600">
+                          <Calendar className="w-4 h-4 text-gray-400" />
+                          Date of Birth
+                        </p>
+                        <p className="font-medium ">
+                          {formatDate(displayData.dateOfBirth)}
+                        </p>
                       </div>
                     )}
                     {displayData.joinedDate && (

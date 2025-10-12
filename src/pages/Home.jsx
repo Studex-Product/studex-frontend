@@ -1,4 +1,5 @@
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/common/Header";
 import Hero from "@/components/ui/HeroSection";
 import FeatureCard from "@/components/ui/FeatureCard";
@@ -13,13 +14,78 @@ import PreFooter from "@/components/ui/PreFooter";
 import Testimonial from "@/components/ui/TestimonialCard";
 import FAQ from "@/components/ui/FAQitem";
 import ScrollToTopButton from "@/components/common/ScrollToTopButton";
+import { listingService } from "@/api/listingService";
+
+// Mock API service (fallback)
+const fetchListingsMock = async () => {
+  // Simulate API call
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // Return sample data
+  return products.slice(0, 4);
+};
+
+// Real API service - fetches listings
+const fetchListings = async () => {
+  try {
+    const response = await listingService.getAllListings({});
+    let items = response.data || response || [];
+
+    // Filter to only show approved items
+    items = items.filter((item) => item.status === "approved");
+
+    // Sort by creation date (newest first)
+    items.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Take only first 8 items for home page
+    items = items.slice(0, 4);
+
+    // Transform to match ProductCard expectations
+    return items.map((item) => ({
+      id: item.id,
+      image:
+        item.image_urls && item.image_urls.length > 0
+          ? item.image_urls[0]
+          : null,
+      title: item.item_name,
+      description: item.description,
+      price: new Intl.NumberFormat("en-NG", {
+        style: "currency",
+        currency: "NGN",
+        minimumFractionDigits: 2,
+      }).format(item.price),
+      location:
+        item.state && item.local_government
+          ? `${item.local_government}, ${item.state}`
+          : item.state || "Location not specified",
+      category: item.condition || item.category || "Used",
+    }));
+  } catch (error) {
+    console.error(
+      "Error fetching listings from API, falling back to mock data:",
+      error
+    );
+    return fetchListingsMock();
+  }
+};
 
 const Home = () => {
   const navigate = useNavigate();
 
+  // Fetch listings
+  const {
+    data: listings = [],
+    isLoading: listingsLoading,
+    error: listingsError,
+  } = useQuery({
+    queryKey: ["homeListings"],
+    queryFn: fetchListings,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 1,
+  });
+
   const handleNavigation = (path) => {
     navigate(path);
-  }
+  };
   return (
     <>
       <main className="w-full bg-accent">
@@ -115,11 +181,34 @@ const Home = () => {
             Find roommates, furniture, and deals from real students near you.
           </p>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
-          </div>
+          {/* Products Grid */}
+          {listingsLoading ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[...Array(4)].map((_, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-lg shadow-md p-4 animate-pulse"
+                >
+                  <div className="bg-gray-200 h-48 rounded-lg mb-4"></div>
+                  <div className="bg-gray-200 h-4 rounded mb-2"></div>
+                  <div className="bg-gray-200 h-3 rounded w-3/4 mb-2"></div>
+                  <div className="bg-gray-200 h-5 rounded w-1/2"></div>
+                </div>
+              ))}
+            </div>
+          ) : listingsError ? (
+            <div className="text-center py-12">
+              <p className="text-gray-500">
+                Error loading items. Please try again later.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {listings.map((product) => (
+                <ProductCard key={product.id} {...product} />
+              ))}
+            </div>
+          )}
 
           <div className="flex justify-center">
             <button
