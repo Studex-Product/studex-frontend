@@ -186,7 +186,7 @@ const Register = () => {
             <strong>
               {formData.email.slice(0, 2)}*******{formData.email.slice(-10)}
             </strong>
-            . Please check your inbox and click the link to verify your email.
+            . Please check your inbox and spam folder and click the link to verify your email.
           </p>
 
           <div className="text-center mb-6">
