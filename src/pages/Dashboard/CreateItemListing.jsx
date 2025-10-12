@@ -39,6 +39,13 @@ const CreateItemListing = () => {
     localGovernment: "",
   });
 
+  const LGA = [
+  "Agege", "Ajeromi-Ifelodun", "Alimosho", "Amuwo-Odofin", "Apapa", "Badagry",
+  "Epe", "Eti Osa", "Ibeju-Lekki", "Ifako-Ijaiye", "Ikeja", "Ikorodu",
+  "Kosofe", "Lagos Island", "Lagos Mainland", "Mushin", "Ojo", "Oshodi-Isolo",
+  "Shomolu", "Surulere"
+];
+
   const [errors, setErrors] = useState({});
   const [createdListingId, setCreatedListingId] = useState(null);
 
@@ -445,7 +452,13 @@ const CreateItemListing = () => {
             <option value="blue">Blue</option>
             <option value="red">Red</option>
             <option value="green">Green</option>
-            <option value="other">Other</option>
+            <option value="yellow">Yellow</option>
+            <option value="brown">Brown</option>
+            <option value="grey">Grey</option>
+            <option value="pink">Pink</option>
+            <option value="purple">Purple</option>
+            <option value="orange">Orange</option>
+            <option value="other">Other - mention in description</option>
           </select>
           {errors.colour && (
             <p className="text-red-500 text-sm mt-1">{errors.colour}</p>
@@ -471,8 +484,10 @@ const CreateItemListing = () => {
             <option value="plastic">Plastic</option>
             <option value="glass">Glass</option>
             <option value="fabric">Fabric</option>
+            <option value="ceramic">Ceramic</option>
             <option value="leather">Leather</option>
-            <option value="other">Other</option>
+            <option value="stone">Foam</option>
+            <option value="other">Other - mention in description</option>
           </select>
           {errors.material && (
             <p className="text-red-500 text-sm mt-1">{errors.material}</p>
@@ -496,11 +511,6 @@ const CreateItemListing = () => {
         >
           <option value="">Select state</option>
           <option value="lagos">Lagos</option>
-          <option value="abuja">Abuja</option>
-          <option value="rivers">Rivers</option>
-          <option value="kano">Kano</option>
-          <option value="oyo">Oyo</option>
-          <option value="kaduna">Kaduna</option>
         </select>
         {errors.state && (
           <p className="text-red-500 text-sm mt-1">{errors.state}</p>
@@ -521,12 +531,12 @@ const CreateItemListing = () => {
               : "border-gray-300"
           }`}
         >
-          <option value="">Select LGA</option>
-          <option value="ikeja">Ikeja</option>
-          <option value="lekki">Lekki</option>
-          <option value="victoria-island">Victoria Island</option>
-          <option value="surulere">Surulere</option>
-          <option value="yaba">Yaba</option>
+          <option value="">Select LGA</option> 
+          {LGA.map((lga) => (
+            <option key={lga} value={lga}>
+              {lga}
+            </option>
+          ))}
           <option value="gbagada">Gbagada</option>
           <option value="other">Other</option>
         </select>

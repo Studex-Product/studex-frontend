@@ -49,7 +49,7 @@ const ProfileSetupFlow = () => {
       return;
     }
 
-    console.log("Profile setup complete with data:", profileData);
+    console.log("Profile setup complete with data:");
 
     try {
       // Map the data to match backend expectations
@@ -60,11 +60,11 @@ const ProfileSetupFlow = () => {
 
       // Send data to backend and update user context
       await completeProfileSetup.mutateAsync(submissionData);
-      toast.custom(() => (
-        <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
-          Profile setup completed successfully!
-        </div>
-      ));
+      // toast.custom(() => (
+      //   <div className="bg-white rounded-lg p-3 text-sm border-2 border-green-500 shadow-lg max-w-sm w-full break-words">
+      //     Profile setup completed successfully!
+      //   </div>
+      // ));
       // Navigate to profile page on success
       navigate("/profile");
     } catch (error) {

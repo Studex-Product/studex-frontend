@@ -184,7 +184,7 @@ const ProfilePictureStep = ({ profilePicture, onNext }) => {
             Gender
           </label>
           <div className="space-y-2">
-            {["Male", "Female", "Non-binary"].map((option) => (
+            {["Male", "Female"].map((option) => (
               <label key={option} className="flex items-center">
                 <input
                   type="radio"
