@@ -103,7 +103,7 @@ const CreateItemListing = () => {
       setIsSubmitting(false);
       toast.custom(() => (
         <div className="bg-white rounded-lg p-3 text-sm border-2 border-orange-500 shadow-lg max-w-sm w-full break-words">
-          Listing created but image upload failed. You can add images later.
+          Listing created but image upload failed. Please try recreating the listing.
         </div>
       ));
       navigate("/my-posts");
