@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Sets up the page, including the title and Tailwind CSS -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Service</title>
+    <!-- Include Tailwind CSS for a modern look and easy styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Sets the font for the body */
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f3f4f6;
+      }
+
+      /* Styles the modal overlay, making it full screen and semi-transparent */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.75);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+      }
+
+      /* Styles the modal container itself */
+      .modal-container {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        max-width: 600px;
+        width: 90%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Hides the modal by default */
+      .modal-hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center min-h-screen">
+    <!-- The Terms of Service Pop-up (Modal) -->
+    <div id="termsModal" class="modal-overlay">
+      <div class="modal-container">
+        <h2 class="text-3xl font-bold mb-4 text-center">Terms of Service</h2>
+        <div class="max-h-96 overflow-y-auto pr-4">
+          <!-- Main Body of the Terms of Service -->
+          <p class="mb-4 text-black italic">
+            Welcome to our product. These Terms of Service ("Terms") govern your
+            use of our website and services. By accessing or using our services,
+            you agree to be bound by these Terms.
+          </p>
+
+          <!-- Section 1: User Eligibility -->
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">
+            1. User Eligibility
+          </h3>
+          <p class="mb-4 text-black italic">
+            Our services are available only to individuals who are at least
+            eighteen (18) years of age. By using our services, you represent and
+            warrant that you are 18 years of age or older. If you are not 18
+            years of age, you must not use our services.
+          </p>
+
+          <!-- Section 2: Acceptable Use -->
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">
+            2. Acceptable Use
+          </h3>
+          <p class="mb-4 text-black italic">
+            You agree to use our services in a manner consistent with any and
+            all applicable laws and regulations. You shall not use our services
+            to post or transmit any content that is infringing, libelous,
+            defamatory, obscene, or otherwise harmful.
+          </p>
+
+          <!-- Section 3: Intellectual Property -->
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">
+            3. Intellectual Property
+          </h3>
+          <p class="mb-4 text-black italic">
+            All content and materials on this website, including but not limited
+            to text and design, are the property of Studex. You may not copy,
+            reproduce, or distribute any part of the content without express
+            written permission.
+          </p>
+
+          <!-- Section 4: Disclaimer of Warranties -->
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">
+            4. Disclaimer of Warranties
+          </h3>
+          <p class="mb-4 text-black italic">
+            The services are provided "as is" and without warranty of any kind.
+            We make no representations about the suitability or accuracy of the
+            content.
+          </p>
+
+          <h3 class="text-xl font-semibold mb-2 text-gray-800">
+            5. Changes to Terms
+          </h3>
+          <p class="mb-4 text-black italic">
+            We reserve the right to modify these Terms at any time. Your
+            continued use of the services after any changes indicates your
+            acceptance of the new Terms.
+          </p>
+        </div>
+
+        <!-- "I Agree" button to close the modal -->
+        <div class="mt-6 text-center">
+          <button
+            id="agreeBtn"
+            class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600 transition-colors"
+          >
+            I Agree to the Terms
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript to handle the modal -->
+    <script>
+      const agreeBtn = document.getElementById("agreeBtn");
+      const termsModal = document.getElementById("termsModal");
+
+      // This function handles the "I Agree" action.
+      function hideModal() {
+        termsModal.classList.add("modal-hidden");
+        // Redirect to registration page after agreeing
+        window.location.href = "/register";
+        // Here, you would call a function to proceed with the registration process.
+        console.log("User has agreed to the Terms of Service.");
+      }
+
+      // Add event listener to the agree button
+      agreeBtn.addEventListener("click", hideModal);
+    </script>
+  </body>
+</html>
