@@ -239,7 +239,7 @@ const PersonalInfoForm = ({
           >
             I agree to the{" "}
             <a
-              href="/docs/DataPrivay-UsePolicy.html"
+              href="/docs/terms.html"
               target="_blank"
               rel="noopener noreferrer"
               className="text-green-600 hover:text-green-800 underline font-medium"
